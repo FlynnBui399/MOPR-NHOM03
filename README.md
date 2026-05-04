@@ -36,9 +36,9 @@ A clean, iPhone-style calculator app for Android built with Java.
 ## Screenshots
 
 <p align="center">
-  <img src="Calculator/screenshot_portrait.png" width="220" alt="Portrait mode"/>
+  <img src="Calculator/screenshot_portrait.jpg" width="220" alt="Portrait mode"/>
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="Calculator/screenshot_landscape.png" width="420" alt="Landscape mode"/>
+  <img src="Calculator/screenshot_landscape.jpg" width="420" alt="Landscape mode"/>
 </p>
 
 <p align="center">
