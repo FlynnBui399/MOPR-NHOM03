@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onNumber(String num) {
-        // Nếu vừa tính xong mà bấm số mới → reset
+        // If a calculation was just completed and a new number is pressed, reset
         if (justCalculated) {
             expression.setLength(0);
             tvResult.setText("0");
@@ -48,16 +48,16 @@ public class MainActivity extends AppCompatActivity {
         }
         expression.append(num);
         tvExpression.setText(expression.toString());
-        // KHÔNG gọi updatePreview — chỉ hiện kết quả khi bấm =
+        // Do NOT call updatePreview - only show result when = is pressed
     }
 
     private void onOperator(String op) {
-        // Nếu vừa tính xong → giữ kết quả làm số đầu tiên
+        // If a calculation was just completed, keep the result as the first operand
         justCalculated = false;
         if (expression.length() > 0) {
             char last = expression.charAt(expression.length() - 1);
             if (last == '+' || last == '−' || last == '×' || last == '÷') {
-                // Thay operator cuối
+                // Replace the last operator
                 expression.setCharAt(expression.length() - 1, op.charAt(0));
             } else {
                 expression.append(op);
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
             expression.deleteCharAt(expression.length() - 1);
             tvExpression.setText(expression.toString());
         }
-        // Nếu xóa hết thì reset màn hình
+        // If everything is deleted, reset the display
         if (expression.length() == 0) {
             tvResult.setText("0");
         }
@@ -109,13 +109,13 @@ public class MainActivity extends AppCompatActivity {
         String expr = expression.toString();
         try {
             double result = evaluate(expr);
-            // Format: bỏ .0 nếu là số nguyên
+            // Format: remove .0 if the result is an integer
             String resultStr = (result == Math.floor(result) && !Double.isInfinite(result))
                     ? String.valueOf((long) result)
                     : String.valueOf(result);
             tvExpression.setText(expr + " =");
             tvResult.setText(resultStr);
-            // Lưu kết quả để dùng tiếp
+            // Save the result for continued use
             expression.setLength(0);
             expression.append(resultStr);
             justCalculated = true;
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // ---- Recursive Descent Parser: đúng thứ tự ưu tiên × ÷ trước + − ----
+    // ---- Recursive Descent Parser: correct precedence, * / before + - ----
     private int pos;
     private String evalExpr;
 
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    // Cộng trừ — ưu tiên thấp nhất
+    // Addition and subtraction - lowest precedence
     private double parseExpr() {
         double val = parseTerm();
         while (pos < evalExpr.length()) {
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         return val;
     }
 
-    // Nhân chia — ưu tiên cao hơn
+    // Multiplication and division - higher precedence
     private double parseTerm() {
         double val = parseFactor();
         while (pos < evalExpr.length()) {
@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
             else if (c == '/') {
                 pos++;
                 double d = parseFactor();
-                if (d == 0) throw new ArithmeticException("Chia cho 0");
+                if (d == 0) throw new ArithmeticException("Division by zero");
                 val /= d;
             }
             else break;
@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         return val;
     }
 
-    // Số, ngoặc, số âm
+    // Number, parentheses, negative number
     private double parseFactor() {
         if (pos >= evalExpr.length()) throw new RuntimeException("Unexpected end");
         char c = evalExpr.charAt(pos);
