@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="retro_bg">#000000</color>
+    <color name="retro_display_bg">#000000</color>
+    <color name="retro_display_text">#FFFFFF</color>
+    <color name="retro_display_expr">#999999</color>
+
+    <!-- Số: xám đậm -->
+    <color name="btn_number_bg">#333333</color>
+    <color name="btn_number_text">#FFFFFF</color>
+    <color name="btn_number_pressed">#737373</color>
+
+    <!-- Toán tử: cam -->
+    <color name="btn_operator_bg">#FF9500</color>
+    <color name="btn_operator_text">#FFFFFF</color>
+    <color name="btn_operator_pressed">#FFB143</color>
+
+    <!-- Bằng: cam -->
+    <color name="btn_equal_bg">#FF9500</color>
+    <color name="btn_equal_text">#FFFFFF</color>
+
+    <!-- AC / DEL: xám nhạt -->
+    <color name="btn_clear_bg">#A5A5A5</color>
+    <color name="btn_clear_text">#000000</color>
+    <color name="btn_clear_pressed">#D4D4D4</color>
+
+    <!-- Ngoặc: xám nhạt giống AC -->
+    <color name="btn_paren_bg">#A5A5A5</color>
+    <color name="btn_paren_text">#000000</color>
+</resources>
