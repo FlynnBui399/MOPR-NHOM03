@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Register-->
+<resources>
+    <!--Register-->
+    <string name="app_name">Fomos</string>
+
+    <!-- Register screen -->
+    <string name="register_title">Tạo tài khoản</string>
+    <string name="register_subtitle">Đăng ký để bắt đầu đặt món</string>
+    <string name="register_button">ĐĂNG KÝ</string>
+    <string name="register_or_with">Hoặc đăng ký với</string>
+
+    <!-- Fields -->
+    <string name="label_full_name">Họ và tên</string>
+    <string name="hint_full_name">Nhập họ và tên</string>
+    <string name="label_phone">Số điện thoại</string>
+    <string name="hint_phone">Nhập số điện thoại</string>
+    <string name="label_email">Email</string>
+    <string name="hint_email">Nhập địa chỉ email</string>
+    <string name="label_password">Mật khẩu</string>
+    <string name="hint_password">Tạo mật khẩu</string>
+    <string name="label_confirm_password">Xác nhận mật khẩu</string>
+    <string name="hint_confirm_password">Nhập lại mật khẩu</string>
+
+    <!-- Terms -->
+    <string name="terms_agree">Tôi đồng ý với </string>
+    <string name="terms_service">Điều khoản dịch vụ</string>
+    <string name="terms_and"> và </string>
+    <string name="terms_privacy">Chính sách bảo mật</string>
+
+    <!-- Social login -->
+    <string name="login_google">Google</string>
+    <string name="login_facebook">Facebook</string>
+
+    <!-- Footer -->
+    <string name="already_have_account">Đã có tài khoản? </string>
+    <string name="login_link">Đăng nhập</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_back">Quay lại</string>
+    <string name="cd_logo">Logo Fomos</string>
+    <string name="cd_toggle_password">Hiện/ẩn mật khẩu</string>
+    <string name="cd_icon_person">Tên người dùng</string>
+    <string name="cd_icon_phone">Số điện thoại</string>
+    <string name="cd_icon_email">Email</string>
+    <string name="cd_icon_lock">Mật khẩu</string>
+
+    <!-- Validation messages -->
+    <string name="error_name_empty">Vui lòng nhập họ và tên</string>
+    <string name="error_phone_empty">Vui lòng nhập số điện thoại</string>
+    <string name="error_phone_invalid">Số điện thoại không hợp lệ</string>
+    <string name="error_email_empty">Vui lòng nhập email</string>
+    <string name="error_email_invalid">Email không hợp lệ</string>
+    <string name="error_password_empty">Vui lòng nhập mật khẩu</string>
+    <string name="error_password_short">Mật khẩu phải có ít nhất 6 ký tự</string>
+    <string name="error_confirm_password_empty">Vui lòng xác nhận mật khẩu</string>
+    <string name="error_password_mismatch">Mật khẩu không khớp</string>
+    <string name="error_terms_not_checked">Vui lòng đồng ý với điều khoản dịch vụ</string>
+    <string name="error_register_failed">Đăng ký thất bại. Vui lòng thử lại</string>
+    <string name="success_register">Đăng ký thành công!</string>
+    <!--End Register-->
+</resources>

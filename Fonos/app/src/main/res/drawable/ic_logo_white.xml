@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+
+    <!-- Bowl shape -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,28C12,28 10,44 32,44C54,44 52,28 52,28Z" />
+
+    <!-- Steam lines -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M24,22C24,22 22,18 24,14C26,10 24,6 24,6"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.5" />
+
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M32,22C32,22 30,18 32,14C34,10 32,6 32,6"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.5" />
+
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M40,22C40,22 38,18 40,14C42,10 40,6 40,6"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.5" />
+
+    <!-- Bowl base line -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M20,44L44,44"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="3" />
+
+    <!-- Chopsticks -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M44,16L56,48"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.5" />
+
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M50,14L54,50"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.5" />
+
+</vector>

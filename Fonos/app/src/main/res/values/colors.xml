@@ -1,5 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- ===== PRIMARY ORANGE PALETTE ===== -->
+    <color name="orange_primary">#FF6B35</color>
+    <color name="orange_dark">#E85A25</color>
+    <color name="orange_light">#FF8C5A</color>
+    <color name="orange_soft">#FFCCB0</color>
+    <color name="orange_pale">#FFF8F4</color>
+    <color name="orange_border">#FFE5D6</color>
+    <color name="orange_text_on_bg">#FFE0B2</color>
+
+    <!-- ===== NEUTRAL / WHITE PALETTE ===== -->
+    <color name="white">#FFFFFF</color>
+    <color name="background_page">#F9F9F9</color>
+    <color name="surface_card">#FFFFFF</color>
+    <color name="divider">#F0F0F0</color>
+
+    <!-- ===== TEXT COLORS ===== -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#616161</color>
+    <color name="text_hint">#BDBDBD</color>
+    <color name="text_muted">#9E9E9E</color>
+    <color name="text_disabled">#E0E0E0</color>
+    <color name="text_on_orange">#FFFFFF</color>
+    <color name="text_label">#212121</color>
+
+    <!-- ===== STATUS COLORS ===== -->
+    <color name="success">#4CAF50</color>
+    <color name="success_bg">#E8F5E9</color>
+    <color name="error">#F44336</color>
+    <color name="error_bg">#FFEBEE</color>
+    <color name="warning">#FF9800</color>
+    <color name="warning_bg">#FFF3E0</color>
+    <color name="info">#2196F3</color>
+    <color name="info_bg">#E3F2FD</color>
+
+    <!-- ===== SHADOW / OVERLAY ===== -->
+    <color name="shadow">#1A000000</color>
+    <color name="overlay_light">#26FFFFFF</color>
+    <color name="overlay_medium">#33FFFFFF</color>
+    <color name="scrim">#80000000</color>
+
+    <!-- ===== SOCIAL BRAND COLORS ===== -->
+    <color name="google_blue">#4285F4</color>
+    <color name="facebook_blue">#1877F2</color>
 </resources>

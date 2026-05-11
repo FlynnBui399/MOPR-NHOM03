@@ -1,3 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--Register-->
     <string name="app_name">Fonos</string>
+
+    <!-- Register screen -->
+    <string name="register_title">Register</string>
+    <string name="register_subtitle">Register to start ordering</string>
+    <string name="register_button">REGISTER</string>
+    <string name="register_or_with">Or register with</string>
+
+    <!-- Fields -->
+    <string name="label_full_name">Full Name</string>
+    <string name="hint_full_name">Enter full name</string>
+    <string name="label_phone">Phone Number</string>
+    <string name="hint_phone">Enter phone number</string>
+    <string name="label_email">Email</string>
+    <string name="hint_email">Enter email address</string>
+    <string name="label_password">Password</string>
+    <string name="hint_password">Create password</string>
+    <string name="label_confirm_password">Confirm Password</string>
+    <string name="hint_confirm_password">Re-enter password</string>
+
+    <!-- Terms -->
+    <string name="terms_agree">I agree to the </string>
+    <string name="terms_service">Terms of Service</string>
+    <string name="terms_and"> and </string>
+    <string name="terms_privacy">Privacy Policy</string>
+
+    <!-- Social login -->
+    <string name="login_google">Google</string>
+    <string name="login_facebook">Facebook</string>
+
+    <!-- Footer -->
+    <string name="already_have_account">Already have an account? </string>
+    <string name="login_link">Login</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_back">Back</string>
+    <string name="cd_logo">Fonos Logo</string>
+    <string name="cd_toggle_password">Show/hide password</string>
+    <string name="cd_icon_person">User icon</string>
+    <string name="cd_icon_phone">Phone icon</string>
+    <string name="cd_icon_email">Email icon</string>
+    <string name="cd_icon_lock">Password icon</string>
+
+    <!-- Validation messages -->
+    <string name="error_name_empty">Please enter your full name</string>
+    <string name="error_phone_empty">Please enter your phone number</string>
+    <string name="error_phone_invalid">Invalid phone number</string>
+    <string name="error_email_empty">Please enter your email</string>
+    <string name="error_email_invalid">Invalid email address</string>
+    <string name="error_password_empty">Please enter a password</string>
+    <string name="error_password_short">Password must be at least 6 characters</string>
+    <string name="error_confirm_password_empty">Please confirm your password</string>
+    <string name="error_password_mismatch">Passwords do not match</string>
+    <string name="error_terms_not_checked">Please agree to the Terms of Service</string>
+    <string name="error_register_failed">Registration failed. Please try again</string>
+    <string name="success_register">Registration successful!</string>
+    <!--End Register-->
 </resources>
