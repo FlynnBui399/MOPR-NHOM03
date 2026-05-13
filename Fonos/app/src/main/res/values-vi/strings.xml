@@ -38,7 +38,7 @@
 
     <!-- Content descriptions -->
     <string name="cd_back">Quay lại</string>
-    <string name="cd_logo">Logo Fomos</string>
+    <string name="cd_logo">Logo Fonos</string>
     <string name="cd_toggle_password">Hiện/ẩn mật khẩu</string>
     <string name="cd_icon_person">Tên người dùng</string>
     <string name="cd_icon_phone">Số điện thoại</string>
@@ -59,6 +59,64 @@
     <string name="error_register_failed">Đăng ký thất bại. Vui lòng thử lại</string>
     <string name="success_register">Đăng ký thành công!</string>
     <!--End Register-->
+
+    <!-- ===== HOME SCREEN ===== -->
+    <string name="home_greeting">Xin chào!</string>
+    <string name="home_subtitle">Bạn muốn nghe gì hôm nay?</string>
+    <string name="home_search_hint">Tìm kiếm sách nói…</string>
+    <string name="section_trending">Đang Thịnh Hành</string>
+    <string name="section_new_releases">Mới Phát Hành</string>
+    <string name="section_recommended">Gợi Ý Cho Bạn</string>
+    <string name="see_all">Xem tất cả</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_search">Tìm kiếm</string>
+    <string name="nav_library">Thư viện</string>
+    <string name="nav_profile">Cá nhân</string>
+
+    <!-- Categories -->
+    <string name="cat_all">Tất cả</string>
+    <string name="cat_self_help">Phát triển bản thân</string>
+    <string name="cat_business">Kinh doanh</string>
+    <string name="cat_fiction">Tiểu thuyết</string>
+    <string name="cat_science">Khoa học</string>
+    <string name="cat_psychology">Tâm lý học</string>
+
+    <!-- Book Detail -->
+    <string name="detail_listen_now">Nghe Ngay</string>
+    <string name="detail_add_library">Thêm Vào Thư Viện</string>
+    <string name="detail_description">Mô tả</string>
+    <string name="detail_read_more">Xem thêm</string>
+    <string name="detail_related">Có Thể Bạn Cũng Thích</string>
+    <string name="detail_chapters">chương</string>
+    <string name="detail_rating">Đánh giá</string>
+    <string name="cd_book_cover">Bìa sách</string>
+    <string name="cd_share">Chia sẻ</string>
+    <string name="cd_star">Sao đánh giá</string>
+
+    <!-- Search Screen -->
+    <string name="search_title">Tìm Kiếm</string>
+    <string name="search_hint">Tìm sách, tác giả…</string>
+    <string name="search_popular">Tìm Kiếm Phổ Biến</string>
+    <string name="search_recent">Tìm Kiếm Gần Đây</string>
+    <string name="search_empty">Bắt đầu tìm kiếm sách nói yêu thích</string>
+
+    <!-- Library Screen -->
+    <string name="library_title">Thư Viện Của Tôi</string>
+    <string name="library_empty">Thư viện của bạn đang trống</string>
+    <string name="library_empty_sub">Sách bạn thêm sẽ xuất hiện ở đây</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Cá Nhân</string>
+    <string name="profile_guest">Khách</string>
+    <string name="profile_guest_email">Đăng nhập để truy cập tài khoản</string>
+    <string name="profile_settings">Cài đặt</string>
+    <string name="profile_history">Lịch sử nghe</string>
+    <string name="profile_downloads">Đã tải xuống</string>
+    <string name="profile_help">Trợ giúp &amp; Hỗ trợ</string>
+    <string name="profile_about">Về Fonos</string>
+    <string name="profile_logout">Đăng xuất</string>
 
     <!-- Login -->
     <string name="login_title">Đăng nhập</string>

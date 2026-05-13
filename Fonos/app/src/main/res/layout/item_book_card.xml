@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="140dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemForeground"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Book Cover -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="190dp">
+
+            <View
+                android:id="@+id/viewBookCover"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <!-- Book title overlay on cover -->
+            <TextView
+                android:id="@+id/tvCoverTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/poppins_bold"
+                android:gravity="center"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textColor="#CCFFFFFF"
+                android:textSize="14sp" />
+
+            <!-- Headphone icon badge -->
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="8dp"
+                android:contentDescription="@string/cd_book_cover"
+                android:src="@drawable/ic_headphones_white" />
+        </FrameLayout>
+
+        <!-- Book Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/tvBookTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/poppins_medium"
+                android:maxLines="2"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvBookAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/poppins_regular"
+                android:maxLines="1"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:contentDescription="@string/cd_star"
+                    android:src="@drawable/ic_star_filled" />
+
+                <TextView
+                    android:id="@+id/tvBookRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

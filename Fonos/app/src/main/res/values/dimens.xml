@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">16dp</dimen>
+    <dimen name="spacing_lg">24dp</dimen>
+    <dimen name="spacing_xl">32dp</dimen>
+
+    <!-- Book Card -->
+    <dimen name="book_card_width">140dp</dimen>
+    <dimen name="book_cover_height">190dp</dimen>
+    <dimen name="book_card_radius">12dp</dimen>
+    <dimen name="book_card_margin">8dp</dimen>
+
+    <!-- Category Chip -->
+    <dimen name="chip_height">38dp</dimen>
+    <dimen name="chip_radius">20dp</dimen>
+    <dimen name="chip_padding_h">18dp</dimen>
+
+    <!-- Home Header -->
+    <dimen name="home_header_height">200dp</dimen>
+    <dimen name="search_bar_height">46dp</dimen>
+    <dimen name="search_bar_radius">14dp</dimen>
+
+    <!-- Detail -->
+    <dimen name="detail_cover_width">180dp</dimen>
+    <dimen name="detail_cover_height">260dp</dimen>
+    <dimen name="detail_header_height">340dp</dimen>
+
+    <!-- Bottom Nav -->
+    <dimen name="bottom_nav_height">60dp</dimen>
+
+    <!-- Card elevation -->
+    <dimen name="elevation_sm">2dp</dimen>
+    <dimen name="elevation_md">4dp</dimen>
+    <dimen name="elevation_lg">8dp</dimen>
+</resources>
