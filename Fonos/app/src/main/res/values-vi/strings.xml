@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--Register-->
 <resources>
     <!--Register-->
-    <string name="app_name">Fonos</string>
+    <string name="app_name">Fomos</string>
 
     <!-- Register screen -->
     <string name="register_title">Tạo tài khoản</string>
@@ -116,4 +117,26 @@
     <string name="profile_help">Trợ giúp &amp; Hỗ trợ</string>
     <string name="profile_about">Về Fonos</string>
     <string name="profile_logout">Đăng xuất</string>
+
+    <!-- Login -->
+    <string name="login_title">Đăng nhập</string>
+    <string name="login_subtitle">Nhập thông tin để tiếp tục</string>
+    <string name="login_button">ĐĂNG NHẬP</string>
+    <string name="login_or_with">Hoặc đăng nhập với</string>
+    <string name="welcome_back">Chào mừng trở lại!</string>
+
+    <!-- Login fields -->
+    <string name="label_email_or_phone">Email hoặc số điện thoại</string>
+    <string name="hint_email_or_phone">Nhập email / số điện thoại</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+
+    <!-- Footer -->
+    <string name="no_account">Chưa có tài khoản? </string>
+    <string name="register_link">Đăng ký ngay</string>
+
+    <!-- Validation -->
+    <string name="error_email_or_phone_empty">Vui lòng nhập email hoặc số điện thoại</string>
+    <string name="error_login_failed">Email/SĐT hoặc mật khẩu không đúng</string>
+    <string name="success_login">Đăng nhập thành công!</string>
+    <!-- End Login -->
 </resources>

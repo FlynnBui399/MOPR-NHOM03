@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Để có hiệu ứng wave cong ở đáy header, bạn có 2 lựa chọn:
+
+    CÁCH 1 (Đơn giản): Dùng shape với bo góc trên
+    Tạo một View trắng đặt chồng lên đáy header với góc bo lên trên.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <solid android:color="#FFFFFF" />
+
+    <corners
+        android:topLeftRadius="28dp"
+        android:topRightRadius="28dp" />
+
+</shape>
+
+    <!--
+        CÁCH 2 (Đẹp hơn): Dùng file SVG/PNG cho đường cong mượt.
+        Xuất file wave từ Figma hoặc tạo bằng vector drawable dưới đây.
+
+        Nếu muốn dùng vector path:
+        Tạo file bg_wave_white_vector.xml và dùng <path> cho đường cong:
+
+        <vector xmlns:android="http://schemas.android.com/apk/res/android"
+            android:width="360dp"
+            android:height="40dp"
+            android:viewportWidth="360"
+            android:viewportHeight="40">
+            <path
+                android:fillColor="#FFFFFF"
+                android:pathData="M0,40 Q90,0 180,20 Q270,40 360,0 L360,40 Z" />
+        </vector>
+    -->
