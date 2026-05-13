@@ -5,6 +5,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView tvExpression, tvResult;
@@ -47,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
             justCalculated = false;
         }
         expression.append(num);
-        tvExpression.setText(expression.toString());
+        tvExpression.setText(formatExpression(expression.toString()));
         // Do NOT call updatePreview - only show result when = is pressed
     }
 
@@ -63,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 expression.append(op);
             }
         }
-        tvExpression.setText(expression.toString());
+        tvExpression.setText(formatExpression(expression.toString()));
     }
 
     private void onDot() {
@@ -77,13 +82,13 @@ public class MainActivity extends AppCompatActivity {
             if (current.isEmpty()) expression.append("0");
             expression.append(".");
         }
-        tvExpression.setText(expression.toString());
+        tvExpression.setText(formatExpression(expression.toString()));
     }
 
     private void onParen(String p) {
         if (justCalculated) { expression.setLength(0); justCalculated = false; }
         expression.append(p);
-        tvExpression.setText(expression.toString());
+        tvExpression.setText(formatExpression(expression.toString()));
     }
 
     private void onClear() {
@@ -96,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     private void onDelete() {
         if (expression.length() > 0) {
             expression.deleteCharAt(expression.length() - 1);
-            tvExpression.setText(expression.toString());
+            tvExpression.setText(formatExpression(expression.toString()));
         }
         // If everything is deleted, reset the display
         if (expression.length() == 0) {
@@ -109,21 +114,89 @@ public class MainActivity extends AppCompatActivity {
         String expr = expression.toString();
         try {
             double result = evaluate(expr);
-            // Format: remove .0 if the result is an integer
-            String resultStr = (result == Math.floor(result) && !Double.isInfinite(result))
+            String resultStr = formatResult(result);
+            
+            String rawResult = (result == Math.floor(result) && !Double.isInfinite(result))
                     ? String.valueOf((long) result)
                     : String.valueOf(result);
-            tvExpression.setText(expr + " =");
+
+            tvExpression.setText(formatExpression(expr) + " =");
             tvResult.setText(resultStr);
             // Save the result for continued use
             expression.setLength(0);
-            expression.append(resultStr);
+            expression.append(rawResult);
+            justCalculated = true;
+        } catch (ArithmeticException e) {
+            tvExpression.setText(formatExpression(expr) + " =");
+            tvResult.setText("Can't divide by zero");
+            expression.setLength(0);
             justCalculated = true;
         } catch (Exception e) {
-            tvExpression.setText(expr);
+            tvExpression.setText(formatExpression(expr));
             tvResult.setText("Error");
             expression.setLength(0);
             justCalculated = true;
+        }
+    }
+
+    private String formatExpression(String expr) {
+        StringBuilder result = new StringBuilder();
+        StringBuilder currentNumber = new StringBuilder();
+        for (int i = 0; i < expr.length(); i++) {
+            char c = expr.charAt(i);
+            if (Character.isDigit(c) || c == '.' || c == 'E' || c == 'e' || (currentNumber.length() > 0 && (c == '-' || c == '+') && (expr.charAt(i - 1) == 'E' || expr.charAt(i - 1) == 'e'))) {
+                currentNumber.append(c);
+            } else {
+                if (currentNumber.length() > 0) {
+                    result.append(formatNumberWithCommas(currentNumber.toString()));
+                    currentNumber.setLength(0);
+                }
+                result.append(c);
+            }
+        }
+        if (currentNumber.length() > 0) {
+            result.append(formatNumberWithCommas(currentNumber.toString()));
+        }
+        return result.toString();
+    }
+
+    private String formatNumberWithCommas(String numStr) {
+        if (numStr.isEmpty()) return "";
+        if (numStr.contains("E") || numStr.contains("e") || numStr.equals("Infinity") || numStr.equals("-Infinity") || numStr.equals("NaN")) {
+            return numStr;
+        }
+        try {
+            String[] parts = numStr.split("\\.", -1);
+            String intPart = parts[0];
+            String decPart = parts.length > 1 ? parts[1] : "";
+            if (intPart.isEmpty() || intPart.equals("-")) {
+                return numStr;
+            }
+            BigDecimal iPart = new BigDecimal(intPart);
+            DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+            DecimalFormat formatter = new DecimalFormat("#,###", symbols);
+            String formattedInt = formatter.format(iPart);
+            if (numStr.contains(".")) {
+                return formattedInt + "." + decPart;
+            } else {
+                return formattedInt;
+            }
+        } catch (Exception e) {
+            return numStr;
+        }
+    }
+
+    private String formatResult(double result) {
+        if (Double.isInfinite(result) || Double.isNaN(result)) {
+            return "Error";
+        }
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        if (Math.abs(result) >= 1E11 || (Math.abs(result) > 0 && Math.abs(result) < 1E-7)) {
+            DecimalFormat sciFormatter = new DecimalFormat("0.#####E0", symbols);
+            return sciFormatter.format(result).replace("E", "e");
+        } else {
+            DecimalFormat formatter = new DecimalFormat("#,###.########", symbols);
+            return formatter.format(result);
         }
     }
 
@@ -180,9 +253,16 @@ public class MainActivity extends AppCompatActivity {
         }
         if (c == '-') { pos++; return -parseFactor(); }
         int start = pos;
-        while (pos < evalExpr.length() &&
-                (Character.isDigit(evalExpr.charAt(pos)) || evalExpr.charAt(pos) == '.')) {
-            pos++;
+        while (pos < evalExpr.length()) {
+            char ch = evalExpr.charAt(pos);
+            if (Character.isDigit(ch) || ch == '.' || ch == 'E' || ch == 'e') {
+                pos++;
+            } else if ((ch == '+' || ch == '-') && pos > 0 && 
+                      (evalExpr.charAt(pos-1) == 'E' || evalExpr.charAt(pos-1) == 'e')) {
+                pos++;
+            } else {
+                break;
+            }
         }
         if (start == pos) throw new RuntimeException("Expected number at pos " + pos);
         return Double.parseDouble(evalExpr.substring(start, pos));
