@@ -58,4 +58,27 @@
     <string name="error_register_failed">Registration failed. Please try again</string>
     <string name="success_register">Registration successful!</string>
     <!--End Register-->
+
+    <!-- Login -->
+    <!-- Login screen -->
+    <string name="login_title">Sign In</string>
+    <string name="login_subtitle">Enter your details to continue</string>
+    <string name="login_button">SIGN IN</string>
+    <string name="login_or_with">Or sign in with</string>
+    <string name="welcome_back">Welcome back!</string>
+
+    <!-- Login fields -->
+    <string name="label_email_or_phone">Email or phone number</string>
+    <string name="hint_email_or_phone">Enter email / phone number</string>
+    <string name="forgot_password">Forgot password?</string>
+
+    <!-- Footer -->
+    <string name="no_account">Don't have an account? </string>
+    <string name="register_link">Sign up now</string>
+
+    <!-- Validation -->
+    <string name="error_email_or_phone_empty">Please enter your email or phone number</string>
+    <string name="error_login_failed">Incorrect email/phone number or password</string>
+    <string name="success_login">Signed in successfully!</string>
+    <!-- End login -->
 </resources>
