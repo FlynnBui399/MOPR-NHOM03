@@ -58,4 +58,103 @@
     <string name="error_register_failed">Registration failed. Please try again</string>
     <string name="success_register">Registration successful!</string>
     <!--End Register-->
+
+    <!-- ===== HOME SCREEN ===== -->
+    <string name="home_greeting">Good morning!</string>
+    <string name="home_subtitle">What would you like to listen to?</string>
+    <string name="home_search_hint">Search audiobooks…</string>
+    <string name="section_trending">Trending Now</string>
+    <string name="section_new_releases">New Releases</string>
+    <string name="section_recommended">Recommended For You</string>
+    <string name="see_all">See All</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_library">Library</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Categories -->
+    <string name="cat_all">All</string>
+    <string name="cat_self_help">Self-help</string>
+    <string name="cat_business">Business</string>
+    <string name="cat_fiction">Fiction</string>
+    <string name="cat_science">Science</string>
+    <string name="cat_psychology">Psychology</string>
+
+    <!-- Book Detail -->
+    <string name="detail_listen_now">Listen Now</string>
+    <string name="detail_add_library">Add to Library</string>
+    <string name="detail_description">Description</string>
+    <string name="detail_read_more">Read more</string>
+    <string name="detail_related">You Might Also Like</string>
+    <string name="detail_chapters">chapters</string>
+    <string name="detail_rating">Rating</string>
+    <string name="cd_book_cover">Book cover</string>
+    <string name="cd_share">Share</string>
+    <string name="cd_star">Rating star</string>
+
+    <!-- Search Screen -->
+    <string name="search_title">Search</string>
+    <string name="search_hint">Search books, authors…</string>
+    <string name="search_popular">Popular Searches</string>
+    <string name="search_recent">Recent Searches</string>
+    <string name="search_empty">Start searching for your favorite audiobooks</string>
+
+    <!-- Library Screen -->
+    <string name="library_title">My Library</string>
+    <string name="library_empty">Your library is empty</string>
+    <string name="library_empty_sub">Books you add will appear here</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_guest">Guest User</string>
+    <string name="profile_guest_email">Sign in to access your account</string>
+    <string name="profile_settings">Settings</string>
+    <string name="profile_history">Listening History</string>
+    <string name="profile_downloads">Downloads</string>
+    <string name="profile_help">Help &amp; Support</string>
+    <string name="profile_about">About Fonos</string>
+    <string name="profile_logout">Log Out</string>
+
+    <!-- Sample Book Data -->
+    <string name="book1_title">Đắc Nhân Tâm</string>
+    <string name="book1_author">Dale Carnegie</string>
+    <string name="book1_desc">Đắc nhân tâm của Dale Carnegie là quyển sách nổi tiếng nhất, bán chạy nhất và có tầm ảnh hưởng nhất của mọi thời đại. Tác phẩm đã được chuyển ngữ sang hầu hết các thứ tiếng trên thế giới và có mặt ở hàng trăm quốc gia.</string>
+
+    <string name="book2_title">Nhà Giả Kim</string>
+    <string name="book2_author">Paulo Coelho</string>
+    <string name="book2_desc">Tất cả những trải nghiệm trong chuyến phiêu du theo đuổi vận mệnh của mình đã giúp Santiago nhận ra được ý nghĩa sâu xa nhất của hạnh phúc, hòa hợp với vũ trụ và con người.</string>
+
+    <string name="book3_title">Tuổi Trẻ Đáng Giá Bao Nhiêu</string>
+    <string name="book3_author">Rosie Nguyễn</string>
+    <string name="book3_desc">Tuổi trẻ đáng giá bao nhiêu là tác phẩm đầu tay của tác giả Rosie Nguyễn, chia sẻ những trải nghiệm và bài học quý giá dành cho người trẻ Việt Nam.</string>
+
+    <string name="book4_title">Sapiens: Lược Sử Loài Người</string>
+    <string name="book4_author">Yuval Noah Harari</string>
+    <string name="book4_desc">Sapiens khám phá lịch sử loài người từ thời kỳ đồ đá đến thế kỷ 21, đặt ra những câu hỏi lớn về bản chất của loài người chúng ta.</string>
+
+    <string name="book5_title">Tư Duy Nhanh Và Chậm</string>
+    <string name="book5_author">Daniel Kahneman</string>
+    <string name="book5_desc">Cuốn sách này khám phá hai hệ thống tư duy chi phối cách chúng ta suy nghĩ, đưa ra quyết định và đánh giá mọi thứ trong cuộc sống.</string>
+
+    <string name="book6_title">Atomic Habits</string>
+    <string name="book6_author">James Clear</string>
+    <string name="book6_desc">Atomic Habits cung cấp một khung thực hành đã được chứng minh để cải thiện mỗi ngày. James Clear tiết lộ các chiến lược thực tế giúp bạn hình thành thói quen tốt.</string>
+
+    <string name="book7_title">Đời Ngắn Đừng Ngủ Dài</string>
+    <string name="book7_author">Robin Sharma</string>
+    <string name="book7_desc">Robin Sharma chia sẻ những bài học cuộc sống sâu sắc, giúp bạn sống một cuộc đời trọn vẹn và có ý nghĩa hơn mỗi ngày.</string>
+
+    <string name="book8_title">Người Giàu Có Nhất Thành Babylon</string>
+    <string name="book8_author">George S. Clason</string>
+    <string name="book8_desc">Cuốn sách kinh điển về quản lý tài chính cá nhân, truyền tải những nguyên tắc giàu có vượt thời gian qua những câu chuyện thú vị từ thành Babylon cổ đại.</string>
+
+    <string name="book9_title">7 Thói Quen Hiệu Quả</string>
+    <string name="book9_author">Stephen Covey</string>
+    <string name="book9_desc">Bảy thói quen của người thành đạt đã trở thành cuốn sách gối đầu giường của hàng triệu người, giúp họ cải thiện bản thân và đạt được thành công.</string>
+
+    <string name="book10_title">Sức Mạnh Tiềm Thức</string>
+    <string name="book10_author">Joseph Murphy</string>
+    <string name="book10_desc">Khám phá sức mạnh vô hạn của tiềm thức và học cách sử dụng nó để đạt được những điều bạn mong muốn trong cuộc sống.</string>
 </resources>
