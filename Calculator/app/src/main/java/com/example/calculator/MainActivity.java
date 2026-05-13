@@ -10,6 +10,10 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
+import androidx.core.widget.TextViewCompat;
+import android.util.TypedValue;
+import android.graphics.Color;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView tvExpression, tvResult;
@@ -42,23 +46,28 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btn_clear).setOnClickListener(v -> onClear());
         findViewById(R.id.btn_del).setOnClickListener(v -> onDelete());
         findViewById(R.id.btn_equal).setOnClickListener(v -> onEqual());
+
+        // Initialize state
+        setStateTyping();
     }
 
     private void onNumber(String num) {
-        // If a calculation was just completed and a new number is pressed, reset
         if (justCalculated) {
             expression.setLength(0);
             tvResult.setText("0");
             justCalculated = false;
+            setStateTyping();
         }
         expression.append(num);
         tvExpression.setText(formatExpression(expression.toString()));
-        // Do NOT call updatePreview - only show result when = is pressed
+        updateLivePreview();
     }
 
     private void onOperator(String op) {
-        // If a calculation was just completed, keep the result as the first operand
-        justCalculated = false;
+        if (justCalculated) {
+            justCalculated = false;
+            setStateTyping();
+        }
         if (expression.length() > 0) {
             char last = expression.charAt(expression.length() - 1);
             if (last == '+' || last == '−' || last == '×' || last == '÷') {
@@ -69,10 +78,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         tvExpression.setText(formatExpression(expression.toString()));
+        updateLivePreview();
     }
 
     private void onDot() {
-        if (justCalculated) { expression.setLength(0); justCalculated = false; }
+        if (justCalculated) { 
+            expression.setLength(0); 
+            justCalculated = false; 
+            setStateTyping();
+        }
         String expr = expression.toString();
         int lastOp = Math.max(
                 Math.max(expr.lastIndexOf('+'), expr.lastIndexOf('−')),
@@ -83,12 +97,18 @@ public class MainActivity extends AppCompatActivity {
             expression.append(".");
         }
         tvExpression.setText(formatExpression(expression.toString()));
+        updateLivePreview();
     }
 
     private void onParen(String p) {
-        if (justCalculated) { expression.setLength(0); justCalculated = false; }
+        if (justCalculated) { 
+            expression.setLength(0); 
+            justCalculated = false; 
+            setStateTyping();
+        }
         expression.append(p);
         tvExpression.setText(formatExpression(expression.toString()));
+        updateLivePreview();
     }
 
     private void onClear() {
@@ -96,14 +116,19 @@ public class MainActivity extends AppCompatActivity {
         tvExpression.setText("");
         tvResult.setText("0");
         justCalculated = false;
+        setStateTyping();
     }
 
     private void onDelete() {
+        if (justCalculated) {
+            justCalculated = false;
+            setStateTyping();
+        }
         if (expression.length() > 0) {
             expression.deleteCharAt(expression.length() - 1);
             tvExpression.setText(formatExpression(expression.toString()));
+            updateLivePreview();
         }
-        // If everything is deleted, reset the display
         if (expression.length() == 0) {
             tvResult.setText("0");
         }
@@ -113,12 +138,10 @@ public class MainActivity extends AppCompatActivity {
         if (expression.length() == 0) return;
         String expr = expression.toString();
         try {
-            double result = evaluate(expr);
+            BigDecimal result = evaluate(expr);
             String resultStr = formatResult(result);
             
-            String rawResult = (result == Math.floor(result) && !Double.isInfinite(result))
-                    ? String.valueOf((long) result)
-                    : String.valueOf(result);
+            String rawResult = result.stripTrailingZeros().toPlainString();
 
             tvExpression.setText(formatExpression(expr) + " =");
             tvResult.setText(resultStr);
@@ -126,16 +149,50 @@ public class MainActivity extends AppCompatActivity {
             expression.setLength(0);
             expression.append(rawResult);
             justCalculated = true;
+            setStateCalculated();
         } catch (ArithmeticException e) {
             tvExpression.setText(formatExpression(expr) + " =");
             tvResult.setText("Can't divide by zero");
             expression.setLength(0);
             justCalculated = true;
+            setStateCalculated();
         } catch (Exception e) {
             tvExpression.setText(formatExpression(expr));
             tvResult.setText("Error");
             expression.setLength(0);
             justCalculated = true;
+            setStateCalculated();
+        }
+    }
+
+    private void setStateTyping() {
+        tvExpression.setTextColor(Color.parseColor("#FFFFFF"));
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(tvExpression, 24, 72, 2, TypedValue.COMPLEX_UNIT_SP);
+        
+        tvResult.setTextColor(Color.parseColor("#999999"));
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(tvResult, 18, 36, 2, TypedValue.COMPLEX_UNIT_SP);
+    }
+
+    private void setStateCalculated() {
+        tvExpression.setTextColor(Color.parseColor("#999999"));
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(tvExpression, 18, 36, 2, TypedValue.COMPLEX_UNIT_SP);
+        
+        tvResult.setTextColor(Color.parseColor("#FFFFFF"));
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(tvResult, 24, 72, 2, TypedValue.COMPLEX_UNIT_SP);
+    }
+
+    private void updateLivePreview() {
+        if (expression.length() == 0) {
+            tvResult.setText("0");
+            return;
+        }
+        try {
+            BigDecimal result = evaluate(expression.toString());
+            tvResult.setText(formatResult(result));
+        } catch (ArithmeticException e) {
+            tvResult.setText("Can't divide by zero");
+        } catch (Exception e) {
+            tvResult.setText("");
         }
     }
 
@@ -186,16 +243,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String formatResult(double result) {
-        if (Double.isInfinite(result) || Double.isNaN(result)) {
-            return "Error";
-        }
+    private String formatResult(BigDecimal result) {
+        result = result.stripTrailingZeros();
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-        if (Math.abs(result) >= 1E11 || (Math.abs(result) > 0 && Math.abs(result) < 1E-7)) {
-            DecimalFormat sciFormatter = new DecimalFormat("0.#####E0", symbols);
+        
+        // Show up to 20 digits without scientific notation
+        if (result.abs().compareTo(new BigDecimal("1E20")) >= 0 || 
+           (result.compareTo(BigDecimal.ZERO) != 0 && result.abs().compareTo(new BigDecimal("1E-8")) < 0)) {
+            DecimalFormat sciFormatter = new DecimalFormat("0.########E0", symbols);
             return sciFormatter.format(result).replace("E", "e");
         } else {
-            DecimalFormat formatter = new DecimalFormat("#,###.########", symbols);
+            DecimalFormat formatter = new DecimalFormat("#,###.##########", symbols);
             return formatter.format(result);
         }
     }
@@ -204,37 +262,37 @@ public class MainActivity extends AppCompatActivity {
     private int pos;
     private String evalExpr;
 
-    private double evaluate(String expr) {
+    private BigDecimal evaluate(String expr) {
         evalExpr = expr.replace("×", "*").replace("÷", "/").replace("−", "-");
         pos = 0;
-        double result = parseExpr();
+        BigDecimal result = parseExpr();
         if (pos != evalExpr.length()) throw new RuntimeException("Unexpected char");
         return result;
     }
 
     // Addition and subtraction - lowest precedence
-    private double parseExpr() {
-        double val = parseTerm();
+    private BigDecimal parseExpr() {
+        BigDecimal val = parseTerm();
         while (pos < evalExpr.length()) {
             char c = evalExpr.charAt(pos);
-            if (c == '+') { pos++; val += parseTerm(); }
-            else if (c == '-') { pos++; val -= parseTerm(); }
+            if (c == '+') { pos++; val = val.add(parseTerm()); }
+            else if (c == '-') { pos++; val = val.subtract(parseTerm()); }
             else break;
         }
         return val;
     }
 
     // Multiplication and division - higher precedence
-    private double parseTerm() {
-        double val = parseFactor();
+    private BigDecimal parseTerm() {
+        BigDecimal val = parseFactor();
         while (pos < evalExpr.length()) {
             char c = evalExpr.charAt(pos);
-            if (c == '*') { pos++; val *= parseFactor(); }
+            if (c == '*') { pos++; val = val.multiply(parseFactor()); }
             else if (c == '/') {
                 pos++;
-                double d = parseFactor();
-                if (d == 0) throw new ArithmeticException("Division by zero");
-                val /= d;
+                BigDecimal d = parseFactor();
+                if (d.compareTo(BigDecimal.ZERO) == 0) throw new ArithmeticException("Division by zero");
+                val = val.divide(d, java.math.MathContext.DECIMAL128);
             }
             else break;
         }
@@ -242,16 +300,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Number, parentheses, negative number
-    private double parseFactor() {
+    private BigDecimal parseFactor() {
         if (pos >= evalExpr.length()) throw new RuntimeException("Unexpected end");
         char c = evalExpr.charAt(pos);
         if (c == '(') {
             pos++;
-            double val = parseExpr();
+            BigDecimal val = parseExpr();
             if (pos < evalExpr.length() && evalExpr.charAt(pos) == ')') pos++;
             return val;
         }
-        if (c == '-') { pos++; return -parseFactor(); }
+        if (c == '-') { pos++; return parseFactor().negate(); }
         int start = pos;
         while (pos < evalExpr.length()) {
             char ch = evalExpr.charAt(pos);
@@ -265,6 +323,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         if (start == pos) throw new RuntimeException("Expected number at pos " + pos);
-        return Double.parseDouble(evalExpr.substring(start, pos));
+        return new BigDecimal(evalExpr.substring(start, pos));
     }
 }
