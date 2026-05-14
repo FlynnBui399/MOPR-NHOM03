@@ -2,7 +2,7 @@
 <!--Register-->
 <resources>
     <!--Register-->
-    <string name="app_name">Fomos</string>
+    <string name="app_name">Fonos</string>
 
     <!-- Register screen -->
     <string name="register_title">Tạo tài khoản</string>

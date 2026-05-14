@@ -37,13 +37,11 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             loadFragment(new HomeFragment());
         }
-    }
 
-    private void setupBottomNavigation() {
-        bottomNav.setOnItemSelectedListener(item -> {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
             Fragment fragment = null;
             int itemId = item.getItemId();
-
+            
             if (itemId == R.id.nav_home) {
                 fragment = new HomeFragment();
             } else if (itemId == R.id.nav_search) {

@@ -73,7 +73,7 @@
     <string name="forgot_password">Forgot password?</string>
 
     <!-- Footer -->
-    <string name="no_account">Don't have an account? </string>
+    <string name="no_account">Don\'t have an account? </string>
     <string name="register_link">Sign up now</string>
 
     <!-- Validation -->
