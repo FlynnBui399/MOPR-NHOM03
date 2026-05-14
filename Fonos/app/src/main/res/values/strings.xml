@@ -139,6 +139,8 @@
     <string name="profile_help">Help &amp; Support</string>
     <string name="profile_about">About Fonos</string>
     <string name="profile_logout">Log Out</string>
+    <string name="profile_login">Log In</string>
+    <string name="profile_register">Register</string>
 
     <!-- Sample Book Data -->
     <string name="book1_title">Đắc Nhân Tâm</string>
