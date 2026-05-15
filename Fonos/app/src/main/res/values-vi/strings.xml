@@ -2,7 +2,7 @@
 <!--Register-->
 <resources>
     <!--Register-->
-    <string name="app_name">Fomos</string>
+    <string name="app_name">Fonos</string>
 
     <!-- Register screen -->
     <string name="register_title">Tạo tài khoản</string>
@@ -117,6 +117,8 @@
     <string name="profile_help">Trợ giúp &amp; Hỗ trợ</string>
     <string name="profile_about">Về Fonos</string>
     <string name="profile_logout">Đăng xuất</string>
+    <string name="profile_login">Đăng nhập</string>
+    <string name="profile_register">Đăng ký</string>
 
     <!-- Login -->
     <string name="login_title">Đăng nhập</string>
@@ -124,7 +126,6 @@
     <string name="login_button">ĐĂNG NHẬP</string>
     <string name="login_or_with">Hoặc đăng nhập với</string>
     <string name="welcome_back">Chào mừng trở lại!</string>
-
     <!-- Login fields -->
     <string name="label_email_or_phone">Email hoặc số điện thoại</string>
     <string name="hint_email_or_phone">Nhập email / số điện thoại</string>

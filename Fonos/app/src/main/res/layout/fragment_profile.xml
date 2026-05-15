@@ -222,7 +222,39 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Nút ĐĂNG NHẬP — hiển thị khi chưa đăng nhập -->
         <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_home_header"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="@string/profile_login"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:visibility="visible" />
+
+        <!-- Nút ĐĂNG KÝ — hiển thị khi chưa đăng nhập -->
+        <Button
+            android:id="@+id/btnRegister"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_button_outline_orange"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="@string/profile_register"
+            android:textColor="@color/orange_primary"
+            android:textSize="15sp"
+            android:visibility="visible" />
+
+        <!-- Nút ĐĂNG XUẤT — chỉ hiển thị khi đã đăng nhập -->
+        <Button
+            android:id="@+id/btnLogout"
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginStart="16dp"
@@ -232,6 +264,7 @@
             android:fontFamily="@font/poppins_semibold"
             android:text="@string/profile_logout"
             android:textColor="@color/orange_primary"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

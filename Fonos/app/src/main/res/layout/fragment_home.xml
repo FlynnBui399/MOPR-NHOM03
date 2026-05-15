@@ -85,6 +85,8 @@
             android:id="@+id/rvCategories"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipChildren="false"
+
             android:clipToPadding="false"
             android:paddingStart="16dp"
             android:paddingTop="16dp"
@@ -126,7 +128,8 @@
             android:layout_height="wrap_content"
             android:clipToPadding="false"
             android:paddingStart="16dp"
-            android:paddingEnd="8dp" />
+            android:paddingEnd="8dp"
+            android:paddingBottom="12dp"/>
 
         <!-- ===== SECTION 2: NEW RELEASES ===== -->
         <LinearLayout
@@ -163,7 +166,8 @@
             android:layout_height="wrap_content"
             android:clipToPadding="false"
             android:paddingStart="16dp"
-            android:paddingEnd="8dp" />
+            android:paddingEnd="8dp"
+            android:paddingBottom="12dp"/>
 
         <!-- ===== SECTION 3: RECOMMENDED ===== -->
         <LinearLayout
@@ -201,7 +205,8 @@
             android:clipToPadding="false"
             android:paddingStart="16dp"
             android:paddingEnd="8dp"
-            android:paddingBottom="24dp" />
+            android:paddingBottom="24dp"
+            />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
