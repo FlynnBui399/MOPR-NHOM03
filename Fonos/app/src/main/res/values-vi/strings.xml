@@ -6,7 +6,7 @@
 
     <!-- Register screen -->
     <string name="register_title">Tạo tài khoản</string>
-    <string name="register_subtitle">Đăng ký để bắt đầu đặt món</string>
+    <string name="register_subtitle">Đăng ký để bắt đầu đọc sách ngay</string>
     <string name="register_button">ĐĂNG KÝ</string>
     <string name="register_or_with">Hoặc đăng ký với</string>
 
