@@ -1,8 +1,12 @@
 package com.example.fonos;
 
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.content.Intent;
+import android.widget.Button;
+
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +14,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
 
 public class BookDetailActivity extends AppCompatActivity {
 
@@ -33,6 +38,7 @@ public class BookDetailActivity extends AppCompatActivity {
         initViews();
         setupToolbar();
         loadBookData();
+        setupListenNowButton();
     }
 
     private void initViews() {
@@ -53,7 +59,8 @@ public class BookDetailActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        //toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        toolbar.setNavigationOnClickListener(v -> finish());
     }
 
     private void loadBookData() {
@@ -71,10 +78,28 @@ public class BookDetailActivity extends AppCompatActivity {
             tvDetailDescription.setText(desc);
             tvDetailRating.setText(String.valueOf(rating));
             tvDetailDuration.setText(duration);
-            tvDetailChapters.setText(chapters + " " + getString(R.string.detail_chapters));
-            
+            //tvDetailChapters.setText(chapters + " " + getString(R.string.detail_chapters));
+            tvDetailChapters.setText(getString(R.string.detail_chapter_count, chapters));
+
             tvDetailCoverTitle.setText(title);
             viewDetailCover.setBackgroundResource(coverRes);
         }
+    }
+
+    private void setupListenNowButton() {
+        Button btnListenNow = findViewById(R.id.btnListenNow);
+
+        btnListenNow.setOnClickListener(v -> {
+            Intent intent = new Intent(BookDetailActivity.this, AudioPlayerActivity.class);
+
+            intent.putExtra("book_title", tvDetailTitle.getText().toString());
+            intent.putExtra("book_author", tvDetailAuthor.getText().toString());
+            intent.putExtra("book_duration", tvDetailDuration.getText().toString());
+
+            int coverRes = getIntent().getIntExtra("book_cover", R.drawable.bg_book_cover_1);
+            intent.putExtra("book_cover", coverRes);
+
+            startActivity(intent);
+        });
     }
 }

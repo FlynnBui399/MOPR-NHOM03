@@ -140,4 +140,15 @@
     <string name="error_login_failed">Email/SĐT hoặc mật khẩu không đúng</string>
     <string name="success_login">Đăng nhập thành công!</string>
     <!-- End Login -->
+
+
+    <!-- Audio Player -->
+    <string name="player_now_playing">Đang nghe</string>
+    <string name="player_ui_demo_note">Giao diện trình nghe thử</string>
+    <string name="player_subtitle_demo">Tác giả: %1$s</string>
+    <string name="player_sleep_timer">Hẹn giờ tắt</string>
+    <string name="player_chapters_action">Chương</string>
+    <string name="player_speed">Tốc độ</string>
+    <string name="detail_chapter_count">%1$d chapters</string>
+
 </resources>

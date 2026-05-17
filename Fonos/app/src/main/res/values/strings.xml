@@ -182,4 +182,14 @@
     <string name="book10_title">Sức Mạnh Tiềm Thức</string>
     <string name="book10_author">Joseph Murphy</string>
     <string name="book10_desc">Khám phá sức mạnh vô hạn của tiềm thức và học cách sử dụng nó để đạt được những điều bạn mong muốn trong cuộc sống.</string>
+
+    <!-- Audio Player -->
+    <string name="player_now_playing">Now Playing</string>
+    <string name="player_ui_demo_note">Audio player UI demo</string>
+    <string name="player_subtitle_demo">Author: %1$s</string>
+    <string name="player_sleep_timer">Sleep timer</string>
+    <string name="player_chapters_action">Chapters</string>
+    <string name="player_speed">Speed</string>
+
+    <string name="detail_chapter_count">%1$d chapters</string>
 </resources>
