@@ -1,5 +1,6 @@
 package com.example.fonos;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -27,11 +28,11 @@ public class MainActivity extends AppCompatActivity {
         
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0); // Remove bottom padding so nav bar goes to edge
-            return insets;
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);            return insets;
         });
 
         bottomNavigationView = findViewById(R.id.bottomNavigation);
+        setupMiniPlayer();
         
         // Load default fragment
         if (savedInstanceState == null) {
@@ -65,5 +66,15 @@ public class MainActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, fragment)
                 .commit();
+    }
+    private void setupMiniPlayer() {
+        findViewById(R.id.miniPlayer).setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AudioPlayerActivity.class);
+            intent.putExtra("book_title", getString(R.string.book1_title));
+            intent.putExtra("book_author", getString(R.string.book1_author));
+            intent.putExtra("book_duration", "8h 30m");
+            intent.putExtra("book_cover", R.drawable.bg_book_cover_1);
+            startActivity(intent);
+        });
     }
 }

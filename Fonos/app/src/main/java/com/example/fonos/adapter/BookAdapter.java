@@ -40,7 +40,8 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         holder.tvBookTitle.setText(book.getTitle());
         holder.tvBookAuthor.setText(book.getAuthor());
         holder.tvBookRating.setText(String.valueOf(book.getRating()));
-        
+        holder.tvBookDuration.setText(book.getDuration());
+
         holder.tvCoverTitle.setText(book.getTitle());
         holder.viewBookCover.setBackgroundResource(book.getCoverDrawableRes());
 
@@ -57,8 +58,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     }
 
     public static class BookViewHolder extends RecyclerView.ViewHolder {
-        TextView tvBookTitle, tvBookAuthor, tvBookRating, tvCoverTitle;
-        View viewBookCover;
+        TextView tvBookTitle, tvBookAuthor, tvBookRating, tvCoverTitle, tvBookDuration;        View viewBookCover;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -66,6 +66,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             tvBookAuthor = itemView.findViewById(R.id.tvBookAuthor);
             tvBookRating = itemView.findViewById(R.id.tvBookRating);
             tvCoverTitle = itemView.findViewById(R.id.tvCoverTitle);
+            tvBookDuration = itemView.findViewById(R.id.tvBookDuration);
             viewBookCover = itemView.findViewById(R.id.viewBookCover);
         }
     }

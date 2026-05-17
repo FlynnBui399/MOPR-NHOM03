@@ -24,6 +24,11 @@
             android:name=".BookDetailActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".AudioPlayerActivity"
+            android:exported="false"
+            android:parentActivityName=".BookDetailActivity" />
         <activity android:name=".auth.LoginActivity" android:exported="false" />
         <activity android:name=".auth.RegisterActivity" android:exported="false" />
     </application>

@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="140dp"
+    android:layout_width="165dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="4dp"
-    android:layout_marginEnd="8dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginBottom="6dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
     app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="12dp"
+    app:cardCornerRadius="18dp"
     app:cardElevation="3dp">
 
     <LinearLayout
@@ -20,14 +21,13 @@
         <!-- Book Cover -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="190dp">
+            android:layout_height="220dp">
 
             <View
                 android:id="@+id/viewBookCover"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-            <!-- Book title overlay on cover -->
             <TextView
                 android:id="@+id/tvCoverTitle"
                 android:layout_width="match_parent"
@@ -35,19 +35,40 @@
                 android:layout_gravity="center"
                 android:fontFamily="@font/poppins_bold"
                 android:gravity="center"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:textColor="#CCFFFFFF"
-                android:textSize="14sp" />
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:textColor="#E6FFFFFF"
+                android:textSize="15sp" />
 
-            <!-- Headphone icon badge -->
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="top|end"
-                android:layout_margin="8dp"
-                android:contentDescription="@string/cd_book_cover"
-                android:src="@drawable/ic_headphones_white" />
+            <!-- Play button nổi trên bìa sách -->
+            <TextView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_floating_play_button"
+                android:gravity="center"
+                android:text="▶"
+                android:textColor="@color/orange_primary"
+                android:textSize="22sp" />
+
+            <!-- Audio badge -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                android:layout_gravity="top|start"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_rating_badge"
+                android:fontFamily="@font/poppins_medium"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/card_audio_badge"
+                android:textColor="@color/white"
+                android:textSize="11sp" />
+
         </FrameLayout>
 
         <!-- Book Info -->
@@ -55,39 +76,42 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="10dp">
+            android:paddingStart="12dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp">
 
             <TextView
                 android:id="@+id/tvBookTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:fontFamily="@font/poppins_medium"
+                android:fontFamily="@font/poppins_semibold"
                 android:maxLines="2"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp" />
+                android:textColor="@color/player_title_dark"
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tvBookAuthor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="3dp"
                 android:ellipsize="end"
                 android:fontFamily="@font/poppins_regular"
                 android:maxLines="1"
                 android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="7dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
                     android:contentDescription="@string/cd_star"
                     android:src="@drawable/ic_star_filled" />
 
@@ -95,9 +119,22 @@
                     android:id="@+id/tvBookRating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="3dp"
+                    android:layout_marginStart="4dp"
                     android:fontFamily="@font/poppins_medium"
                     android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tvBookDuration"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/poppins_regular"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:textColor="@color/text_muted"
                     android:textSize="11sp" />
             </LinearLayout>
         </LinearLayout>

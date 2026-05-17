@@ -190,6 +190,16 @@
     <string name="player_sleep_timer">Sleep timer</string>
     <string name="player_chapters_action">Chapters</string>
     <string name="player_speed">Speed</string>
-
     <string name="detail_chapter_count">%1$d chapters</string>
+
+    <!-- Polish Home -->
+    <string name="tab_audiobook">Audiobooks</string>
+    <string name="tab_ebook">Ebook</string>
+    <string name="tab_summary">Book Summary</string>
+
+    <string name="mini_player_title">Continue listening</string>
+    <string name="mini_player_subtitle">Chapter 1: Tap to open player</string>
+
+    <string name="card_audio_badge">Audio</string>
+
 </resources>

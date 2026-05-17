@@ -151,4 +151,13 @@
     <string name="player_speed">Tốc độ</string>
     <string name="detail_chapter_count">%1$d chapters</string>
 
+    <!-- Polish Home -->
+    <string name="tab_audiobook">Sách nói</string>
+    <string name="tab_ebook">Ebook</string>
+    <string name="tab_summary">Tóm tắt sách</string>
+
+    <string name="mini_player_title">Nghe tiếp</string>
+    <string name="mini_player_subtitle">Chương 1: Bấm để mở trình nghe</string>
+
+    <string name="card_audio_badge">Audio</string>
 </resources>
