@@ -50,6 +50,7 @@
                     android:src="@drawable/ic_search" />
 
                 <EditText
+                    android:id="@+id/etSearch"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginStart="10dp"
@@ -65,13 +66,24 @@
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 
+    <!-- Results list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSearchResults"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:padding="16dp"
+        android:visibility="gone" />
+
     <!-- Empty state -->
     <LinearLayout
+        android:id="@+id/layoutEmptyState"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="40dp">
+        android:padding="40dp"
+        android:visibility="visible">
 
         <ImageView
             android:layout_width="80dp"
@@ -81,6 +93,7 @@
             android:src="@drawable/ic_search" />
 
         <TextView
+            android:id="@+id/tvEmptyState"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"

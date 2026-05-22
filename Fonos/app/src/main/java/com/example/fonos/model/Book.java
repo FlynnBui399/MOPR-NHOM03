@@ -11,6 +11,10 @@ public class Book {
     private int coverDrawableRes;
     private String category;
 
+    public Book() {
+        // Required empty constructor for Firestore deserialization
+    }
+
     public Book(int id, String title, String author, String description,
                 float rating, String duration, int chapterCount,
                 int coverDrawableRes, String category) {
