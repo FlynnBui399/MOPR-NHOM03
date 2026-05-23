@@ -53,12 +53,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <View
+                    <ImageView
+                        android:id="@+id/imgMiniPlayerCover"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/bg_book_cover_1" />
+                        android:scaleType="centerCrop"
+                        android:contentDescription="Mini Player Cover" />
 
                     <TextView
+                        android:id="@+id/tvMiniPlayerCoverTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"

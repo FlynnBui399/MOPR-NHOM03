@@ -10,6 +10,10 @@ public class Book {
     private int chapterCount;
     private int coverDrawableRes;
     private String category;
+    private String coverUrl;
+    private String audioUrl;
+    private boolean isTrending;
+    private boolean isNewRelease;
 
     public Book() {
         // Required empty constructor for Firestore deserialization
@@ -27,6 +31,8 @@ public class Book {
         this.chapterCount = chapterCount;
         this.coverDrawableRes = coverDrawableRes;
         this.category = category;
+        this.coverUrl = "";
+        this.audioUrl = "";
     }
 
     public int getId() { return id; }
@@ -38,4 +44,19 @@ public class Book {
     public int getChapterCount() { return chapterCount; }
     public int getCoverDrawableRes() { return coverDrawableRes; }
     public String getCategory() { return category; }
+
+    public String getCoverUrl() { return coverUrl; }
+    public void setCoverUrl(String coverUrl) { this.coverUrl = coverUrl; }
+    public String getAudioUrl() { return audioUrl; }
+    public void setAudioUrl(String audioUrl) { this.audioUrl = audioUrl; }
+
+    // Firestore deserialization mapping
+    public boolean getIsTrending() { return isTrending; }
+    public void setIsTrending(boolean isTrending) { this.isTrending = isTrending; }
+    public boolean getIsNewRelease() { return isNewRelease; }
+    public void setIsNewRelease(boolean isNewRelease) { this.isNewRelease = isNewRelease; }
+
+    // Backward compatible helper methods for application code
+    public boolean isTrending() { return isTrending; }
+    public boolean isNewRelease() { return isNewRelease; }
 }

@@ -14,6 +14,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import android.widget.ImageView;
+import android.content.SharedPreferences;
+import com.bumptech.glide.Glide;
 import com.example.fonos.auth.LoginActivity;
 import com.example.fonos.model.Book;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,12 +27,12 @@ public class BookDetailActivity extends AppCompatActivity {
 
     private TextView tvDetailTitle, tvDetailAuthor, tvDetailRating, tvDetailDuration;
     private TextView tvDetailChapters, tvDetailDescription, tvDetailCoverTitle;
-    private View viewDetailCover;
+    private ImageView imgDetailCover;
     private Toolbar toolbar;
     private Button btnAddLibrary;
 
     private int bookId;
-    private String title, author, desc, duration, category;
+    private String title, author, desc, duration, category, coverUrl;
     private float rating;
     private int chapters, coverRes;
 
@@ -67,7 +70,7 @@ public class BookDetailActivity extends AppCompatActivity {
         tvDetailChapters = findViewById(R.id.tvDetailChapters);
         tvDetailDescription = findViewById(R.id.tvDetailDescription);
         tvDetailCoverTitle = findViewById(R.id.tvDetailCoverTitle);
-        viewDetailCover = findViewById(R.id.viewDetailCover);
+        imgDetailCover = findViewById(R.id.imgDetailCover);
         toolbar = findViewById(R.id.toolbar);
         btnAddLibrary = findViewById(R.id.btnAddLibrary);
     }
@@ -91,6 +94,7 @@ public class BookDetailActivity extends AppCompatActivity {
             duration = getIntent().getStringExtra("book_duration");
             chapters = getIntent().getIntExtra("book_chapters", 0);
             coverRes = getIntent().getIntExtra("book_cover", R.drawable.bg_book_cover_1);
+            coverUrl = getIntent().getStringExtra("book_cover_url");
             category = getIntent().getStringExtra("book_category");
             if (category == null) {
                 category = "General";
@@ -104,13 +108,27 @@ public class BookDetailActivity extends AppCompatActivity {
             tvDetailChapters.setText(getString(R.string.detail_chapter_count, chapters));
 
             tvDetailCoverTitle.setText(title);
-            viewDetailCover.setBackgroundResource(coverRes);
+            if (coverUrl != null && !coverUrl.isEmpty()) {
+                Glide.with(this).load(coverUrl).into(imgDetailCover);
+            } else {
+                imgDetailCover.setImageResource(coverRes);
+            }
         }
     }
 
     private void setupListenNowButton() {
         Button btnListenNow = findViewById(R.id.btnListenNow);
         btnListenNow.setOnClickListener(v -> {
+            // Save played book to SharedPreferences
+            SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("active_book_title", title);
+            editor.putString("active_book_author", author);
+            editor.putString("active_book_duration", duration);
+            editor.putInt("active_book_cover", coverRes);
+            editor.putString("active_book_cover_url", coverUrl);
+            editor.apply();
+
             Intent intent = new Intent(BookDetailActivity.this, AudioPlayerActivity.class);
             intent.putExtra("book_title", tvDetailTitle.getText().toString());
             intent.putExtra("book_author", tvDetailAuthor.getText().toString());

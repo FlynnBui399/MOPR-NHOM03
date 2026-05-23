@@ -3,11 +3,13 @@ package com.example.fonos.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.fonos.R;
 import com.example.fonos.model.Book;
 
@@ -43,7 +45,15 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         holder.tvBookDuration.setText(book.getDuration());
 
         holder.tvCoverTitle.setText(book.getTitle());
-        holder.viewBookCover.setBackgroundResource(book.getCoverDrawableRes());
+        if (book.getCoverUrl() != null && !book.getCoverUrl().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(book.getCoverUrl())
+                    .into(holder.imgCover);
+        } else {
+            Glide.with(holder.itemView.getContext()).clear(holder.imgCover);
+            holder.imgCover.setImageDrawable(null);
+            holder.imgCover.setBackgroundResource(book.getCoverDrawableRes());
+        }
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
@@ -58,7 +68,8 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     }
 
     public static class BookViewHolder extends RecyclerView.ViewHolder {
-        TextView tvBookTitle, tvBookAuthor, tvBookRating, tvCoverTitle, tvBookDuration;        View viewBookCover;
+        TextView tvBookTitle, tvBookAuthor, tvBookRating, tvCoverTitle, tvBookDuration;
+        ImageView imgCover;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -67,7 +78,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             tvBookRating = itemView.findViewById(R.id.tvBookRating);
             tvCoverTitle = itemView.findViewById(R.id.tvCoverTitle);
             tvBookDuration = itemView.findViewById(R.id.tvBookDuration);
-            viewBookCover = itemView.findViewById(R.id.viewBookCover);
+            imgCover = itemView.findViewById(R.id.imgCover);
         }
     }
 }

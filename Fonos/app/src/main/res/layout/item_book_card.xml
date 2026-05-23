@@ -23,10 +23,12 @@
             android:layout_width="match_parent"
             android:layout_height="220dp">
 
-            <View
-                android:id="@+id/viewBookCover"
+            <ImageView
+                android:id="@+id/imgCover"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="Book Cover" />
 
             <TextView
                 android:id="@+id/tvCoverTitle"

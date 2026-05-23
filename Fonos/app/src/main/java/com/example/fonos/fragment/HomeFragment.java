@@ -19,6 +19,9 @@ import com.example.fonos.adapter.CategoryAdapter;
 import com.example.fonos.model.Book;
 import com.example.fonos.model.Category;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +36,9 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
     private List<Book> newReleaseBooks;
     private List<Book> recommendedBooks;
 
+    private View progressBar;
+    private View homeScrollView;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -41,6 +47,7 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         initViews(view);
         initData();
         setupRecyclerViews();
+        loadBooksFromFirestore();
         
         return view;
     }
@@ -50,6 +57,8 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         rvTrending = view.findViewById(R.id.rvTrending);
         rvNewReleases = view.findViewById(R.id.rvNewReleases);
         rvRecommended = view.findViewById(R.id.rvRecommended);
+        progressBar = view.findViewById(R.id.progressBar);
+        homeScrollView = view.findViewById(R.id.homeScrollView);
     }
 
     private void initData() {
@@ -62,22 +71,79 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         categoryList.add(new Category(5, getString(R.string.cat_science), false));
         categoryList.add(new Category(6, getString(R.string.cat_psychology), false));
 
-        // Sample Books Data
         trendingBooks = new ArrayList<>();
+        newReleaseBooks = new ArrayList<>();
+        recommendedBooks = new ArrayList<>();
+    }
+
+    private void loadBooksFromFirestore() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("books")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (progressBar != null) progressBar.setVisibility(View.GONE);
+                    if (homeScrollView != null) homeScrollView.setVisibility(View.VISIBLE);
+
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        List<Book> allBooks = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Book book = document.toObject(Book.class);
+                            allBooks.add(book);
+                        }
+                        if (!allBooks.isEmpty()) {
+                            updateUIWithBooks(allBooks);
+                        } else {
+                            loadLocalSampleBooks();
+                        }
+                    } else {
+                        loadLocalSampleBooks();
+                    }
+                });
+    }
+
+    private void updateUIWithBooks(List<Book> allBooks) {
+        trendingBooks.clear();
+        newReleaseBooks.clear();
+        recommendedBooks.clear();
+
+        for (Book book : allBooks) {
+            if (book.isTrending()) {
+                trendingBooks.add(book);
+            }
+            if (book.isNewRelease()) {
+                newReleaseBooks.add(book);
+            }
+            // Add to recommended if not trending and not new release
+            if (!book.isTrending() && !book.isNewRelease()) {
+                recommendedBooks.add(book);
+            }
+        }
+
+        trendingAdapter.notifyDataSetChanged();
+        newReleasesAdapter.notifyDataSetChanged();
+        recommendedAdapter.notifyDataSetChanged();
+    }
+
+    private void loadLocalSampleBooks() {
+        trendingBooks.clear();
         trendingBooks.add(new Book(1, getString(R.string.book1_title), getString(R.string.book1_author), getString(R.string.book1_desc), 4.8f, "8h 30m", 12, R.drawable.bg_book_cover_1, "Self-help"));
         trendingBooks.add(new Book(2, getString(R.string.book2_title), getString(R.string.book2_author), getString(R.string.book2_desc), 4.7f, "5h 45m", 15, R.drawable.bg_book_cover_2, "Fiction"));
         trendingBooks.add(new Book(3, getString(R.string.book3_title), getString(R.string.book3_author), getString(R.string.book3_desc), 4.6f, "6h 20m", 10, R.drawable.bg_book_cover_3, "Self-help"));
         trendingBooks.add(new Book(4, getString(R.string.book4_title), getString(R.string.book4_author), getString(R.string.book4_desc), 4.9f, "15h 10m", 20, R.drawable.bg_book_cover_4, "Science"));
 
-        newReleaseBooks = new ArrayList<>();
+        newReleaseBooks.clear();
         newReleaseBooks.add(new Book(5, getString(R.string.book5_title), getString(R.string.book5_author), getString(R.string.book5_desc), 4.5f, "14h 05m", 18, R.drawable.bg_book_cover_5, "Psychology"));
         newReleaseBooks.add(new Book(6, getString(R.string.book6_title), getString(R.string.book6_author), getString(R.string.book6_desc), 4.8f, "7h 15m", 11, R.drawable.bg_book_cover_6, "Business"));
         newReleaseBooks.add(new Book(7, getString(R.string.book7_title), getString(R.string.book7_author), getString(R.string.book7_desc), 4.4f, "5h 50m", 9, R.drawable.bg_book_cover_7, "Self-help"));
 
-        recommendedBooks = new ArrayList<>();
+        recommendedBooks.clear();
         recommendedBooks.add(new Book(8, getString(R.string.book8_title), getString(R.string.book8_author), getString(R.string.book8_desc), 4.9f, "9h 40m", 16, R.drawable.bg_book_cover_1, "Business"));
         recommendedBooks.add(new Book(9, getString(R.string.book9_title), getString(R.string.book9_author), getString(R.string.book9_desc), 4.7f, "12h 30m", 21, R.drawable.bg_book_cover_2, "Self-help"));
         recommendedBooks.add(new Book(10, getString(R.string.book10_title), getString(R.string.book10_author), getString(R.string.book10_desc), 4.6f, "8h 15m", 14, R.drawable.bg_book_cover_3, "Psychology"));
+
+        trendingAdapter.notifyDataSetChanged();
+        newReleasesAdapter.notifyDataSetChanged();
+        recommendedAdapter.notifyDataSetChanged();
     }
 
     private void setupRecyclerViews() {
@@ -113,6 +179,8 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         intent.putExtra("book_duration", book.getDuration());
         intent.putExtra("book_chapters", book.getChapterCount());
         intent.putExtra("book_cover", book.getCoverDrawableRes());
+        intent.putExtra("book_cover_url", book.getCoverUrl());
+        intent.putExtra("book_category", book.getCategory());
         startActivity(intent);
     }
 
