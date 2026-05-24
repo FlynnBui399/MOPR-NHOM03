@@ -21,7 +21,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText etFullName, etPhone, etEmail, etPassword, etConfirmPassword;
+    private EditText etFullName, etEmail, etPassword, etConfirmPassword;
     private CheckBox cbTerms;
     private Button btnRegister;
     private TextView tvLogin;
@@ -43,7 +43,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void initViews() {
         etFullName = findViewById(R.id.etFullName);
-        etPhone = findViewById(R.id.etPhone);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
@@ -89,18 +88,12 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void registerUser() {
         String fullName = etFullName.getText().toString().trim();
-        String phone = etPhone.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
         if (TextUtils.isEmpty(fullName)) {
             Toast.makeText(this, getString(R.string.error_name_empty), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (TextUtils.isEmpty(phone)) {
-            Toast.makeText(this, getString(R.string.error_phone_empty), Toast.LENGTH_SHORT).show();
             return;
         }
 

@@ -16,7 +16,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -29,8 +28,12 @@
             android:name=".AudioPlayerActivity"
             android:exported="false"
             android:parentActivityName=".BookDetailActivity" />
-        <activity android:name=".auth.LoginActivity" android:exported="false" />
-        <activity android:name=".auth.RegisterActivity" android:exported="false" />
+        <activity
+            android:name=".auth.LoginActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".auth.RegisterActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
