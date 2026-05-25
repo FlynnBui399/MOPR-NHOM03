@@ -35,7 +35,7 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
     private Button btnLibraryLogin;
 
     private BookAdapter bookAdapter;
-    private List<Book> libraryBooks = new ArrayList<>();
+    private final List<Book> libraryBooks = new ArrayList<>();
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -85,6 +85,7 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
     @Override
     public void onStop() {
         super.onStop();
+
         if (libraryListener != null) {
             libraryListener.remove();
             libraryListener = null;
@@ -93,8 +94,8 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
 
     private void checkLoginAndLoadLibrary() {
         FirebaseUser user = mAuth.getCurrentUser();
+
         if (user == null) {
-            // User not logged in
             layoutLoginRequired.setVisibility(View.VISIBLE);
             rvLibrary.setVisibility(View.GONE);
             layoutEmptyState.setVisibility(View.GONE);
@@ -104,7 +105,6 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
                 libraryListener = null;
             }
         } else {
-            // User logged in
             layoutLoginRequired.setVisibility(View.GONE);
             observeLibrary(user.getUid());
         }
@@ -120,7 +120,6 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
                 .collection("library")
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        // Fallback to empty if there's an error loading
                         libraryBooks.clear();
                         bookAdapter.notifyDataSetChanged();
                         showEmptyState();
@@ -129,10 +128,12 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
 
                     if (value != null) {
                         libraryBooks.clear();
+
                         for (QueryDocumentSnapshot document : value) {
                             Book book = document.toObject(Book.class);
                             libraryBooks.add(book);
                         }
+
                         bookAdapter.notifyDataSetChanged();
 
                         if (libraryBooks.isEmpty()) {
@@ -157,6 +158,7 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
     @Override
     public void onBookClick(Book book) {
         Intent intent = new Intent(getActivity(), BookDetailActivity.class);
+
         intent.putExtra("book_id", book.getId());
         intent.putExtra("book_title", book.getTitle());
         intent.putExtra("book_author", book.getAuthor());
@@ -165,6 +167,10 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
         intent.putExtra("book_duration", book.getDuration());
         intent.putExtra("book_chapters", book.getChapterCount());
         intent.putExtra("book_cover", book.getCoverDrawableRes());
+        intent.putExtra("book_cover_url", book.getCoverUrl());
+        intent.putExtra("book_audio_url", book.getAudioUrl());
+        intent.putExtra("book_category", book.getCategory());
+
         startActivity(intent);
     }
 }

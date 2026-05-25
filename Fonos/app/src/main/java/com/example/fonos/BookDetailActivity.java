@@ -1,9 +1,11 @@
 package com.example.fonos;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,8 +16,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import android.widget.ImageView;
-import android.content.SharedPreferences;
 import com.bumptech.glide.Glide;
 import com.example.fonos.auth.LoginActivity;
 import com.example.fonos.model.Book;
@@ -32,7 +32,7 @@ public class BookDetailActivity extends AppCompatActivity {
     private Button btnAddLibrary;
 
     private int bookId;
-    private String title, author, desc, duration, category, coverUrl;
+    private String title, author, desc, duration, category, coverUrl, audioUrl;
     private float rating;
     private int chapters, coverRes;
 
@@ -77,70 +77,108 @@ public class BookDetailActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         setSupportActionBar(toolbar);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
+
         toolbar.setNavigationOnClickListener(v -> finish());
     }
 
     private void loadBookData() {
-        if (getIntent() != null) {
-            bookId = getIntent().getIntExtra("book_id", 0);
-            title = getIntent().getStringExtra("book_title");
-            author = getIntent().getStringExtra("book_author");
-            desc = getIntent().getStringExtra("book_desc");
-            rating = getIntent().getFloatExtra("book_rating", 0f);
-            duration = getIntent().getStringExtra("book_duration");
-            chapters = getIntent().getIntExtra("book_chapters", 0);
-            coverRes = getIntent().getIntExtra("book_cover", R.drawable.bg_book_cover_1);
-            coverUrl = getIntent().getStringExtra("book_cover_url");
-            category = getIntent().getStringExtra("book_category");
-            if (category == null) {
-                category = "General";
-            }
+        if (getIntent() == null) return;
 
-            tvDetailTitle.setText(title);
-            tvDetailAuthor.setText(author);
-            tvDetailDescription.setText(desc);
-            tvDetailRating.setText(String.valueOf(rating));
-            tvDetailDuration.setText(duration);
-            tvDetailChapters.setText(getString(R.string.detail_chapter_count, chapters));
+        bookId = getIntent().getIntExtra("book_id", 0);
+        title = getIntent().getStringExtra("book_title");
+        author = getIntent().getStringExtra("book_author");
+        desc = getIntent().getStringExtra("book_desc");
+        rating = getIntent().getFloatExtra("book_rating", 0f);
+        duration = getIntent().getStringExtra("book_duration");
+        chapters = getIntent().getIntExtra("book_chapters", 0);
+        coverRes = getIntent().getIntExtra("book_cover", R.drawable.bg_book_cover_1);
+        coverUrl = getIntent().getStringExtra("book_cover_url");
+        audioUrl = getIntent().getStringExtra("book_audio_url");
+        category = getIntent().getStringExtra("book_category");
 
-            tvDetailCoverTitle.setText(title);
-            if (coverUrl != null && !coverUrl.isEmpty()) {
-                Glide.with(this).load(coverUrl).into(imgDetailCover);
-            } else {
-                imgDetailCover.setImageResource(coverRes);
-            }
+        if (title == null) title = getString(R.string.app_name);
+        if (author == null) author = "";
+        if (desc == null) desc = "";
+        if (duration == null) duration = "00:00";
+        if (category == null || category.trim().isEmpty()) category = "General";
+
+        tvDetailTitle.setText(title);
+        tvDetailAuthor.setText(author);
+        tvDetailDescription.setText(desc);
+        tvDetailRating.setText(String.valueOf(rating));
+        tvDetailDuration.setText(duration);
+        tvDetailChapters.setText(getString(R.string.detail_chapter_count, chapters));
+        tvDetailCoverTitle.setText(title);
+
+        renderCover();
+    }
+
+    private void renderCover() {
+        if (isValidUrl(coverUrl)) {
+            Glide.with(this)
+                    .load(coverUrl)
+                    .placeholder(coverRes)
+                    .error(coverRes)
+                    .into(imgDetailCover);
+
+            tvDetailCoverTitle.setVisibility(View.GONE);
+        } else {
+            imgDetailCover.setImageResource(coverRes);
+            tvDetailCoverTitle.setVisibility(View.VISIBLE);
         }
     }
 
     private void setupListenNowButton() {
         Button btnListenNow = findViewById(R.id.btnListenNow);
-        btnListenNow.setOnClickListener(v -> {
-            // Save played book to SharedPreferences
-            SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("active_book_title", title);
-            editor.putString("active_book_author", author);
-            editor.putString("active_book_duration", duration);
-            editor.putInt("active_book_cover", coverRes);
-            editor.putString("active_book_cover_url", coverUrl);
-            editor.apply();
 
-            Intent intent = new Intent(BookDetailActivity.this, AudioPlayerActivity.class);
-            intent.putExtra("book_title", tvDetailTitle.getText().toString());
-            intent.putExtra("book_author", tvDetailAuthor.getText().toString());
-            intent.putExtra("book_duration", tvDetailDuration.getText().toString());
-            int cover = getIntent().getIntExtra("book_cover", R.drawable.bg_book_cover_1);
-            intent.putExtra("book_cover", cover);
-            startActivity(intent);
+        btnListenNow.setOnClickListener(v -> {
+            if (!isValidUrl(audioUrl)) {
+                Toast.makeText(this, "Sách này chưa có audioUrl hợp lệ", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            saveActiveBookToMiniPlayer();
+            openAudioPlayer();
         });
+    }
+
+    private void openAudioPlayer() {
+        Intent intent = new Intent(BookDetailActivity.this, AudioPlayerActivity.class);
+
+        intent.putExtra("book_id", bookId);
+        intent.putExtra("book_title", title);
+        intent.putExtra("book_author", author);
+        intent.putExtra("book_duration", duration);
+        intent.putExtra("book_cover", coverRes);
+        intent.putExtra("book_cover_url", coverUrl);
+        intent.putExtra("audio_url", audioUrl);
+        intent.putExtra("book_audio_url", audioUrl);
+
+        startActivity(intent);
+    }
+
+    private void saveActiveBookToMiniPlayer() {
+        SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        editor.putString("active_book_title", title);
+        editor.putString("active_book_author", author);
+        editor.putString("active_book_duration", duration);
+        editor.putInt("active_book_cover", coverRes);
+        editor.putString("active_book_cover_url", coverUrl);
+        editor.putString("active_book_audio_url", audioUrl);
+
+        editor.apply();
     }
 
     private void setupLibraryButton() {
         FirebaseUser user = mAuth.getCurrentUser();
+
         if (user != null) {
             db.collection("users")
                     .document(user.getUid())
@@ -163,6 +201,7 @@ public class BookDetailActivity extends AppCompatActivity {
 
         btnAddLibrary.setOnClickListener(v -> {
             FirebaseUser currentUser = mAuth.getCurrentUser();
+
             if (currentUser == null) {
                 Toast.makeText(this, "Please log in to save books to your library", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(BookDetailActivity.this, LoginActivity.class);
@@ -171,6 +210,7 @@ public class BookDetailActivity extends AppCompatActivity {
             }
 
             btnAddLibrary.setEnabled(false);
+
             if (isAddedToLibrary) {
                 db.collection("users")
                         .document(currentUser.getUid())
@@ -179,6 +219,7 @@ public class BookDetailActivity extends AppCompatActivity {
                         .delete()
                         .addOnCompleteListener(task -> {
                             btnAddLibrary.setEnabled(true);
+
                             if (task.isSuccessful()) {
                                 isAddedToLibrary = false;
                                 btnAddLibrary.setText(getString(R.string.detail_add_library));
@@ -189,6 +230,9 @@ public class BookDetailActivity extends AppCompatActivity {
                         });
             } else {
                 Book book = new Book(bookId, title, author, desc, rating, duration, chapters, coverRes, category);
+                book.setCoverUrl(coverUrl);
+                book.setAudioUrl(audioUrl);
+
                 db.collection("users")
                         .document(currentUser.getUid())
                         .collection("library")
@@ -196,6 +240,7 @@ public class BookDetailActivity extends AppCompatActivity {
                         .set(book)
                         .addOnCompleteListener(task -> {
                             btnAddLibrary.setEnabled(true);
+
                             if (task.isSuccessful()) {
                                 isAddedToLibrary = true;
                                 btnAddLibrary.setText("Xóa khỏi thư viện");
@@ -206,5 +251,10 @@ public class BookDetailActivity extends AppCompatActivity {
                         });
             }
         });
+    }
+
+    private boolean isValidUrl(String value) {
+        return value != null &&
+                (value.trim().startsWith("http://") || value.trim().startsWith("https://"));
     }
 }

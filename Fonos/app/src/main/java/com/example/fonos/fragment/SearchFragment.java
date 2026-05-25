@@ -21,7 +21,6 @@ import com.example.fonos.BookDetailActivity;
 import com.example.fonos.R;
 import com.example.fonos.adapter.BookAdapter;
 import com.example.fonos.model.Book;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -73,17 +72,15 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
         db.collection("books")
                 .get()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        if (task.getResult().isEmpty()) {
-                            loadLocalSampleBooks();
-                        } else {
-                            allBooksList.clear();
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Book book = document.toObject(Book.class);
-                                allBooksList.add(book);
-                            }
-                            filterBooks(etSearch.getText().toString());
+                    if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
+                        allBooksList.clear();
+
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Book book = document.toObject(Book.class);
+                            allBooksList.add(book);
                         }
+
+                        filterBooks(etSearch.getText().toString());
                     } else {
                         loadLocalSampleBooks();
                     }
@@ -97,6 +94,7 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
 
     private List<Book> getLocalSampleBooksList() {
         List<Book> books = new ArrayList<>();
+
         books.add(new Book(1, getString(R.string.book1_title), getString(R.string.book1_author), getString(R.string.book1_desc), 4.8f, "8h 30m", 12, R.drawable.bg_book_cover_1, "Self-help"));
         books.add(new Book(2, getString(R.string.book2_title), getString(R.string.book2_author), getString(R.string.book2_desc), 4.7f, "5h 45m", 15, R.drawable.bg_book_cover_2, "Fiction"));
         books.add(new Book(3, getString(R.string.book3_title), getString(R.string.book3_author), getString(R.string.book3_desc), 4.6f, "6h 20m", 10, R.drawable.bg_book_cover_3, "Self-help"));
@@ -107,13 +105,16 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
         books.add(new Book(8, getString(R.string.book8_title), getString(R.string.book8_author), getString(R.string.book8_desc), 4.9f, "9h 40m", 16, R.drawable.bg_book_cover_1, "Business"));
         books.add(new Book(9, getString(R.string.book9_title), getString(R.string.book9_author), getString(R.string.book9_desc), 4.7f, "12h 30m", 21, R.drawable.bg_book_cover_2, "Self-help"));
         books.add(new Book(10, getString(R.string.book10_title), getString(R.string.book10_author), getString(R.string.book10_desc), 4.6f, "8h 15m", 14, R.drawable.bg_book_cover_3, "Psychology"));
+
         return books;
     }
 
     private void setupSearchListener() {
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No action needed
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -121,12 +122,15 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+                // No action needed
+            }
         });
     }
 
     private void filterBooks(String query) {
         filteredBooksList.clear();
+
         String lowercaseQuery = query.toLowerCase().trim();
 
         if (lowercaseQuery.isEmpty()) {
@@ -150,12 +154,14 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
                 layoutEmptyState.setVisibility(View.GONE);
             }
         }
+
         bookAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onBookClick(Book book) {
         Intent intent = new Intent(getActivity(), BookDetailActivity.class);
+
         intent.putExtra("book_id", book.getId());
         intent.putExtra("book_title", book.getTitle());
         intent.putExtra("book_author", book.getAuthor());
@@ -164,6 +170,10 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
         intent.putExtra("book_duration", book.getDuration());
         intent.putExtra("book_chapters", book.getChapterCount());
         intent.putExtra("book_cover", book.getCoverDrawableRes());
+        intent.putExtra("book_cover_url", book.getCoverUrl());
+        intent.putExtra("book_audio_url", book.getAudioUrl());
+        intent.putExtra("book_category", book.getCategory());
+
         startActivity(intent);
     }
 }

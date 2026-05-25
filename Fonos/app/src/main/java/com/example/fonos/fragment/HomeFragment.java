@@ -180,6 +180,7 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         intent.putExtra("book_chapters", book.getChapterCount());
         intent.putExtra("book_cover", book.getCoverDrawableRes());
         intent.putExtra("book_cover_url", book.getCoverUrl());
+        intent.putExtra("book_audio_url", book.getAudioUrl());
         intent.putExtra("book_category", book.getCategory());
         startActivity(intent);
     }

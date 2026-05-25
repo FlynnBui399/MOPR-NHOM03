@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,19 +28,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);            return insets;
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
         });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
         setupMiniPlayer();
-        
-        // Seed books collection in Firestore if empty
-        FirestoreSeeder.seedBooks(this);
-        
-        // Load default fragment
+
+        // Do not seed placeholder data from the app.
+        // Firestore data should be managed from Firebase Console or official seed scripts.
+        // FirestoreSeeder.seedBooks(this);
+
         if (savedInstanceState == null) {
             loadFragment(new HomeFragment());
         }
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             Fragment fragment = null;
             int itemId = item.getItemId();
-            
+
             if (itemId == R.id.nav_home) {
                 fragment = new HomeFragment();
             } else if (itemId == R.id.nav_search) {
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 loadFragment(fragment);
                 return true;
             }
+
             return false;
         });
     }
@@ -72,32 +75,51 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.fragmentContainer, fragment)
                 .commit();
     }
+
     @Override
     protected void onResume() {
         super.onResume();
         updateMiniPlayer();
     }
 
+    private void setupMiniPlayer() {
+        updateMiniPlayer();
+    }
+
     private void updateMiniPlayer() {
         SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);
+
         String activeTitle = sharedPref.getString("active_book_title", null);
         String activeAuthor = sharedPref.getString("active_book_author", null);
         String activeDuration = sharedPref.getString("active_book_duration", null);
         int activeCover = sharedPref.getInt("active_book_cover", R.drawable.bg_book_cover_1);
         String activeCoverUrl = sharedPref.getString("active_book_cover_url", null);
+        String activeAudioUrl = sharedPref.getString("active_book_audio_url", null);
 
         TextView tvTitle = findViewById(R.id.tvMiniPlayerTitle);
         TextView tvSubtitle = findViewById(R.id.tvMiniPlayerSubtitle);
         ImageView imgCover = findViewById(R.id.imgMiniPlayerCover);
         TextView tvCoverTitle = findViewById(R.id.tvMiniPlayerCoverTitle);
 
-        if (activeTitle != null) {
+        if (tvTitle == null ||
+                tvSubtitle == null ||
+                imgCover == null ||
+                tvCoverTitle == null ||
+                findViewById(R.id.miniPlayer) == null) {
+            return;
+        }
+
+        if (activeTitle != null && !activeTitle.trim().isEmpty()) {
             tvTitle.setText(activeTitle);
-            tvSubtitle.setText("Tiếp tục nghe • " + activeAuthor);
+            tvSubtitle.setText("Tiếp tục nghe • " + (activeAuthor != null ? activeAuthor : ""));
             tvCoverTitle.setText(activeTitle);
 
-            if (activeCoverUrl != null && !activeCoverUrl.isEmpty()) {
-                Glide.with(this).load(activeCoverUrl).into(imgCover);
+            if (isValidUrl(activeCoverUrl)) {
+                Glide.with(this)
+                        .load(activeCoverUrl)
+                        .placeholder(activeCover)
+                        .error(activeCover)
+                        .into(imgCover);
             } else {
                 imgCover.setImageResource(activeCover);
             }
@@ -109,28 +131,24 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("book_duration", activeDuration);
                 intent.putExtra("book_cover", activeCover);
                 intent.putExtra("book_cover_url", activeCoverUrl);
+                intent.putExtra("audio_url", activeAudioUrl);
+                intent.putExtra("book_audio_url", activeAudioUrl);
                 startActivity(intent);
             });
         } else {
-            // Default placeholder state if no book has been played yet
             tvTitle.setText(getString(R.string.mini_player_title));
             tvSubtitle.setText(getString(R.string.mini_player_subtitle));
             tvCoverTitle.setText("Fonos");
             imgCover.setImageResource(R.drawable.bg_book_cover_1);
 
             findViewById(R.id.miniPlayer).setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, AudioPlayerActivity.class);
-                intent.putExtra("book_title", getString(R.string.book1_title));
-                intent.putExtra("book_author", getString(R.string.book1_author));
-                intent.putExtra("book_duration", "8h 30m");
-                intent.putExtra("book_cover", R.drawable.bg_book_cover_1);
-                startActivity(intent);
+                Toast.makeText(this, "Hãy chọn một sách để bắt đầu nghe", Toast.LENGTH_SHORT).show();
             });
         }
     }
 
-    private void setupMiniPlayer() {
-        // Initial setup, will be updated by updateMiniPlayer in onResume
-        updateMiniPlayer();
+    private boolean isValidUrl(String value) {
+        return value != null &&
+                (value.trim().startsWith("http://") || value.trim().startsWith("https://"));
     }
 }

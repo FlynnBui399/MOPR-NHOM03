@@ -1,5 +1,6 @@
 package com.example.fonos.auth;
 
+import com.example.fonos.MainActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -12,7 +13,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.fonos.MainActivity;
 import com.example.fonos.R;
 import com.google.firebase.auth.FirebaseAuth;
 

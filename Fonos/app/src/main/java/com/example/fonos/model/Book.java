@@ -33,30 +33,131 @@ public class Book {
         this.category = category;
         this.coverUrl = "";
         this.audioUrl = "";
+        this.isTrending = false;
+        this.isNewRelease = false;
     }
 
-    public int getId() { return id; }
-    public String getTitle() { return title; }
-    public String getAuthor() { return author; }
-    public String getDescription() { return description; }
-    public float getRating() { return rating; }
-    public String getDuration() { return duration; }
-    public int getChapterCount() { return chapterCount; }
-    public int getCoverDrawableRes() { return coverDrawableRes; }
-    public String getCategory() { return category; }
+    public int getId() {
+        return id;
+    }
 
-    public String getCoverUrl() { return coverUrl; }
-    public void setCoverUrl(String coverUrl) { this.coverUrl = coverUrl; }
-    public String getAudioUrl() { return audioUrl; }
-    public void setAudioUrl(String audioUrl) { this.audioUrl = audioUrl; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    // Firestore deserialization mapping
-    public boolean getIsTrending() { return isTrending; }
-    public void setIsTrending(boolean isTrending) { this.isTrending = isTrending; }
-    public boolean getIsNewRelease() { return isNewRelease; }
-    public void setIsNewRelease(boolean isNewRelease) { this.isNewRelease = isNewRelease; }
 
-    // Backward compatible helper methods for application code
-    public boolean isTrending() { return isTrending; }
-    public boolean isNewRelease() { return isNewRelease; }
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
+
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+
+    public int getChapterCount() {
+        return chapterCount;
+    }
+
+    public void setChapterCount(int chapterCount) {
+        this.chapterCount = chapterCount;
+    }
+
+
+    public int getCoverDrawableRes() {
+        return coverDrawableRes;
+    }
+
+    public void setCoverDrawableRes(int coverDrawableRes) {
+        this.coverDrawableRes = coverDrawableRes;
+    }
+
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+
+    public String getCoverUrl() {
+        return coverUrl;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
+    }
+
+
+    public String getAudioUrl() {
+        return audioUrl;
+    }
+
+    public void setAudioUrl(String audioUrl) {
+        this.audioUrl = audioUrl;
+    }
+
+
+    public boolean getIsTrending() {
+        return isTrending;
+    }
+
+    public void setIsTrending(boolean trending) {
+        isTrending = trending;
+    }
+
+    public boolean isTrending() {
+        return isTrending;
+    }
+
+
+    public boolean getIsNewRelease() {
+        return isNewRelease;
+    }
+
+    public void setIsNewRelease(boolean newRelease) {
+        isNewRelease = newRelease;
+    }
+
+    public boolean isNewRelease() {
+        return isNewRelease;
+    }
 }
