@@ -109,22 +109,30 @@ public class FirestoreSeeder {
                                   String description, float rating, String duration, int chapterCount, 
                                   String category, boolean isTrending, boolean isNewRelease, 
                                   String audioUrl, String coverUrl) {
-        Map<String, Object> book = new HashMap<>();
-        book.put("id", id);
-        book.put("title", title);
-        book.put("author", author);
-        book.put("description", description);
-        book.put("rating", rating);
-        book.put("duration", duration);
-        book.put("chapterCount", chapterCount);
-        book.put("category", category);
-        book.put("isTrending", isTrending);
-        book.put("isNewRelease", isNewRelease);
-        book.put("audioUrl", audioUrl);
-        book.put("coverUrl", coverUrl);
+        booksRef.document(String.valueOf(id)).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null && !task.getResult().exists()) {
+                Map<String, Object> book = new HashMap<>();
+                book.put("id", id);
+                book.put("title", title);
+                book.put("author", author);
+                book.put("description", description);
+                book.put("rating", rating);
+                book.put("duration", duration);
+                book.put("chapterCount", chapterCount);
+                book.put("category", category);
+                book.put("isTrending", isTrending);
+                book.put("isNewRelease", isNewRelease);
+                book.put("audioUrl", audioUrl);
+                book.put("coverUrl", coverUrl);
 
-        booksRef.document(String.valueOf(id)).set(book)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Audiobook '" + title + "' added successfully with ID: " + id))
-                .addOnFailureListener(e -> Log.e(TAG, "Error adding audiobook '" + title + "'", e));
+                booksRef.document(String.valueOf(id)).set(book)
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Audiobook '" + title + "' seeded successfully with ID: " + id))
+                        .addOnFailureListener(e -> Log.e(TAG, "Error seeding audiobook '" + title + "'", e));
+            } else if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                Log.d(TAG, "Audiobook '" + title + "' (ID: " + id + ") already exists. Skipping write.");
+            } else {
+                Log.e(TAG, "Failed to check if audiobook '" + title + "' exists: ", task.getException());
+            }
+        });
     }
 }

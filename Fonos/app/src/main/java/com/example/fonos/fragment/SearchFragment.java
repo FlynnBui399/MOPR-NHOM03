@@ -75,7 +75,7 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         if (task.getResult().isEmpty()) {
-                            seedBooksDatabase();
+                            loadLocalSampleBooks();
                         } else {
                             allBooksList.clear();
                             for (QueryDocumentSnapshot document : task.getResult()) {
@@ -84,30 +84,6 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
                             }
                             filterBooks(etSearch.getText().toString());
                         }
-                    } else {
-                        loadLocalSampleBooks();
-                    }
-                });
-    }
-
-    private void seedBooksDatabase() {
-        List<Book> localBooks = getLocalSampleBooksList();
-        CollectionReference booksRef = db.collection("books");
-
-        for (Book book : localBooks) {
-            booksRef.document(String.valueOf(book.getId())).set(book);
-        }
-
-        db.collection("books")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        allBooksList.clear();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Book book = document.toObject(Book.class);
-                            allBooksList.add(book);
-                        }
-                        filterBooks(etSearch.getText().toString());
                     } else {
                         loadLocalSampleBooks();
                     }
