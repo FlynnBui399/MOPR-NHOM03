@@ -18,7 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText etEmailOrPhone, etPassword;
+    private EditText etEmail, etPassword;
     private Button btnLogin;
     private TextView tvRegister;
     private ImageButton btnBack, btnTogglePassword;
@@ -37,7 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        etEmailOrPhone = findViewById(R.id.etEmailOrPhone);
+        etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         tvRegister = findViewById(R.id.tvRegister);
@@ -68,11 +68,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUser() {
-        String email = etEmailOrPhone.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
         if (TextUtils.isEmpty(email)) {
-            Toast.makeText(this, getString(R.string.error_email_or_phone_empty), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_email_empty), Toast.LENGTH_SHORT).show();
             return;
         }
 

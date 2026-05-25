@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!--Register-->
     <string name="app_name">Fonos</string>
 
@@ -7,13 +7,10 @@
     <string name="register_title">Register</string>
     <string name="register_subtitle">Register to start ordering</string>
     <string name="register_button">REGISTER</string>
-    <string name="register_or_with">Or register with</string>
 
     <!-- Fields -->
     <string name="label_full_name">Full Name</string>
     <string name="hint_full_name">Enter full name</string>
-    <string name="label_phone">Phone Number</string>
-    <string name="hint_phone">Enter phone number</string>
     <string name="label_email">Email</string>
     <string name="hint_email">Enter email address</string>
     <string name="label_password">Password</string>
@@ -26,10 +23,6 @@
     <string name="terms_service">Terms of Service</string>
     <string name="terms_and"> and </string>
     <string name="terms_privacy">Privacy Policy</string>
-
-    <!-- Social login -->
-    <string name="login_google">Google</string>
-    <string name="login_facebook">Facebook</string>
 
     <!-- Footer -->
     <string name="already_have_account">Already have an account? </string>
@@ -46,8 +39,8 @@
 
     <!-- Validation messages -->
     <string name="error_name_empty">Please enter your full name</string>
-    <string name="error_phone_empty">Please enter your phone number</string>
-    <string name="error_phone_invalid">Invalid phone number</string>
+<!--    <string name="error_phone_empty">Please enter your phone number</string>-->
+<!--    <string name="error_phone_invalid">Invalid phone number</string>-->
     <string name="error_email_empty">Please enter your email</string>
     <string name="error_email_invalid">Invalid email address</string>
     <string name="error_password_empty">Please enter a password</string>
@@ -68,8 +61,8 @@
     <string name="welcome_back">Welcome back!</string>
 
     <!-- Login fields -->
-    <string name="label_email_or_phone">Email or phone number</string>
-    <string name="hint_email_or_phone">Enter email / phone number</string>
+<!--    <string name="label_email" tools:ignore="DuplicateDefinition">Email</string>-->
+<!--    <string name="hint_email" tools:ignore="DuplicateDefinition">Enter your email</string>-->
     <string name="forgot_password">Forgot password?</string>
 
     <!-- Footer -->
@@ -77,8 +70,8 @@
     <string name="register_link">Sign up now</string>
 
     <!-- Validation -->
-    <string name="error_email_or_phone_empty">Please enter your email or phone number</string>
-    <string name="error_login_failed">Incorrect email/phone number or password</string>
+    <string name="error_email" translatable="false">Please enter your email</string>
+    <string name="error_login_failed">Incorrect email or password</string>
     <string name="success_login">Signed in successfully!</string>
     <!-- End login -->
 
@@ -143,45 +136,45 @@
     <string name="profile_register">Register</string>
 
     <!-- Sample Book Data -->
-    <string name="book1_title">Đắc Nhân Tâm</string>
-    <string name="book1_author">Dale Carnegie</string>
-    <string name="book1_desc">Đắc nhân tâm của Dale Carnegie là quyển sách nổi tiếng nhất, bán chạy nhất và có tầm ảnh hưởng nhất của mọi thời đại. Tác phẩm đã được chuyển ngữ sang hầu hết các thứ tiếng trên thế giới và có mặt ở hàng trăm quốc gia.</string>
+    <string name="book1_title"  translatable="false">Đắc Nhân Tâm</string>
+    <string name="book1_author"  translatable="false">Dale Carnegie</string>
+    <string name="book1_desc"  translatable="false">Đắc nhân tâm của Dale Carnegie là quyển sách nổi tiếng nhất, bán chạy nhất và có tầm ảnh hưởng nhất của mọi thời đại. Tác phẩm đã được chuyển ngữ sang hầu hết các thứ tiếng trên thế giới và có mặt ở hàng trăm quốc gia.</string>
 
-    <string name="book2_title">Nhà Giả Kim</string>
-    <string name="book2_author">Paulo Coelho</string>
-    <string name="book2_desc">Tất cả những trải nghiệm trong chuyến phiêu du theo đuổi vận mệnh của mình đã giúp Santiago nhận ra được ý nghĩa sâu xa nhất của hạnh phúc, hòa hợp với vũ trụ và con người.</string>
+    <string name="book2_title"  translatable="false">Nhà Giả Kim</string>
+    <string name="book2_author"  translatable="false">Paulo Coelho</string>
+    <string name="book2_desc"  translatable="false">Tất cả những trải nghiệm trong chuyến phiêu du theo đuổi vận mệnh của mình đã giúp Santiago nhận ra được ý nghĩa sâu xa nhất của hạnh phúc, hòa hợp với vũ trụ và con người.</string>
 
-    <string name="book3_title">Tuổi Trẻ Đáng Giá Bao Nhiêu</string>
-    <string name="book3_author">Rosie Nguyễn</string>
-    <string name="book3_desc">Tuổi trẻ đáng giá bao nhiêu là tác phẩm đầu tay của tác giả Rosie Nguyễn, chia sẻ những trải nghiệm và bài học quý giá dành cho người trẻ Việt Nam.</string>
+    <string name="book3_title"  translatable="false">Tuổi Trẻ Đáng Giá Bao Nhiêu</string>
+    <string name="book3_author"  translatable="false">Rosie Nguyễn</string>
+    <string name="book3_desc"  translatable="false">Tuổi trẻ đáng giá bao nhiêu là tác phẩm đầu tay của tác giả Rosie Nguyễn, chia sẻ những trải nghiệm và bài học quý giá dành cho người trẻ Việt Nam.</string>
 
-    <string name="book4_title">Sapiens: Lược Sử Loài Người</string>
-    <string name="book4_author">Yuval Noah Harari</string>
-    <string name="book4_desc">Sapiens khám phá lịch sử loài người từ thời kỳ đồ đá đến thế kỷ 21, đặt ra những câu hỏi lớn về bản chất của loài người chúng ta.</string>
+    <string name="book4_title"  translatable="false">Sapiens: Lược Sử Loài Người</string>
+    <string name="book4_author"  translatable="false">Yuval Noah Harari</string>
+    <string name="book4_desc"  translatable="false">Sapiens khám phá lịch sử loài người từ thời kỳ đồ đá đến thế kỷ 21, đặt ra những câu hỏi lớn về bản chất của loài người chúng ta.</string>
 
-    <string name="book5_title">Tư Duy Nhanh Và Chậm</string>
-    <string name="book5_author">Daniel Kahneman</string>
-    <string name="book5_desc">Cuốn sách này khám phá hai hệ thống tư duy chi phối cách chúng ta suy nghĩ, đưa ra quyết định và đánh giá mọi thứ trong cuộc sống.</string>
+    <string name="book5_title"  translatable="false">Tư Duy Nhanh Và Chậm</string>
+    <string name="book5_author"  translatable="false">Daniel Kahneman</string>
+    <string name="book5_desc"  translatable="false">Cuốn sách này khám phá hai hệ thống tư duy chi phối cách chúng ta suy nghĩ, đưa ra quyết định và đánh giá mọi thứ trong cuộc sống.</string>
 
-    <string name="book6_title">Atomic Habits</string>
-    <string name="book6_author">James Clear</string>
-    <string name="book6_desc">Atomic Habits cung cấp một khung thực hành đã được chứng minh để cải thiện mỗi ngày. James Clear tiết lộ các chiến lược thực tế giúp bạn hình thành thói quen tốt.</string>
+    <string name="book6_title"  translatable="false">Atomic Habits</string>
+    <string name="book6_author"  translatable="false">James Clear</string>
+    <string name="book6_desc"  translatable="false">Atomic Habits cung cấp một khung thực hành đã được chứng minh để cải thiện mỗi ngày. James Clear tiết lộ các chiến lược thực tế giúp bạn hình thành thói quen tốt.</string>
 
-    <string name="book7_title">Đời Ngắn Đừng Ngủ Dài</string>
-    <string name="book7_author">Robin Sharma</string>
-    <string name="book7_desc">Robin Sharma chia sẻ những bài học cuộc sống sâu sắc, giúp bạn sống một cuộc đời trọn vẹn và có ý nghĩa hơn mỗi ngày.</string>
+    <string name="book7_title"  translatable="false">Đời Ngắn Đừng Ngủ Dài</string>
+    <string name="book7_author"  translatable="false">Robin Sharma</string>
+    <string name="book7_desc"  translatable="false">Robin Sharma chia sẻ những bài học cuộc sống sâu sắc, giúp bạn sống một cuộc đời trọn vẹn và có ý nghĩa hơn mỗi ngày.</string>
 
-    <string name="book8_title">Người Giàu Có Nhất Thành Babylon</string>
-    <string name="book8_author">George S. Clason</string>
-    <string name="book8_desc">Cuốn sách kinh điển về quản lý tài chính cá nhân, truyền tải những nguyên tắc giàu có vượt thời gian qua những câu chuyện thú vị từ thành Babylon cổ đại.</string>
+    <string name="book8_title"  translatable="false">Người Giàu Có Nhất Thành Babylon</string>
+    <string name="book8_author"  translatable="false">George S. Clason</string>
+    <string name="book8_desc"  translatable="false">Cuốn sách kinh điển về quản lý tài chính cá nhân, truyền tải những nguyên tắc giàu có vượt thời gian qua những câu chuyện thú vị từ thành Babylon cổ đại.</string>
 
-    <string name="book9_title">7 Thói Quen Hiệu Quả</string>
-    <string name="book9_author">Stephen Covey</string>
-    <string name="book9_desc">Bảy thói quen của người thành đạt đã trở thành cuốn sách gối đầu giường của hàng triệu người, giúp họ cải thiện bản thân và đạt được thành công.</string>
+    <string name="book9_title"  translatable="false">7 Thói Quen Hiệu Quả</string>
+    <string name="book9_author"  translatable="false">Stephen Covey</string>
+    <string name="book9_desc"  translatable="false">Bảy thói quen của người thành đạt đã trở thành cuốn sách gối đầu giường của hàng triệu người, giúp họ cải thiện bản thân và đạt được thành công.</string>
 
-    <string name="book10_title">Sức Mạnh Tiềm Thức</string>
-    <string name="book10_author">Joseph Murphy</string>
-    <string name="book10_desc">Khám phá sức mạnh vô hạn của tiềm thức và học cách sử dụng nó để đạt được những điều bạn mong muốn trong cuộc sống.</string>
+    <string name="book10_title"  translatable="false">Sức Mạnh Tiềm Thức</string>
+    <string name="book10_author"  translatable="false">Joseph Murphy</string>
+    <string name="book10_desc"  translatable="false">Khám phá sức mạnh vô hạn của tiềm thức và học cách sử dụng nó để đạt được những điều bạn mong muốn trong cuộc sống.</string>
 
     <!-- Audio Player -->
     <string name="player_now_playing">Now Playing</string>

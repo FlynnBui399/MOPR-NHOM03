@@ -8,13 +8,10 @@
     <string name="register_title">Tạo tài khoản</string>
     <string name="register_subtitle">Đăng ký để bắt đầu đọc sách ngay</string>
     <string name="register_button">ĐĂNG KÝ</string>
-    <string name="register_or_with">Hoặc đăng ký với</string>
 
     <!-- Fields -->
     <string name="label_full_name">Họ và tên</string>
     <string name="hint_full_name">Nhập họ và tên</string>
-    <string name="label_phone">Số điện thoại</string>
-    <string name="hint_phone">Nhập số điện thoại</string>
     <string name="label_email">Email</string>
     <string name="hint_email">Nhập địa chỉ email</string>
     <string name="label_password">Mật khẩu</string>
@@ -28,9 +25,6 @@
     <string name="terms_and"> và </string>
     <string name="terms_privacy">Chính sách bảo mật</string>
 
-    <!-- Social login -->
-    <string name="login_google">Google</string>
-    <string name="login_facebook">Facebook</string>
 
     <!-- Footer -->
     <string name="already_have_account">Đã có tài khoản? </string>
@@ -47,9 +41,9 @@
 
     <!-- Validation messages -->
     <string name="error_name_empty">Vui lòng nhập họ và tên</string>
-    <string name="error_phone_empty">Vui lòng nhập số điện thoại</string>
-    <string name="error_phone_invalid">Số điện thoại không hợp lệ</string>
-    <string name="error_email_empty">Vui lòng nhập email</string>
+<!--    <string name="error_phone_empty">Vui lòng nhập số điện thoại</string>-->
+<!--    <string name="error_phone_invalid">Số điện thoại không hợp lệ</string>-->
+<!--    <string name="error_email_empty">Vui lòng nhập email</string>-->
     <string name="error_email_invalid">Email không hợp lệ</string>
     <string name="error_password_empty">Vui lòng nhập mật khẩu</string>
     <string name="error_password_short">Mật khẩu phải có ít nhất 6 ký tự</string>
@@ -127,8 +121,8 @@
     <string name="login_or_with">Hoặc đăng nhập với</string>
     <string name="welcome_back">Chào mừng trở lại!</string>
     <!-- Login fields -->
-    <string name="label_email_or_phone">Email hoặc số điện thoại</string>
-    <string name="hint_email_or_phone">Nhập email / số điện thoại</string>
+<!--    <string name="label_email">Email</string>-->
+<!--    <string name="hint_email">Nhập email</string>-->
     <string name="forgot_password">Quên mật khẩu?</string>
 
     <!-- Footer -->
@@ -136,8 +130,8 @@
     <string name="register_link">Đăng ký ngay</string>
 
     <!-- Validation -->
-    <string name="error_email_or_phone_empty">Vui lòng nhập email hoặc số điện thoại</string>
-    <string name="error_login_failed">Email/SĐT hoặc mật khẩu không đúng</string>
+    <string name="error_email_empty">Vui lòng nhập email</string>
+    <string name="error_login_failed">Email hoặc mật khẩu không đúng</string>
     <string name="success_login">Đăng nhập thành công!</string>
     <!-- End Login -->
 
