@@ -38,18 +38,11 @@
                 android:paddingEnd="20dp"
                 android:paddingBottom="14dp">
 
-                <FrameLayout
+                <ImageView
                     android:layout_width="52dp"
                     android:layout_height="52dp"
-                    android:background="@drawable/bg_logo_circle">
-
-                    <ImageView
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_gravity="center"
-                        android:contentDescription="@string/app_name"
-                        android:src="@drawable/ic_logo_white" />
-                </FrameLayout>
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/ic_logo_white" />
 
                 <TextView
                     android:layout_width="0dp"
