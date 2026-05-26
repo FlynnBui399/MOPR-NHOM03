@@ -2,6 +2,7 @@ package com.example.fonos.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -72,6 +73,12 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
         db.collection("books")
                 .get()
                 .addOnCompleteListener(task -> {
+                    // Safety check: skip callback if fragment is detached
+                    if (!isAdded() || getContext() == null) {
+                        Log.d("SearchFragment", "Fragment not attached. Skipping callback.");
+                        return;
+                    }
+
                     if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
                         allBooksList.clear();
 
@@ -82,6 +89,9 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
 
                         filterBooks(etSearch.getText().toString());
                     } else {
+                        if (task.getException() != null) {
+                            Log.e("SearchFragment", "Firestore query failed: ", task.getException());
+                        }
                         loadLocalSampleBooks();
                     }
                 });

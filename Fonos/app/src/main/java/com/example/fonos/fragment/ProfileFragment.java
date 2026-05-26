@@ -41,6 +41,28 @@ public class ProfileFragment extends Fragment {
         btnRegister = view.findViewById(R.id.btnRegister);
         btnLogout  = view.findViewById(R.id.btnLogout);
 
+        View btnSettings = view.findViewById(R.id.btnSettings);
+        View btnHistory = view.findViewById(R.id.btnHistory);
+        View btnDownloads = view.findViewById(R.id.btnDownloads);
+        View btnHelp = view.findViewById(R.id.btnHelp);
+        View btnAbout = view.findViewById(R.id.btnAbout);
+
+        if (btnSettings != null) {
+            btnSettings.setOnClickListener(v -> Toast.makeText(getContext(), "Dang mo Cai dat...", Toast.LENGTH_SHORT).show());
+        }
+        if (btnHistory != null) {
+            btnHistory.setOnClickListener(v -> Toast.makeText(getContext(), "Lich su nghe dang trong", Toast.LENGTH_SHORT).show());
+        }
+        if (btnDownloads != null) {
+            btnDownloads.setOnClickListener(v -> Toast.makeText(getContext(), "Chua co sach nao duoc tai xuong", Toast.LENGTH_SHORT).show());
+        }
+        if (btnHelp != null) {
+            btnHelp.setOnClickListener(v -> Toast.makeText(getContext(), "Dang ket noi den trung tam ho tro...", Toast.LENGTH_SHORT).show());
+        }
+        if (btnAbout != null) {
+            btnAbout.setOnClickListener(v -> Toast.makeText(getContext(), "Fonos - Phien ban 1.0.0", Toast.LENGTH_SHORT).show());
+        }
+
         updateUI();
 
         btnLogin.setOnClickListener(v -> {

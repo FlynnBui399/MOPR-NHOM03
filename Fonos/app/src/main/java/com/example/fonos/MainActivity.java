@@ -76,6 +76,13 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    public void selectSearchTab() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(R.id.nav_search);
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
