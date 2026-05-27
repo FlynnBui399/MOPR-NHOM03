@@ -2,6 +2,7 @@ package com.example.fonos.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fonos.BookDetailActivity;
+import com.example.fonos.MainActivity;
 import com.example.fonos.R;
 import com.example.fonos.adapter.BookAdapter;
 import com.example.fonos.adapter.CategoryAdapter;
@@ -35,9 +37,11 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
     private List<Book> trendingBooks;
     private List<Book> newReleaseBooks;
     private List<Book> recommendedBooks;
+    private final List<Book> allBooksFromFirestore = new ArrayList<>();
 
     private View progressBar;
     private View homeScrollView;
+    private View cardHomeSearch;
 
     @Nullable
     @Override
@@ -59,6 +63,15 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         rvRecommended = view.findViewById(R.id.rvRecommended);
         progressBar = view.findViewById(R.id.progressBar);
         homeScrollView = view.findViewById(R.id.homeScrollView);
+        cardHomeSearch = view.findViewById(R.id.cardHomeSearch);
+
+        if (cardHomeSearch != null) {
+            cardHomeSearch.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).selectSearchTab();
+                }
+            });
+        }
     }
 
     private void initData() {
@@ -81,6 +94,12 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         db.collection("books")
                 .get()
                 .addOnCompleteListener(task -> {
+                    // Safety check: skip callback if fragment is detached
+                    if (!isAdded() || getContext() == null) {
+                        Log.d("HomeFragment", "Fragment not attached. Skipping callback.");
+                        return;
+                    }
+
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
                     if (homeScrollView != null) homeScrollView.setVisibility(View.VISIBLE);
 
@@ -91,11 +110,16 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
                             allBooks.add(book);
                         }
                         if (!allBooks.isEmpty()) {
-                            updateUIWithBooks(allBooks);
+                            allBooksFromFirestore.clear();
+                            allBooksFromFirestore.addAll(allBooks);
+                            updateUIWithBooks(allBooksFromFirestore);
                         } else {
                             loadLocalSampleBooks();
                         }
                     } else {
+                        if (task.getException() != null) {
+                            Log.e("HomeFragment", "Firestore query failed: ", task.getException());
+                        }
                         loadLocalSampleBooks();
                     }
                 });
@@ -125,25 +149,19 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
     }
 
     private void loadLocalSampleBooks() {
-        trendingBooks.clear();
-        trendingBooks.add(new Book(1, getString(R.string.book1_title), getString(R.string.book1_author), getString(R.string.book1_desc), 4.8f, "8h 30m", 12, R.drawable.bg_book_cover_1, "Self-help"));
-        trendingBooks.add(new Book(2, getString(R.string.book2_title), getString(R.string.book2_author), getString(R.string.book2_desc), 4.7f, "5h 45m", 15, R.drawable.bg_book_cover_2, "Fiction"));
-        trendingBooks.add(new Book(3, getString(R.string.book3_title), getString(R.string.book3_author), getString(R.string.book3_desc), 4.6f, "6h 20m", 10, R.drawable.bg_book_cover_3, "Self-help"));
-        trendingBooks.add(new Book(4, getString(R.string.book4_title), getString(R.string.book4_author), getString(R.string.book4_desc), 4.9f, "15h 10m", 20, R.drawable.bg_book_cover_4, "Science"));
+        allBooksFromFirestore.clear();
+        allBooksFromFirestore.add(new Book(1, getString(R.string.book1_title), getString(R.string.book1_author), getString(R.string.book1_desc), 4.8f, "8h 30m", 12, R.drawable.bg_book_cover_1, "Self-help"));
+        allBooksFromFirestore.add(new Book(2, getString(R.string.book2_title), getString(R.string.book2_author), getString(R.string.book2_desc), 4.7f, "5h 45m", 15, R.drawable.bg_book_cover_2, "Fiction"));
+        allBooksFromFirestore.add(new Book(3, getString(R.string.book3_title), getString(R.string.book3_author), getString(R.string.book3_desc), 4.6f, "6h 20m", 10, R.drawable.bg_book_cover_3, "Self-help"));
+        allBooksFromFirestore.add(new Book(4, getString(R.string.book4_title), getString(R.string.book4_author), getString(R.string.book4_desc), 4.9f, "15h 10m", 20, R.drawable.bg_book_cover_4, "Science"));
+        allBooksFromFirestore.add(new Book(5, getString(R.string.book5_title), getString(R.string.book5_author), getString(R.string.book5_desc), 4.5f, "14h 05m", 18, R.drawable.bg_book_cover_5, "Psychology"));
+        allBooksFromFirestore.add(new Book(6, getString(R.string.book6_title), getString(R.string.book6_author), getString(R.string.book6_desc), 4.8f, "7h 15m", 11, R.drawable.bg_book_cover_6, "Business"));
+        allBooksFromFirestore.add(new Book(7, getString(R.string.book7_title), getString(R.string.book7_author), getString(R.string.book7_desc), 4.4f, "5h 50m", 9, R.drawable.bg_book_cover_7, "Self-help"));
+        allBooksFromFirestore.add(new Book(8, getString(R.string.book8_title), getString(R.string.book8_author), getString(R.string.book8_desc), 4.9f, "9h 40m", 16, R.drawable.bg_book_cover_1, "Business"));
+        allBooksFromFirestore.add(new Book(9, getString(R.string.book9_title), getString(R.string.book9_author), getString(R.string.book9_desc), 4.7f, "12h 30m", 21, R.drawable.bg_book_cover_2, "Self-help"));
+        allBooksFromFirestore.add(new Book(10, getString(R.string.book10_title), getString(R.string.book10_author), getString(R.string.book10_desc), 4.6f, "8h 15m", 14, R.drawable.bg_book_cover_3, "Psychology"));
 
-        newReleaseBooks.clear();
-        newReleaseBooks.add(new Book(5, getString(R.string.book5_title), getString(R.string.book5_author), getString(R.string.book5_desc), 4.5f, "14h 05m", 18, R.drawable.bg_book_cover_5, "Psychology"));
-        newReleaseBooks.add(new Book(6, getString(R.string.book6_title), getString(R.string.book6_author), getString(R.string.book6_desc), 4.8f, "7h 15m", 11, R.drawable.bg_book_cover_6, "Business"));
-        newReleaseBooks.add(new Book(7, getString(R.string.book7_title), getString(R.string.book7_author), getString(R.string.book7_desc), 4.4f, "5h 50m", 9, R.drawable.bg_book_cover_7, "Self-help"));
-
-        recommendedBooks.clear();
-        recommendedBooks.add(new Book(8, getString(R.string.book8_title), getString(R.string.book8_author), getString(R.string.book8_desc), 4.9f, "9h 40m", 16, R.drawable.bg_book_cover_1, "Business"));
-        recommendedBooks.add(new Book(9, getString(R.string.book9_title), getString(R.string.book9_author), getString(R.string.book9_desc), 4.7f, "12h 30m", 21, R.drawable.bg_book_cover_2, "Self-help"));
-        recommendedBooks.add(new Book(10, getString(R.string.book10_title), getString(R.string.book10_author), getString(R.string.book10_desc), 4.6f, "8h 15m", 14, R.drawable.bg_book_cover_3, "Psychology"));
-
-        trendingAdapter.notifyDataSetChanged();
-        newReleasesAdapter.notifyDataSetChanged();
-        recommendedAdapter.notifyDataSetChanged();
+        updateUIWithBooks(allBooksFromFirestore);
     }
 
     private void setupRecyclerViews() {
@@ -187,7 +205,38 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
 
     @Override
     public void onCategoryClick(Category category) {
-        // Handle category selection - typically filter book lists
-        // For now, we'll just keep the UI update which is handled in adapter
+        String targetCategory = null;
+        switch (category.getId()) {
+            case 2: targetCategory = "Self-help"; break;
+            case 3: targetCategory = "Business"; break;
+            case 4: targetCategory = "Fiction"; break;
+            case 5: targetCategory = "Science"; break;
+            case 6: targetCategory = "Psychology"; break;
+        }
+
+        trendingBooks.clear();
+        newReleaseBooks.clear();
+        recommendedBooks.clear();
+
+        for (Book book : allBooksFromFirestore) {
+            boolean matchesCategory = (targetCategory == null) || 
+                (book.getCategory() != null && book.getCategory().equalsIgnoreCase(targetCategory));
+            
+            if (matchesCategory) {
+                if (book.isTrending()) {
+                    trendingBooks.add(book);
+                }
+                if (book.isNewRelease()) {
+                    newReleaseBooks.add(book);
+                }
+                if (!book.isTrending() && !book.isNewRelease()) {
+                    recommendedBooks.add(book);
+                }
+            }
+        }
+
+        trendingAdapter.notifyDataSetChanged();
+        newReleasesAdapter.notifyDataSetChanged();
+        recommendedAdapter.notifyDataSetChanged();
     }
 }
