@@ -41,7 +41,6 @@ public class ProfileFragment extends Fragment {
         btnLogin   = view.findViewById(R.id.btnLogin);
         btnRegister = view.findViewById(R.id.btnRegister);
         btnLogout  = view.findViewById(R.id.btnLogout);
-        View layoutDownloads = view.findViewById(R.id.layoutDownloads);
 
         View btnSettings = view.findViewById(R.id.btnSettings);
         View btnHistory = view.findViewById(R.id.btnHistory);
@@ -50,19 +49,22 @@ public class ProfileFragment extends Fragment {
         View btnAbout = view.findViewById(R.id.btnAbout);
 
         if (btnSettings != null) {
-            btnSettings.setOnClickListener(v -> Toast.makeText(getContext(), "Dang mo Cai dat...", Toast.LENGTH_SHORT).show());
+            btnSettings.setOnClickListener(v -> Toast.makeText(getContext(), "Đang mở Cài đặt...", Toast.LENGTH_SHORT).show());
         }
         if (btnHistory != null) {
-            btnHistory.setOnClickListener(v -> Toast.makeText(getContext(), "Lich su nghe dang trong", Toast.LENGTH_SHORT).show());
+            btnHistory.setOnClickListener(v -> Toast.makeText(getContext(), "Lịch sử nghe đang trống", Toast.LENGTH_SHORT).show());
         }
         if (btnDownloads != null) {
-            btnDownloads.setOnClickListener(v -> Toast.makeText(getContext(), "Chua co sach nao duoc tai xuong", Toast.LENGTH_SHORT).show());
+            btnDownloads.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), DownloadsActivity.class);
+                startActivity(intent);
+            });
         }
         if (btnHelp != null) {
-            btnHelp.setOnClickListener(v -> Toast.makeText(getContext(), "Dang ket noi den trung tam ho tro...", Toast.LENGTH_SHORT).show());
+            btnHelp.setOnClickListener(v -> Toast.makeText(getContext(), "Đang kết nối đến trung tâm hỗ trợ...", Toast.LENGTH_SHORT).show());
         }
         if (btnAbout != null) {
-            btnAbout.setOnClickListener(v -> Toast.makeText(getContext(), "Fonos - Phien ban 1.0.0", Toast.LENGTH_SHORT).show());
+            btnAbout.setOnClickListener(v -> Toast.makeText(getContext(), "Fonos - Phiên bản 1.0.0", Toast.LENGTH_SHORT).show());
         }
 
         updateUI();
@@ -81,11 +83,6 @@ public class ProfileFragment extends Fragment {
             FirebaseAuth.getInstance().signOut();
             Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
             updateUI();
-        });
-
-        layoutDownloads.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), DownloadsActivity.class);
-            startActivity(intent);
         });
 
         return view;

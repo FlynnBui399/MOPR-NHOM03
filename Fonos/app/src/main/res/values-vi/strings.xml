@@ -160,12 +160,12 @@
     <string name="mini_player_subtitle">Chương 1: Bấm để mở trình nghe</string>
 
     <string name="card_audio_badge">Audio</string>
-    <string name="downloads_title">Tai xuong</string>
-    <string name="downloads_empty">Chua co sach da tai</string>
-    <string name="downloads_empty_sub">Sach noi da tai se xuat hien o day</string>
-    <string name="downloads_open">Mo</string>
-    <string name="downloads_delete">Xoa</string>
-    <string name="downloads_delete_title">Xoa file da tai?</string>
-    <string name="downloads_delete_message">File audio offline se bi xoa khoi thiet bi nay.</string>
-    <string name="downloads_deleted">Da xoa file da tai</string>
+    <string name="downloads_title">Tải xuống</string>
+    <string name="downloads_empty">Chưa có danh sách đã tải</string>
+    <string name="downloads_empty_sub">Audio đã tải sẽ xuất hiện ở đây</string>
+    <string name="downloads_open">Mở</string>
+    <string name="downloads_delete">Xóa</string>
+    <string name="downloads_delete_title">Xóa file đã tải?</string>
+    <string name="downloads_delete_message">File audio offline sẽ bị xóa khỏi thiết bị này.</string>
+    <string name="downloads_deleted">Đã xóa file đã tải</string>
 </resources>
