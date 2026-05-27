@@ -23,6 +23,7 @@ import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.Locale;
 
@@ -42,6 +43,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
     private String audioUrl;
     private String coverUrl;
     private int coverRes;
+    private int bookId;
 
     private final Runnable progressRunnable = new Runnable() {
         @Override
@@ -89,6 +91,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
     }
 
     private void loadBookData() {
+        bookId = getIntent().getIntExtra("book_id", 0);
         String title = getIntent().getStringExtra("book_title");
         String author = getIntent().getStringExtra("book_author");
         String duration = getIntent().getStringExtra("book_duration");
@@ -97,7 +100,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
         coverUrl = getIntent().getStringExtra("book_cover_url");
 
         audioUrl = getIntent().getStringExtra("audio_url");
-        if (!isValidUrl(audioUrl)) {
+        if (!OfflineAudioManager.isRemoteAudioSource(audioUrl)) {
             audioUrl = getIntent().getStringExtra("book_audio_url");
         }
 
@@ -137,6 +140,93 @@ public class AudioPlayerActivity extends AppCompatActivity {
     }
 
     private void setupPlayer() {
+        btnPlayPause.setEnabled(false);
+
+        Uri offlineUri = OfflineAudioManager.getDownloadedAudioUri(this, bookId, audioUrl);
+        if (offlineUri != null) {
+            initializeOfflineAwarePlayer(offlineUri);
+            return;
+        }
+
+        if (!OfflineAudioManager.isRemoteAudioSource(audioUrl)) {
+            showPlaybackUnavailable("Sach nay chua co audioUrl hop le");
+            return;
+        }
+
+        if (OfflineAudioManager.isDirectStreamingUrl(audioUrl)) {
+            initializeOfflineAwarePlayer(Uri.parse(audioUrl.trim()));
+            return;
+        }
+
+        StorageReference audioRef = OfflineAudioManager.createStorageReference(audioUrl);
+        if (audioRef == null) {
+            showPlaybackUnavailable("Khong the lay audio tu Firebase Storage");
+            return;
+        }
+
+        audioRef.getDownloadUrl()
+                .addOnSuccessListener(this, this::initializeOfflineAwarePlayer)
+                .addOnFailureListener(this, e -> showPlaybackUnavailable("Khong phat duoc audio"));
+    }
+
+    private void initializeOfflineAwarePlayer(Uri mediaUri) {
+        if (isFinishing() || isDestroyed()) return;
+
+        btnPlayPause.setEnabled(true);
+
+        player = new ExoPlayer.Builder(this).build();
+        MediaItem mediaItem = MediaItem.fromUri(mediaUri);
+        player.setMediaItem(mediaItem);
+
+        player.addListener(new Player.Listener() {
+            @Override
+            public void onIsPlayingChanged(boolean isPlaying) {
+                btnPlayPause.setText(isPlaying ? "\u275A\u275A" : "\u25B6");
+            }
+
+            @Override
+            public void onPlaybackStateChanged(int playbackState) {
+                if (playbackState == Player.STATE_READY) {
+                    long durationMs = player.getDuration();
+
+                    if (durationMs != C.TIME_UNSET && durationMs > 0) {
+                        seekBarAudio.setMax((int) durationMs);
+                        tvTotalTime.setText(formatTime(durationMs));
+                    }
+
+                    updateProgress();
+                } else if (playbackState == Player.STATE_ENDED) {
+                    btnPlayPause.setText("\u25B6");
+                    seekBarAudio.setProgress(0);
+                    tvCurrentTime.setText("00:00");
+
+                    if (player != null) {
+                        player.seekTo(0);
+                        player.pause();
+                    }
+                }
+            }
+
+            @Override
+            public void onPlayerError(PlaybackException error) {
+                btnPlayPause.setText("\u25B6");
+                Toast.makeText(
+                        AudioPlayerActivity.this,
+                        "Khong phat duoc audio",
+                        Toast.LENGTH_LONG
+                ).show();
+            }
+        });
+
+        player.prepare();
+    }
+
+    private void showPlaybackUnavailable(String message) {
+        btnPlayPause.setEnabled(false);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void setupStreamingPlayer() {
         if (!isValidUrl(audioUrl)) {
             btnPlayPause.setEnabled(false);
             Toast.makeText(this, "Sách này chưa có audioUrl hợp lệ", Toast.LENGTH_SHORT).show();

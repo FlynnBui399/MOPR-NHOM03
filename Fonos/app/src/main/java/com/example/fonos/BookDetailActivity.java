@@ -1,5 +1,6 @@
 package com.example.fonos;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -22,6 +23,17 @@ import com.example.fonos.model.Book;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.StorageReference;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BookDetailActivity extends AppCompatActivity {
 
@@ -29,7 +41,7 @@ public class BookDetailActivity extends AppCompatActivity {
     private TextView tvDetailChapters, tvDetailDescription, tvDetailCoverTitle;
     private ImageView imgDetailCover;
     private Toolbar toolbar;
-    private Button btnAddLibrary;
+    private Button btnAddLibrary, btnDownloadAudio;
 
     private int bookId;
     private String title, author, desc, duration, category, coverUrl, audioUrl;
@@ -39,6 +51,8 @@ public class BookDetailActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private boolean isAddedToLibrary = false;
+    private boolean isDownloadingAudio = false;
+    private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +74,13 @@ public class BookDetailActivity extends AppCompatActivity {
         loadBookData();
         setupListenNowButton();
         setupLibraryButton();
+        setupDownloadButton();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateDownloadButtonState();
     }
 
     private void initViews() {
@@ -73,6 +94,7 @@ public class BookDetailActivity extends AppCompatActivity {
         imgDetailCover = findViewById(R.id.imgDetailCover);
         toolbar = findViewById(R.id.toolbar);
         btnAddLibrary = findViewById(R.id.btnAddLibrary);
+        btnDownloadAudio = findViewById(R.id.btnDownloadAudio);
     }
 
     private void setupToolbar() {
@@ -137,7 +159,7 @@ public class BookDetailActivity extends AppCompatActivity {
         Button btnListenNow = findViewById(R.id.btnListenNow);
 
         btnListenNow.setOnClickListener(v -> {
-            if (!isValidUrl(audioUrl)) {
+            if (!OfflineAudioManager.isRemoteAudioSource(audioUrl)) {
                 Toast.makeText(this, "Sách này chưa có audioUrl hợp lệ", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -166,6 +188,7 @@ public class BookDetailActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
+        editor.putInt("active_book_id", bookId);
         editor.putString("active_book_title", title);
         editor.putString("active_book_author", author);
         editor.putString("active_book_duration", duration);
@@ -174,6 +197,212 @@ public class BookDetailActivity extends AppCompatActivity {
         editor.putString("active_book_audio_url", audioUrl);
 
         editor.apply();
+    }
+
+    private void setupDownloadButton() {
+        updateDownloadButtonState();
+
+        btnDownloadAudio.setOnClickListener(v -> {
+            if (isDownloadingAudio) return;
+
+            if (!OfflineAudioManager.isRemoteAudioSource(audioUrl)) {
+                Toast.makeText(this, getString(R.string.detail_download_unavailable), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (OfflineAudioManager.hasDownloadedAudio(this, bookId, audioUrl)) {
+                updateDownloadButtonState();
+                saveActiveBookToMiniPlayer();
+                openAudioPlayer();
+                return;
+            }
+
+            downloadAudioForOffline();
+        });
+    }
+
+    private void downloadAudioForOffline() {
+        if (!OfflineAudioManager.ensureAudioDirectory(this)) {
+            Toast.makeText(this, getString(R.string.detail_audio_download_failed), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Context appContext = getApplicationContext();
+        File targetFile = OfflineAudioManager.getDownloadTargetFile(appContext, bookId, audioUrl);
+        setAudioDownloadInProgress(0);
+
+        if (OfflineAudioManager.isDirectStreamingUrl(audioUrl)) {
+            downloadAudioFromHttpUrl(appContext, targetFile);
+            return;
+        }
+
+        StorageReference audioRef = OfflineAudioManager.createStorageReference(audioUrl);
+        if (audioRef == null) {
+            isDownloadingAudio = false;
+            updateDownloadButtonState();
+            Toast.makeText(this, getString(R.string.detail_audio_download_unsupported), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        audioRef.getFile(targetFile)
+                .addOnProgressListener(snapshot -> {
+                    if (isFinishing() || isDestroyed()) return;
+
+                    long totalBytes = snapshot.getTotalByteCount();
+                    if (totalBytes <= 0) return;
+
+                    int progress = (int) ((snapshot.getBytesTransferred() * 100) / totalBytes);
+                    setAudioDownloadInProgress(progress);
+                })
+                .addOnSuccessListener(taskSnapshot -> {
+                    saveDownloadedBookMetadata(appContext, targetFile);
+                    isDownloadingAudio = false;
+                    if (isFinishing() || isDestroyed()) return;
+
+                    updateDownloadButtonState();
+                    Toast.makeText(this, getString(R.string.detail_audio_download_success), Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    if (targetFile.exists()) {
+                        targetFile.delete();
+                    }
+
+                    OfflineAudioManager.clearDownloadedAudio(appContext, bookId, audioUrl);
+                    isDownloadingAudio = false;
+                    if (isFinishing() || isDestroyed()) return;
+
+                    updateDownloadButtonState();
+                    Toast.makeText(this, getString(R.string.detail_audio_download_failed), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void downloadAudioFromHttpUrl(Context appContext, File targetFile) {
+        String source = audioUrl.trim();
+
+        downloadExecutor.execute(() -> {
+            HttpURLConnection connection = null;
+
+            try {
+                URL url = new URL(source);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setConnectTimeout(15_000);
+                connection.setReadTimeout(30_000);
+                connection.connect();
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode < 200 || responseCode >= 300) {
+                    throw new IOException("Unexpected HTTP response " + responseCode);
+                }
+
+                long totalBytes = connection.getContentLengthLong();
+                long downloadedBytes = 0;
+                int lastProgress = -1;
+
+                try (InputStream input = new BufferedInputStream(connection.getInputStream());
+                     FileOutputStream output = new FileOutputStream(targetFile, false)) {
+                    byte[] buffer = new byte[8192];
+                    int bytesRead;
+
+                    while ((bytesRead = input.read(buffer)) != -1) {
+                        if (Thread.currentThread().isInterrupted()) {
+                            throw new IOException("Download interrupted");
+                        }
+
+                        output.write(buffer, 0, bytesRead);
+                        downloadedBytes += bytesRead;
+
+                        if (totalBytes > 0) {
+                            int progress = (int) ((downloadedBytes * 100) / totalBytes);
+                            if (progress != lastProgress) {
+                                lastProgress = progress;
+                                runOnUiThread(() -> {
+                                    if (!isFinishing() && !isDestroyed()) {
+                                        setAudioDownloadInProgress(progress);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+
+                if (targetFile.length() <= 0) {
+                    throw new IOException("Downloaded file is empty");
+                }
+
+                saveDownloadedBookMetadata(appContext, targetFile);
+                runOnUiThread(() -> {
+                    isDownloadingAudio = false;
+                    if (isFinishing() || isDestroyed()) return;
+
+                    updateDownloadButtonState();
+                    Toast.makeText(this, getString(R.string.detail_audio_download_success), Toast.LENGTH_SHORT).show();
+                });
+            } catch (IOException e) {
+                if (targetFile.exists()) {
+                    targetFile.delete();
+                }
+
+                OfflineAudioManager.clearDownloadedAudio(appContext, bookId, audioUrl);
+                runOnUiThread(() -> {
+                    isDownloadingAudio = false;
+                    if (isFinishing() || isDestroyed()) return;
+
+                    updateDownloadButtonState();
+                    Toast.makeText(this, getString(R.string.detail_audio_download_failed), Toast.LENGTH_SHORT).show();
+                });
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        });
+    }
+
+    private void updateDownloadButtonState() {
+        if (btnDownloadAudio == null || isDownloadingAudio) return;
+
+        if (!OfflineAudioManager.isRemoteAudioSource(audioUrl)) {
+            btnDownloadAudio.setEnabled(false);
+            btnDownloadAudio.setText(getString(R.string.detail_download_unavailable));
+            return;
+        }
+
+        boolean hasOfflineAudio = OfflineAudioManager.hasDownloadedAudio(this, bookId, audioUrl);
+        if (hasOfflineAudio) {
+            File localFile = OfflineAudioManager.getDownloadedAudioFile(this, bookId, audioUrl);
+            if (localFile != null) {
+                saveDownloadedBookMetadata(getApplicationContext(), localFile);
+            }
+        }
+
+        btnDownloadAudio.setEnabled(true);
+        btnDownloadAudio.setText(hasOfflineAudio
+                ? getString(R.string.detail_downloaded_audio)
+                : getString(R.string.detail_download_audio));
+    }
+
+    private void setAudioDownloadInProgress(int progress) {
+        isDownloadingAudio = true;
+        btnDownloadAudio.setEnabled(false);
+        btnDownloadAudio.setText(getString(R.string.detail_downloading_audio, progress));
+    }
+
+    private void saveDownloadedBookMetadata(Context appContext, File targetFile) {
+        OfflineAudioManager.saveDownloadedBook(
+                appContext,
+                bookId,
+                title,
+                author,
+                desc,
+                rating,
+                duration,
+                chapters,
+                coverRes,
+                category,
+                coverUrl,
+                audioUrl,
+                targetFile
+        );
     }
 
     private void setupLibraryButton() {
@@ -256,5 +485,11 @@ public class BookDetailActivity extends AppCompatActivity {
     private boolean isValidUrl(String value) {
         return value != null &&
                 (value.trim().startsWith("http://") || value.trim().startsWith("https://"));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        downloadExecutor.shutdownNow();
     }
 }

@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.fonos.DownloadsActivity;
 import com.example.fonos.R;
 import com.example.fonos.auth.LoginActivity;
 import com.example.fonos.auth.RegisterActivity;
@@ -40,6 +41,7 @@ public class ProfileFragment extends Fragment {
         btnLogin   = view.findViewById(R.id.btnLogin);
         btnRegister = view.findViewById(R.id.btnRegister);
         btnLogout  = view.findViewById(R.id.btnLogout);
+        View layoutDownloads = view.findViewById(R.id.layoutDownloads);
 
         updateUI();
 
@@ -57,6 +59,11 @@ public class ProfileFragment extends Fragment {
             FirebaseAuth.getInstance().signOut();
             Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
             updateUI();
+        });
+
+        layoutDownloads.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), DownloadsActivity.class);
+            startActivity(intent);
         });
 
         return view;

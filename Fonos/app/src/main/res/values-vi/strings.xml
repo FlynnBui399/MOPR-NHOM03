@@ -80,10 +80,18 @@
     <!-- Book Detail -->
     <string name="detail_listen_now">Nghe Ngay</string>
     <string name="detail_add_library">Thêm Vào Thư Viện</string>
+    <string name="detail_download_audio">Tải xuống </string>
+    <string name="detail_downloaded_audio">Mở</string>
+    <string name="detail_downloading_audio">Đang tải %1$d%%</string>
+    <string name="detail_download_unavailable">Chưa có audio</string>
+    <string name="detail_audio_ready_offline">Audio đã sẵn sàng để nghe offline</string>
+    <string name="detail_audio_download_success">Đã tải audio để nghe offline</string>
+    <string name="detail_audio_download_failed">Tải audio thất bại</string>
+    <string name="detail_audio_download_unsupported">Hãy dùng URL hoặc path Firebase Storage</string>
     <string name="detail_description">Mô tả</string>
     <string name="detail_read_more">Xem thêm</string>
     <string name="detail_related">Có Thể Bạn Cũng Thích</string>
-    <string name="detail_chapters">chương</string>
+    <string name="detail_chapters">Chương</string>
     <string name="detail_rating">Đánh giá</string>
     <string name="cd_book_cover">Bìa sách</string>
     <string name="cd_share">Chia sẻ</string>
@@ -121,8 +129,6 @@
     <string name="login_or_with">Hoặc đăng nhập với</string>
     <string name="welcome_back">Chào mừng trở lại!</string>
     <!-- Login fields -->
-<!--    <string name="label_email">Email</string>-->
-<!--    <string name="hint_email">Nhập email</string>-->
     <string name="forgot_password">Quên mật khẩu?</string>
 
     <!-- Footer -->
@@ -154,4 +160,12 @@
     <string name="mini_player_subtitle">Chương 1: Bấm để mở trình nghe</string>
 
     <string name="card_audio_badge">Audio</string>
+    <string name="downloads_title">Tai xuong</string>
+    <string name="downloads_empty">Chua co sach da tai</string>
+    <string name="downloads_empty_sub">Sach noi da tai se xuat hien o day</string>
+    <string name="downloads_open">Mo</string>
+    <string name="downloads_delete">Xoa</string>
+    <string name="downloads_delete_title">Xoa file da tai?</string>
+    <string name="downloads_delete_message">File audio offline se bi xoa khoi thiet bi nay.</string>
+    <string name="downloads_deleted">Da xoa file da tai</string>
 </resources>

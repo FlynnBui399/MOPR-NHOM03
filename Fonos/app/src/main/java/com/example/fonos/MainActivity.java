@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateMiniPlayer() {
         SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);
 
+        int activeBookId = sharedPref.getInt("active_book_id", 0);
         String activeTitle = sharedPref.getString("active_book_title", null);
         String activeAuthor = sharedPref.getString("active_book_author", null);
         String activeDuration = sharedPref.getString("active_book_duration", null);
@@ -126,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
             findViewById(R.id.miniPlayer).setOnClickListener(v -> {
                 Intent intent = new Intent(MainActivity.this, AudioPlayerActivity.class);
+                intent.putExtra("book_id", activeBookId);
                 intent.putExtra("book_title", activeTitle);
                 intent.putExtra("book_author", activeAuthor);
                 intent.putExtra("book_duration", activeDuration);
