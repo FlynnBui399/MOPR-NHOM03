@@ -218,5 +218,8 @@
     <string name="mini_player_select_book">Please select a book to start listening</string>
     <string name="player_resume_toast">Resumed playback from %1$s</string>
     <string name="player_resume_subtitle"> • Resumed from %1$s</string>
+    <string name="history_title">Listening History</string>
+    <string name="history_empty">Your listening history is empty</string>
+    <string name="history_empty_sub">Books you listen to will appear here</string>
 
 </resources>

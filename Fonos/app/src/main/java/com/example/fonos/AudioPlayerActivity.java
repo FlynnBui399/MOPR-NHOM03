@@ -59,8 +59,9 @@ public class AudioPlayerActivity extends AppCompatActivity {
     private MediaController mediaController;
     private ListenableFuture<MediaController> controllerFuture;
 
-    private String title, author, duration, coverUrl, audioUrl, category;
-    private int coverRes, bookId;
+    private String title, author, duration, coverUrl, audioUrl, category, desc;
+    private float rating;
+    private int coverRes, bookId, chapters;
     private int sleepTimerIndex = 0;
     private boolean hasRestoredPosition = false;
 
@@ -175,6 +176,9 @@ public class AudioPlayerActivity extends AppCompatActivity {
             coverUrl = getIntent().getStringExtra("book_cover_url");
             audioUrl = getIntent().getStringExtra("book_audio_url");
             category = getIntent().getStringExtra("book_category");
+            desc = getIntent().getStringExtra("book_desc");
+            rating = getIntent().getFloatExtra("book_rating", 0.0f);
+            chapters = getIntent().getIntExtra("book_chapters", 0);
         }
 
         // Apply defaults if empty
@@ -463,6 +467,22 @@ public class AudioPlayerActivity extends AppCompatActivity {
                 startProgressUpdater();
             }
         }
+
+        // Save to Recently Played history
+        Book currentBook = new Book(
+                bookId,
+                title,
+                author,
+                desc != null ? desc : "",
+                rating,
+                duration,
+                chapters,
+                coverRes,
+                category != null ? category : "General"
+        );
+        currentBook.setCoverUrl(coverUrl);
+        currentBook.setAudioUrl(audioUrl);
+        RecentlyPlayedManager.addToHistory(this, currentBook);
     }
 
     private Uri getPlayableAudioUri() {

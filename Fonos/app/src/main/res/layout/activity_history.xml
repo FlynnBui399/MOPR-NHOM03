@@ -33,13 +33,13 @@
             android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:fontFamily="@font/poppins_bold"
-            android:text="@string/downloads_title"
+            android:text="@string/history_title"
             android:textColor="@color/text_primary"
             android:textSize="22sp" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvDownloads"
+        android:id="@+id/rvHistory"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
@@ -49,7 +49,7 @@
         android:paddingBottom="24dp" />
 
     <LinearLayout
-        android:id="@+id/layoutEmptyDownloads"
+        android:id="@+id/layoutEmptyHistory"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -61,7 +61,7 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:alpha="0.35"
-            android:contentDescription="@string/downloads_title"
+            android:contentDescription="@string/history_title"
             android:src="@drawable/ic_headphones" />
 
         <TextView
@@ -70,7 +70,7 @@
             android:layout_marginTop="16dp"
             android:fontFamily="@font/poppins_semibold"
             android:gravity="center"
-            android:text="@string/downloads_empty"
+            android:text="@string/history_empty"
             android:textColor="@color/text_primary"
             android:textSize="17sp" />
 
@@ -80,7 +80,7 @@
             android:layout_marginTop="6dp"
             android:fontFamily="@font/poppins_regular"
             android:gravity="center"
-            android:text="@string/downloads_empty_sub"
+            android:text="@string/history_empty_sub"
             android:textColor="@color/text_muted"
             android:textSize="14sp" />
     </LinearLayout>

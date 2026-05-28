@@ -38,6 +38,10 @@
             android:exported="false"
             android:parentActivityName=".MainActivity" />
         <activity
+            android:name=".HistoryActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+        <activity
             android:name=".auth.LoginActivity"
             android:exported="false"/>
         <activity

@@ -175,4 +175,7 @@
     <string name="mini_player_select_book">Hãy chọn một sách để bắt đầu nghe</string>
     <string name="player_resume_toast">Đã tiếp tục nghe từ %1$s</string>
     <string name="player_resume_subtitle"> • Tiếp tục từ %1$s</string>
+    <string name="history_title">Lịch sử nghe</string>
+    <string name="history_empty">Lịch sử nghe đang trống</string>
+    <string name="history_empty_sub">Sách bạn đã nghe sẽ xuất hiện ở đây</string>
 </resources>

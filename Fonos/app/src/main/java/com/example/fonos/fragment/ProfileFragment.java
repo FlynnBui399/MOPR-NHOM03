@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.fonos.DownloadsActivity;
+import com.example.fonos.HistoryActivity;
 import com.example.fonos.AudioPlayerService;
 import com.example.fonos.R;
 import com.example.fonos.auth.LoginActivity;
@@ -54,7 +55,10 @@ public class ProfileFragment extends Fragment {
             btnSettings.setOnClickListener(v -> Toast.makeText(getContext(), "Đang mở Cài đặt...", Toast.LENGTH_SHORT).show());
         }
         if (btnHistory != null) {
-            btnHistory.setOnClickListener(v -> Toast.makeText(getContext(), "Lịch sử nghe đang trống", Toast.LENGTH_SHORT).show());
+            btnHistory.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), HistoryActivity.class);
+                startActivity(intent);
+            });
         }
         if (btnDownloads != null) {
             btnDownloads.setOnClickListener(v -> {

@@ -180,6 +180,10 @@ public class BookDetailActivity extends AppCompatActivity {
         intent.putExtra("book_cover_url", coverUrl);
         intent.putExtra("audio_url", audioUrl);
         intent.putExtra("book_audio_url", audioUrl);
+        intent.putExtra("book_desc", desc);
+        intent.putExtra("book_rating", rating);
+        intent.putExtra("book_chapters", chapters);
+        intent.putExtra("book_category", category);
 
         startActivity(intent);
     }
@@ -196,6 +200,9 @@ public class BookDetailActivity extends AppCompatActivity {
         editor.putString("active_book_cover_url", coverUrl);
         editor.putString("active_book_audio_url", audioUrl);
         editor.putString("active_book_category", category);
+        editor.putString("active_book_desc", desc);
+        editor.putFloat("active_book_rating", rating);
+        editor.putInt("active_book_chapters", chapters);
 
         editor.apply();
     }

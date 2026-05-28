@@ -303,6 +303,12 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("audio_url", audioUrlVal);
                     intent.putExtra("book_audio_url", audioUrlVal);
                     intent.putExtra("book_category", categoryVal);
+                    
+                    // Retrieve remaining metadata from SharedPreferences
+                    intent.putExtra("book_desc", sharedPref.getString("active_book_desc", ""));
+                    intent.putExtra("book_rating", sharedPref.getFloat("active_book_rating", 0.0f));
+                    intent.putExtra("book_chapters", sharedPref.getInt("active_book_chapters", 0));
+                    
                     startActivity(intent);
                 });
             }
