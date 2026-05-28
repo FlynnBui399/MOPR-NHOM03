@@ -8,47 +8,48 @@
     android:padding="8dp">
 
     <!-- DISPLAY -->
+
+    <!-- BUTTONS AREA -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2.2"
-        android:orientation="vertical"
         android:background="#000000"
-        android:padding="16dp"
-        android:gravity="bottom|end">
+        android:gravity="bottom|end"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/tv_expression"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#999999"
-            android:textSize="22sp"
+            android:layout_height="70dp"
+            android:ellipsize="start"
             android:gravity="end"
             android:maxLines="2"
-            android:ellipsize="start"
-            app:autoSizeTextType="uniform"
-            app:autoSizeMinTextSize="18sp"
+            android:text=""
+            android:textColor="#999999"
+            android:textSize="22sp"
             app:autoSizeMaxTextSize="72sp"
+            app:autoSizeMinTextSize="18sp"
             app:autoSizeStepGranularity="2sp"
-            android:text=""/>
+            app:autoSizeTextType="uniform" />
 
         <TextView
             android:id="@+id/tv_result"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:textColor="#FFFFFF"
-            android:textSize="72sp"
             android:gravity="bottom|end"
             android:maxLines="1"
-            app:autoSizeTextType="uniform"
-            app:autoSizeMinTextSize="24sp"
+            android:text="0"
+            android:textColor="#FFFFFF"
+            android:textSize="72sp"
             app:autoSizeMaxTextSize="72sp"
+            app:autoSizeMinTextSize="24sp"
             app:autoSizeStepGranularity="2sp"
-            android:text="0"/>
+            app:autoSizeTextType="uniform" />
     </LinearLayout>
 
-    <!-- BUTTONS AREA -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

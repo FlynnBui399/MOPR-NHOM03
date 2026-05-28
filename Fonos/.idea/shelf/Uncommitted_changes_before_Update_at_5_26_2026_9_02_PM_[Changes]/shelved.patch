@@ -1,0 +1,1162 @@
+Index: app/src/main/res/layout/fragment_home.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<FrameLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:background=\"@color/background_warm\">\r\n\r\n    <!-- Loading progress spinner -->\r\n    <ProgressBar\r\n        android:id=\"@+id/progressBar\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_gravity=\"center\"\r\n        android:indeterminateTint=\"@color/orange_primary\"\r\n        android:visibility=\"visible\" />\r\n\r\n    <androidx.core.widget.NestedScrollView\r\n        android:id=\"@+id/homeScrollView\"\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"match_parent\"\r\n        android:fillViewport=\"true\"\r\n        android:visibility=\"gone\">\r\n\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:orientation=\"vertical\"\r\n            android:paddingBottom=\"16dp\">\r\n\r\n            <!-- ===== TOP BAR ===== -->\r\n            <LinearLayout\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:gravity=\"center_vertical\"\r\n                android:orientation=\"horizontal\"\r\n                android:paddingStart=\"20dp\"\r\n                android:paddingTop=\"18dp\"\r\n                android:paddingEnd=\"20dp\"\r\n                android:paddingBottom=\"14dp\">\r\n\r\n                <FrameLayout\r\n                    android:layout_width=\"52dp\"\r\n                    android:layout_height=\"52dp\"\r\n                    android:background=\"@drawable/bg_logo_circle\">\r\n\r\n                    <ImageView\r\n                        android:layout_width=\"30dp\"\r\n                        android:layout_height=\"30dp\"\r\n                        android:layout_gravity=\"center\"\r\n                        android:contentDescription=\"@string/app_name\"\r\n                        android:src=\"@drawable/ic_logo_white\" />\r\n                </FrameLayout>\r\n\r\n                <TextView\r\n                    android:layout_width=\"0dp\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_marginStart=\"10dp\"\r\n                    android:layout_weight=\"1\"\r\n                    android:fontFamily=\"@font/poppins_bold\"\r\n                    android:text=\"@string/app_name\"\r\n                    android:textColor=\"@color/player_title_dark\"\r\n                    android:textSize=\"25sp\" />\r\n\r\n                <FrameLayout\r\n                    android:layout_width=\"46dp\"\r\n                    android:layout_height=\"46dp\"\r\n                    android:background=\"@drawable/bg_avatar_circle\">\r\n\r\n                    <ImageView\r\n                        android:layout_width=\"26dp\"\r\n                        android:layout_height=\"26dp\"\r\n                        android:layout_gravity=\"center\"\r\n                        android:contentDescription=\"@string/nav_profile\"\r\n                        android:src=\"@drawable/ic_profile\"\r\n                        app:tint=\"@color/text_muted\" />\r\n                </FrameLayout>\r\n            </LinearLayout>\r\n\r\n            <!-- ===== SIMPLE TABS ===== -->\r\n            <LinearLayout\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"54dp\"\r\n                android:gravity=\"bottom\"\r\n                android:orientation=\"horizontal\"\r\n                android:paddingStart=\"20dp\"\r\n                android:paddingEnd=\"20dp\">\r\n\r\n                <LinearLayout\r\n                    android:layout_width=\"0dp\"\r\n                    android:layout_height=\"match_parent\"\r\n                    android:layout_weight=\"1\"\r\n                    android:gravity=\"bottom|center_horizontal\"\r\n                    android:orientation=\"vertical\">\r\n\r\n                    <TextView\r\n                        android:layout_width=\"wrap_content\"\r\n                        android:layout_height=\"0dp\"\r\n                        android:layout_weight=\"1\"\r\n                        android:fontFamily=\"@font/poppins_bold\"\r\n                        android:gravity=\"center\"\r\n                        android:text=\"@string/tab_audiobook\"\r\n                        android:textColor=\"@color/player_title_dark\"\r\n                        android:textSize=\"17sp\" />\r\n\r\n                    <View\r\n                        android:layout_width=\"90dp\"\r\n                        android:layout_height=\"3dp\"\r\n                        android:background=\"@color/orange_primary\" />\r\n                </LinearLayout>\r\n\r\n                <TextView\r\n                    android:layout_width=\"0dp\"\r\n                    android:layout_height=\"match_parent\"\r\n                    android:layout_weight=\"1\"\r\n                    android:fontFamily=\"@font/poppins_medium\"\r\n                    android:gravity=\"center\"\r\n                    android:text=\"@string/tab_ebook\"\r\n                    android:textColor=\"@color/text_muted\"\r\n                    android:textSize=\"17sp\" />\r\n\r\n                <TextView\r\n                    android:layout_width=\"0dp\"\r\n                    android:layout_height=\"match_parent\"\r\n                    android:layout_weight=\"1.2\"\r\n                    android:ellipsize=\"end\"\r\n                    android:fontFamily=\"@font/poppins_medium\"\r\n                    android:gravity=\"center\"\r\n                    android:maxLines=\"1\"\r\n                    android:text=\"@string/tab_summary\"\r\n                    android:textColor=\"@color/text_muted\"\r\n                    android:textSize=\"17sp\" />\r\n            </LinearLayout>\r\n\r\n            <View\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"1dp\"\r\n                android:background=\"#EFE1D4\" />\r\n\r\n            <!-- ===== SEARCH / PROMPT CARD ===== -->\r\n            <androidx.cardview.widget.CardView\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"52dp\"\r\n                android:layout_marginStart=\"20dp\"\r\n                android:layout_marginTop=\"16dp\"\r\n                android:layout_marginEnd=\"20dp\"\r\n                app:cardBackgroundColor=\"@color/white\"\r\n                app:cardCornerRadius=\"16dp\"\r\n                app:cardElevation=\"2dp\">\r\n\r\n                <LinearLayout\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"match_parent\"\r\n                    android:gravity=\"center_vertical\"\r\n                    android:orientation=\"horizontal\"\r\n                    android:paddingStart=\"16dp\"\r\n                    android:paddingEnd=\"16dp\">\r\n\r\n                    <ImageView\r\n                        android:layout_width=\"20dp\"\r\n                        android:layout_height=\"20dp\"\r\n                        android:contentDescription=\"@string/nav_search\"\r\n                        android:src=\"@drawable/ic_search\"\r\n                        app:tint=\"@color/orange_primary\" />\r\n\r\n                    <TextView\r\n                        android:layout_width=\"0dp\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:layout_marginStart=\"10dp\"\r\n                        android:layout_weight=\"1\"\r\n                        android:fontFamily=\"@font/poppins_regular\"\r\n                        android:text=\"@string/home_search_hint\"\r\n                        android:textColor=\"@color/text_hint\"\r\n                        android:textSize=\"14sp\" />\r\n                </LinearLayout>\r\n            </androidx.cardview.widget.CardView>\r\n\r\n            <!-- ===== CATEGORIES ===== -->\r\n            <androidx.recyclerview.widget.RecyclerView\r\n                android:id=\"@+id/rvCategories\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:clipChildren=\"false\"\r\n                android:clipToPadding=\"false\"\r\n                android:paddingStart=\"16dp\"\r\n                android:paddingTop=\"16dp\"\r\n                android:paddingEnd=\"8dp\"\r\n                android:paddingBottom=\"8dp\" />\r\n\r\n            <!-- ===== SECTION 1: TRENDING ===== -->\r\n            <LinearLayout\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:gravity=\"center_vertical\"\r\n                android:orientation=\"horizontal\"\r\n                android:paddingStart=\"20dp\"\r\n                android:paddingTop=\"12dp\"\r\n                android:paddingEnd=\"20dp\"\r\n                android:paddingBottom=\"8dp\">\r\n\r\n                <TextView\r\n                    android:layout_width=\"0dp\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_weight=\"1\"\r\n                    android:fontFamily=\"@font/poppins_bold\"\r\n                    android:text=\"@string/section_trending\"\r\n                    android:textColor=\"@color/player_title_dark\"\r\n                    android:textSize=\"20sp\" />\r\n\r\n                <TextView\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:fontFamily=\"@font/poppins_medium\"\r\n                    android:text=\"@string/see_all\"\r\n                    android:textColor=\"@color/orange_primary\"\r\n                    android:textSize=\"13sp\" />\r\n            </LinearLayout>\r\n\r\n            <androidx.recyclerview.widget.RecyclerView\r\n                android:id=\"@+id/rvTrending\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:clipToPadding=\"false\"\r\n                android:paddingStart=\"16dp\"\r\n                android:paddingEnd=\"8dp\"\r\n                android:paddingBottom=\"12dp\" />\r\n\r\n            <!-- ===== SECTION 2: NEW RELEASES ===== -->\r\n            <LinearLayout\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:gravity=\"center_vertical\"\r\n                android:orientation=\"horizontal\"\r\n                android:paddingStart=\"20dp\"\r\n                android:paddingTop=\"18dp\"\r\n                android:paddingEnd=\"20dp\"\r\n                android:paddingBottom=\"8dp\">\r\n\r\n                <TextView\r\n                    android:layout_width=\"0dp\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_weight=\"1\"\r\n                    android:fontFamily=\"@font/poppins_bold\"\r\n                    android:text=\"@string/section_new_releases\"\r\n                    android:textColor=\"@color/player_title_dark\"\r\n                    android:textSize=\"20sp\" />\r\n\r\n                <TextView\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:fontFamily=\"@font/poppins_medium\"\r\n                    android:text=\"@string/see_all\"\r\n                    android:textColor=\"@color/orange_primary\"\r\n                    android:textSize=\"13sp\" />\r\n            </LinearLayout>\r\n\r\n            <androidx.recyclerview.widget.RecyclerView\r\n                android:id=\"@+id/rvNewReleases\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:clipToPadding=\"false\"\r\n                android:paddingStart=\"16dp\"\r\n                android:paddingEnd=\"8dp\"\r\n                android:paddingBottom=\"12dp\" />\r\n\r\n            <!-- ===== SECTION 3: RECOMMENDED ===== -->\r\n            <LinearLayout\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:gravity=\"center_vertical\"\r\n                android:orientation=\"horizontal\"\r\n                android:paddingStart=\"20dp\"\r\n                android:paddingTop=\"18dp\"\r\n                android:paddingEnd=\"20dp\"\r\n                android:paddingBottom=\"8dp\">\r\n\r\n                <TextView\r\n                    android:layout_width=\"0dp\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_weight=\"1\"\r\n                    android:fontFamily=\"@font/poppins_bold\"\r\n                    android:text=\"@string/section_recommended\"\r\n                    android:textColor=\"@color/player_title_dark\"\r\n                    android:textSize=\"20sp\" />\r\n\r\n                <TextView\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:fontFamily=\"@font/poppins_medium\"\r\n                    android:text=\"@string/see_all\"\r\n                    android:textColor=\"@color/orange_primary\"\r\n                    android:textSize=\"13sp\" />\r\n            </LinearLayout>\r\n\r\n            <androidx.recyclerview.widget.RecyclerView\r\n                android:id=\"@+id/rvRecommended\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:clipToPadding=\"false\"\r\n                android:paddingStart=\"16dp\"\r\n                android:paddingEnd=\"8dp\"\r\n                android:paddingBottom=\"24dp\" />\r\n\r\n        </LinearLayout>\r\n    </androidx.core.widget.NestedScrollView>\r\n</FrameLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/fragment_home.xml b/app/src/main/res/layout/fragment_home.xml
+--- a/app/src/main/res/layout/fragment_home.xml	(revision 2d135be8bf601d76ce3f03b55e968e34404fd6c1)
++++ b/app/src/main/res/layout/fragment_home.xml	(date 1779699283253)
+@@ -76,68 +76,20 @@
+                 </FrameLayout>
+             </LinearLayout>
+ 
+-            <!-- ===== SIMPLE TABS ===== -->
+-            <LinearLayout
+-                android:layout_width="match_parent"
+-                android:layout_height="54dp"
+-                android:gravity="bottom"
+-                android:orientation="horizontal"
+-                android:paddingStart="20dp"
+-                android:paddingEnd="20dp">
+-
+-                <LinearLayout
+-                    android:layout_width="0dp"
+-                    android:layout_height="match_parent"
+-                    android:layout_weight="1"
+-                    android:gravity="bottom|center_horizontal"
+-                    android:orientation="vertical">
+-
+-                    <TextView
+-                        android:layout_width="wrap_content"
+-                        android:layout_height="0dp"
+-                        android:layout_weight="1"
+-                        android:fontFamily="@font/poppins_bold"
+-                        android:gravity="center"
+-                        android:text="@string/tab_audiobook"
+-                        android:textColor="@color/player_title_dark"
+-                        android:textSize="17sp" />
+-
+-                    <View
+-                        android:layout_width="90dp"
+-                        android:layout_height="3dp"
+-                        android:background="@color/orange_primary" />
+-                </LinearLayout>
+-
+-                <TextView
+-                    android:layout_width="0dp"
+-                    android:layout_height="match_parent"
+-                    android:layout_weight="1"
+-                    android:fontFamily="@font/poppins_medium"
+-                    android:gravity="center"
+-                    android:text="@string/tab_ebook"
+-                    android:textColor="@color/text_muted"
+-                    android:textSize="17sp" />
+-
+-                <TextView
+-                    android:layout_width="0dp"
+-                    android:layout_height="match_parent"
+-                    android:layout_weight="1.2"
+-                    android:ellipsize="end"
+-                    android:fontFamily="@font/poppins_medium"
+-                    android:gravity="center"
+-                    android:maxLines="1"
+-                    android:text="@string/tab_summary"
+-                    android:textColor="@color/text_muted"
+-                    android:textSize="17sp" />
+-            </LinearLayout>
+-
+-            <View
+-                android:layout_width="match_parent"
+-                android:layout_height="1dp"
+-                android:background="#EFE1D4" />
++            <TextView
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:layout_marginStart="20dp"
++                android:layout_marginTop="20dp"
++                android:layout_marginEnd="20dp"
++                android:fontFamily="@font/poppins_bold"
++                android:text="@string/tab_audiobook"
++                android:textColor="@color/player_title_dark"
++                android:textSize="22sp" />
+ 
+             <!-- ===== SEARCH / PROMPT CARD ===== -->
+             <androidx.cardview.widget.CardView
++                android:id="@+id/cardHomeSearch"
+                 android:layout_width="match_parent"
+                 android:layout_height="52dp"
+                 android:layout_marginStart="20dp"
+Index: app/src/main/java/com/example/fonos/fragment/HomeFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.fonos.fragment;\r\n\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\nimport android.view.LayoutInflater;\r\nimport android.view.View;\r\nimport android.view.ViewGroup;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.annotation.Nullable;\r\nimport androidx.fragment.app.Fragment;\r\nimport androidx.recyclerview.widget.LinearLayoutManager;\r\nimport androidx.recyclerview.widget.RecyclerView;\r\n\r\nimport com.example.fonos.BookDetailActivity;\r\nimport com.example.fonos.R;\r\nimport com.example.fonos.adapter.BookAdapter;\r\nimport com.example.fonos.adapter.CategoryAdapter;\r\nimport com.example.fonos.model.Book;\r\nimport com.example.fonos.model.Category;\r\n\r\nimport com.google.firebase.firestore.FirebaseFirestore;\r\nimport com.google.firebase.firestore.QueryDocumentSnapshot;\r\n\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\npublic class HomeFragment extends Fragment implements BookAdapter.OnBookClickListener, CategoryAdapter.OnCategoryClickListener {\r\n\r\n    private RecyclerView rvCategories, rvTrending, rvNewReleases, rvRecommended;\r\n    private CategoryAdapter categoryAdapter;\r\n    private BookAdapter trendingAdapter, newReleasesAdapter, recommendedAdapter;\r\n    \r\n    private List<Category> categoryList;\r\n    private List<Book> trendingBooks;\r\n    private List<Book> newReleaseBooks;\r\n    private List<Book> recommendedBooks;\r\n\r\n    private View progressBar;\r\n    private View homeScrollView;\r\n\r\n    @Nullable\r\n    @Override\r\n    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {\r\n        View view = inflater.inflate(R.layout.fragment_home, container, false);\r\n        \r\n        initViews(view);\r\n        initData();\r\n        setupRecyclerViews();\r\n        loadBooksFromFirestore();\r\n        \r\n        return view;\r\n    }\r\n\r\n    private void initViews(View view) {\r\n        rvCategories = view.findViewById(R.id.rvCategories);\r\n        rvTrending = view.findViewById(R.id.rvTrending);\r\n        rvNewReleases = view.findViewById(R.id.rvNewReleases);\r\n        rvRecommended = view.findViewById(R.id.rvRecommended);\r\n        progressBar = view.findViewById(R.id.progressBar);\r\n        homeScrollView = view.findViewById(R.id.homeScrollView);\r\n    }\r\n\r\n    private void initData() {\r\n        // Categories\r\n        categoryList = new ArrayList<>();\r\n        categoryList.add(new Category(1, getString(R.string.cat_all), true));\r\n        categoryList.add(new Category(2, getString(R.string.cat_self_help), false));\r\n        categoryList.add(new Category(3, getString(R.string.cat_business), false));\r\n        categoryList.add(new Category(4, getString(R.string.cat_fiction), false));\r\n        categoryList.add(new Category(5, getString(R.string.cat_science), false));\r\n        categoryList.add(new Category(6, getString(R.string.cat_psychology), false));\r\n\r\n        trendingBooks = new ArrayList<>();\r\n        newReleaseBooks = new ArrayList<>();\r\n        recommendedBooks = new ArrayList<>();\r\n    }\r\n\r\n    private void loadBooksFromFirestore() {\r\n        FirebaseFirestore db = FirebaseFirestore.getInstance();\r\n        db.collection(\"books\")\r\n                .get()\r\n                .addOnCompleteListener(task -> {\r\n                    if (progressBar != null) progressBar.setVisibility(View.GONE);\r\n                    if (homeScrollView != null) homeScrollView.setVisibility(View.VISIBLE);\r\n\r\n                    if (task.isSuccessful() && task.getResult() != null) {\r\n                        List<Book> allBooks = new ArrayList<>();\r\n                        for (QueryDocumentSnapshot document : task.getResult()) {\r\n                            Book book = document.toObject(Book.class);\r\n                            allBooks.add(book);\r\n                        }\r\n                        if (!allBooks.isEmpty()) {\r\n                            updateUIWithBooks(allBooks);\r\n                        } else {\r\n                            loadLocalSampleBooks();\r\n                        }\r\n                    } else {\r\n                        loadLocalSampleBooks();\r\n                    }\r\n                });\r\n    }\r\n\r\n    private void updateUIWithBooks(List<Book> allBooks) {\r\n        trendingBooks.clear();\r\n        newReleaseBooks.clear();\r\n        recommendedBooks.clear();\r\n\r\n        for (Book book : allBooks) {\r\n            if (book.isTrending()) {\r\n                trendingBooks.add(book);\r\n            }\r\n            if (book.isNewRelease()) {\r\n                newReleaseBooks.add(book);\r\n            }\r\n            // Add to recommended if not trending and not new release\r\n            if (!book.isTrending() && !book.isNewRelease()) {\r\n                recommendedBooks.add(book);\r\n            }\r\n        }\r\n\r\n        trendingAdapter.notifyDataSetChanged();\r\n        newReleasesAdapter.notifyDataSetChanged();\r\n        recommendedAdapter.notifyDataSetChanged();\r\n    }\r\n\r\n    private void loadLocalSampleBooks() {\r\n        trendingBooks.clear();\r\n        trendingBooks.add(new Book(1, getString(R.string.book1_title), getString(R.string.book1_author), getString(R.string.book1_desc), 4.8f, \"8h 30m\", 12, R.drawable.bg_book_cover_1, \"Self-help\"));\r\n        trendingBooks.add(new Book(2, getString(R.string.book2_title), getString(R.string.book2_author), getString(R.string.book2_desc), 4.7f, \"5h 45m\", 15, R.drawable.bg_book_cover_2, \"Fiction\"));\r\n        trendingBooks.add(new Book(3, getString(R.string.book3_title), getString(R.string.book3_author), getString(R.string.book3_desc), 4.6f, \"6h 20m\", 10, R.drawable.bg_book_cover_3, \"Self-help\"));\r\n        trendingBooks.add(new Book(4, getString(R.string.book4_title), getString(R.string.book4_author), getString(R.string.book4_desc), 4.9f, \"15h 10m\", 20, R.drawable.bg_book_cover_4, \"Science\"));\r\n\r\n        newReleaseBooks.clear();\r\n        newReleaseBooks.add(new Book(5, getString(R.string.book5_title), getString(R.string.book5_author), getString(R.string.book5_desc), 4.5f, \"14h 05m\", 18, R.drawable.bg_book_cover_5, \"Psychology\"));\r\n        newReleaseBooks.add(new Book(6, getString(R.string.book6_title), getString(R.string.book6_author), getString(R.string.book6_desc), 4.8f, \"7h 15m\", 11, R.drawable.bg_book_cover_6, \"Business\"));\r\n        newReleaseBooks.add(new Book(7, getString(R.string.book7_title), getString(R.string.book7_author), getString(R.string.book7_desc), 4.4f, \"5h 50m\", 9, R.drawable.bg_book_cover_7, \"Self-help\"));\r\n\r\n        recommendedBooks.clear();\r\n        recommendedBooks.add(new Book(8, getString(R.string.book8_title), getString(R.string.book8_author), getString(R.string.book8_desc), 4.9f, \"9h 40m\", 16, R.drawable.bg_book_cover_1, \"Business\"));\r\n        recommendedBooks.add(new Book(9, getString(R.string.book9_title), getString(R.string.book9_author), getString(R.string.book9_desc), 4.7f, \"12h 30m\", 21, R.drawable.bg_book_cover_2, \"Self-help\"));\r\n        recommendedBooks.add(new Book(10, getString(R.string.book10_title), getString(R.string.book10_author), getString(R.string.book10_desc), 4.6f, \"8h 15m\", 14, R.drawable.bg_book_cover_3, \"Psychology\"));\r\n\r\n        trendingAdapter.notifyDataSetChanged();\r\n        newReleasesAdapter.notifyDataSetChanged();\r\n        recommendedAdapter.notifyDataSetChanged();\r\n    }\r\n\r\n    private void setupRecyclerViews() {\r\n        // Categories\r\n        categoryAdapter = new CategoryAdapter(categoryList, this);\r\n        rvCategories.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));\r\n        rvCategories.setAdapter(categoryAdapter);\r\n\r\n        // Trending\r\n        trendingAdapter = new BookAdapter(trendingBooks, this);\r\n        rvTrending.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));\r\n        rvTrending.setAdapter(trendingAdapter);\r\n\r\n        // New Releases\r\n        newReleasesAdapter = new BookAdapter(newReleaseBooks, this);\r\n        rvNewReleases.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));\r\n        rvNewReleases.setAdapter(newReleasesAdapter);\r\n\r\n        // Recommended\r\n        recommendedAdapter = new BookAdapter(recommendedBooks, this);\r\n        rvRecommended.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));\r\n        rvRecommended.setAdapter(recommendedAdapter);\r\n    }\r\n\r\n    @Override\r\n    public void onBookClick(Book book) {\r\n        Intent intent = new Intent(getActivity(), BookDetailActivity.class);\r\n        intent.putExtra(\"book_id\", book.getId());\r\n        intent.putExtra(\"book_title\", book.getTitle());\r\n        intent.putExtra(\"book_author\", book.getAuthor());\r\n        intent.putExtra(\"book_desc\", book.getDescription());\r\n        intent.putExtra(\"book_rating\", book.getRating());\r\n        intent.putExtra(\"book_duration\", book.getDuration());\r\n        intent.putExtra(\"book_chapters\", book.getChapterCount());\r\n        intent.putExtra(\"book_cover\", book.getCoverDrawableRes());\r\n        intent.putExtra(\"book_cover_url\", book.getCoverUrl());\r\n        intent.putExtra(\"book_audio_url\", book.getAudioUrl());\r\n        intent.putExtra(\"book_category\", book.getCategory());\r\n        startActivity(intent);\r\n    }\r\n\r\n    @Override\r\n    public void onCategoryClick(Category category) {\r\n        // Handle category selection - typically filter book lists\r\n        // For now, we'll just keep the UI update which is handled in adapter\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/fonos/fragment/HomeFragment.java b/app/src/main/java/com/example/fonos/fragment/HomeFragment.java
+--- a/app/src/main/java/com/example/fonos/fragment/HomeFragment.java	(revision 2d135be8bf601d76ce3f03b55e968e34404fd6c1)
++++ b/app/src/main/java/com/example/fonos/fragment/HomeFragment.java	(date 1779699365569)
+@@ -2,6 +2,7 @@
+ 
+ import android.content.Intent;
+ import android.os.Bundle;
++import android.util.Log;
+ import android.view.LayoutInflater;
+ import android.view.View;
+ import android.view.ViewGroup;
+@@ -13,6 +14,7 @@
+ import androidx.recyclerview.widget.RecyclerView;
+ 
+ import com.example.fonos.BookDetailActivity;
++import com.example.fonos.MainActivity;
+ import com.example.fonos.R;
+ import com.example.fonos.adapter.BookAdapter;
+ import com.example.fonos.adapter.CategoryAdapter;
+@@ -35,9 +37,11 @@
+     private List<Book> trendingBooks;
+     private List<Book> newReleaseBooks;
+     private List<Book> recommendedBooks;
++    private final List<Book> allBooksFromFirestore = new ArrayList<>();
+ 
+     private View progressBar;
+     private View homeScrollView;
++    private View cardHomeSearch;
+ 
+     @Nullable
+     @Override
+@@ -59,6 +63,15 @@
+         rvRecommended = view.findViewById(R.id.rvRecommended);
+         progressBar = view.findViewById(R.id.progressBar);
+         homeScrollView = view.findViewById(R.id.homeScrollView);
++        cardHomeSearch = view.findViewById(R.id.cardHomeSearch);
++
++        if (cardHomeSearch != null) {
++            cardHomeSearch.setOnClickListener(v -> {
++                if (getActivity() instanceof MainActivity) {
++                    ((MainActivity) getActivity()).selectSearchTab();
++                }
++            });
++        }
+     }
+ 
+     private void initData() {
+@@ -81,6 +94,12 @@
+         db.collection("books")
+                 .get()
+                 .addOnCompleteListener(task -> {
++                    // Safety check: skip callback if fragment is detached
++                    if (!isAdded() || getContext() == null) {
++                        Log.d("HomeFragment", "Fragment not attached. Skipping callback.");
++                        return;
++                    }
++
+                     if (progressBar != null) progressBar.setVisibility(View.GONE);
+                     if (homeScrollView != null) homeScrollView.setVisibility(View.VISIBLE);
+ 
+@@ -91,11 +110,16 @@
+                             allBooks.add(book);
+                         }
+                         if (!allBooks.isEmpty()) {
+-                            updateUIWithBooks(allBooks);
++                            allBooksFromFirestore.clear();
++                            allBooksFromFirestore.addAll(allBooks);
++                            updateUIWithBooks(allBooksFromFirestore);
+                         } else {
+                             loadLocalSampleBooks();
+                         }
+                     } else {
++                        if (task.getException() != null) {
++                            Log.e("HomeFragment", "Firestore query failed: ", task.getException());
++                        }
+                         loadLocalSampleBooks();
+                     }
+                 });
+@@ -125,25 +149,19 @@
+     }
+ 
+     private void loadLocalSampleBooks() {
+-        trendingBooks.clear();
+-        trendingBooks.add(new Book(1, getString(R.string.book1_title), getString(R.string.book1_author), getString(R.string.book1_desc), 4.8f, "8h 30m", 12, R.drawable.bg_book_cover_1, "Self-help"));
+-        trendingBooks.add(new Book(2, getString(R.string.book2_title), getString(R.string.book2_author), getString(R.string.book2_desc), 4.7f, "5h 45m", 15, R.drawable.bg_book_cover_2, "Fiction"));
+-        trendingBooks.add(new Book(3, getString(R.string.book3_title), getString(R.string.book3_author), getString(R.string.book3_desc), 4.6f, "6h 20m", 10, R.drawable.bg_book_cover_3, "Self-help"));
+-        trendingBooks.add(new Book(4, getString(R.string.book4_title), getString(R.string.book4_author), getString(R.string.book4_desc), 4.9f, "15h 10m", 20, R.drawable.bg_book_cover_4, "Science"));
+-
+-        newReleaseBooks.clear();
+-        newReleaseBooks.add(new Book(5, getString(R.string.book5_title), getString(R.string.book5_author), getString(R.string.book5_desc), 4.5f, "14h 05m", 18, R.drawable.bg_book_cover_5, "Psychology"));
+-        newReleaseBooks.add(new Book(6, getString(R.string.book6_title), getString(R.string.book6_author), getString(R.string.book6_desc), 4.8f, "7h 15m", 11, R.drawable.bg_book_cover_6, "Business"));
+-        newReleaseBooks.add(new Book(7, getString(R.string.book7_title), getString(R.string.book7_author), getString(R.string.book7_desc), 4.4f, "5h 50m", 9, R.drawable.bg_book_cover_7, "Self-help"));
++        allBooksFromFirestore.clear();
++        allBooksFromFirestore.add(new Book(1, getString(R.string.book1_title), getString(R.string.book1_author), getString(R.string.book1_desc), 4.8f, "8h 30m", 12, R.drawable.bg_book_cover_1, "Self-help"));
++        allBooksFromFirestore.add(new Book(2, getString(R.string.book2_title), getString(R.string.book2_author), getString(R.string.book2_desc), 4.7f, "5h 45m", 15, R.drawable.bg_book_cover_2, "Fiction"));
++        allBooksFromFirestore.add(new Book(3, getString(R.string.book3_title), getString(R.string.book3_author), getString(R.string.book3_desc), 4.6f, "6h 20m", 10, R.drawable.bg_book_cover_3, "Self-help"));
++        allBooksFromFirestore.add(new Book(4, getString(R.string.book4_title), getString(R.string.book4_author), getString(R.string.book4_desc), 4.9f, "15h 10m", 20, R.drawable.bg_book_cover_4, "Science"));
++        allBooksFromFirestore.add(new Book(5, getString(R.string.book5_title), getString(R.string.book5_author), getString(R.string.book5_desc), 4.5f, "14h 05m", 18, R.drawable.bg_book_cover_5, "Psychology"));
++        allBooksFromFirestore.add(new Book(6, getString(R.string.book6_title), getString(R.string.book6_author), getString(R.string.book6_desc), 4.8f, "7h 15m", 11, R.drawable.bg_book_cover_6, "Business"));
++        allBooksFromFirestore.add(new Book(7, getString(R.string.book7_title), getString(R.string.book7_author), getString(R.string.book7_desc), 4.4f, "5h 50m", 9, R.drawable.bg_book_cover_7, "Self-help"));
++        allBooksFromFirestore.add(new Book(8, getString(R.string.book8_title), getString(R.string.book8_author), getString(R.string.book8_desc), 4.9f, "9h 40m", 16, R.drawable.bg_book_cover_1, "Business"));
++        allBooksFromFirestore.add(new Book(9, getString(R.string.book9_title), getString(R.string.book9_author), getString(R.string.book9_desc), 4.7f, "12h 30m", 21, R.drawable.bg_book_cover_2, "Self-help"));
++        allBooksFromFirestore.add(new Book(10, getString(R.string.book10_title), getString(R.string.book10_author), getString(R.string.book10_desc), 4.6f, "8h 15m", 14, R.drawable.bg_book_cover_3, "Psychology"));
+ 
+-        recommendedBooks.clear();
+-        recommendedBooks.add(new Book(8, getString(R.string.book8_title), getString(R.string.book8_author), getString(R.string.book8_desc), 4.9f, "9h 40m", 16, R.drawable.bg_book_cover_1, "Business"));
+-        recommendedBooks.add(new Book(9, getString(R.string.book9_title), getString(R.string.book9_author), getString(R.string.book9_desc), 4.7f, "12h 30m", 21, R.drawable.bg_book_cover_2, "Self-help"));
+-        recommendedBooks.add(new Book(10, getString(R.string.book10_title), getString(R.string.book10_author), getString(R.string.book10_desc), 4.6f, "8h 15m", 14, R.drawable.bg_book_cover_3, "Psychology"));
+-
+-        trendingAdapter.notifyDataSetChanged();
+-        newReleasesAdapter.notifyDataSetChanged();
+-        recommendedAdapter.notifyDataSetChanged();
++        updateUIWithBooks(allBooksFromFirestore);
+     }
+ 
+     private void setupRecyclerViews() {
+@@ -187,7 +205,38 @@
+ 
+     @Override
+     public void onCategoryClick(Category category) {
+-        // Handle category selection - typically filter book lists
+-        // For now, we'll just keep the UI update which is handled in adapter
++        String targetCategory = null;
++        switch (category.getId()) {
++            case 2: targetCategory = "Self-help"; break;
++            case 3: targetCategory = "Business"; break;
++            case 4: targetCategory = "Fiction"; break;
++            case 5: targetCategory = "Science"; break;
++            case 6: targetCategory = "Psychology"; break;
++        }
++
++        trendingBooks.clear();
++        newReleaseBooks.clear();
++        recommendedBooks.clear();
++
++        for (Book book : allBooksFromFirestore) {
++            boolean matchesCategory = (targetCategory == null) || 
++                (book.getCategory() != null && book.getCategory().equalsIgnoreCase(targetCategory));
++            
++            if (matchesCategory) {
++                if (book.isTrending()) {
++                    trendingBooks.add(book);
++                }
++                if (book.isNewRelease()) {
++                    newReleaseBooks.add(book);
++                }
++                if (!book.isTrending() && !book.isNewRelease()) {
++                    recommendedBooks.add(book);
++                }
++            }
++        }
++
++        trendingAdapter.notifyDataSetChanged();
++        newReleasesAdapter.notifyDataSetChanged();
++        recommendedAdapter.notifyDataSetChanged();
+     }
+ }
+Index: app/src/main/res/layout/activity_audio_player.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<ScrollView xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    android:id=\"@+id/playerRoot\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:background=\"@drawable/bg_audio_player_screen\"\r\n    android:fillViewport=\"true\"\r\n    android:clipToPadding=\"false\">\r\n\r\n    <LinearLayout\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:orientation=\"vertical\"\r\n        android:paddingStart=\"20dp\"\r\n        android:paddingTop=\"12dp\"\r\n        android:paddingEnd=\"20dp\"\r\n        android:paddingBottom=\"20dp\">\r\n\r\n        <!-- Top bar -->\r\n        <RelativeLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"48dp\">\r\n\r\n            <ImageButton\r\n                android:id=\"@+id/btnBack\"\r\n                android:layout_width=\"44dp\"\r\n                android:layout_height=\"44dp\"\r\n                android:layout_alignParentStart=\"true\"\r\n                android:layout_centerVertical=\"true\"\r\n                android:background=\"@drawable/bg_player_top_circle\"\r\n                android:contentDescription=\"@string/cd_back\"\r\n                android:padding=\"10dp\"\r\n                android:src=\"@drawable/ic_arrow_back_white_register\" />\r\n\r\n            <TextView\r\n                android:id=\"@+id/btnBookmark\"\r\n                android:layout_width=\"44dp\"\r\n                android:layout_height=\"44dp\"\r\n                android:layout_alignParentEnd=\"true\"\r\n                android:layout_centerVertical=\"true\"\r\n                android:background=\"@drawable/bg_player_top_circle\"\r\n                android:gravity=\"center\"\r\n                android:text=\"+\"\r\n                android:textColor=\"@color/white\"\r\n                android:textSize=\"22sp\"\r\n                android:textStyle=\"bold\" />\r\n        </RelativeLayout>\r\n\r\n        <!-- Cover -->\r\n        <androidx.cardview.widget.CardView\r\n            android:layout_width=\"220dp\"\r\n            android:layout_height=\"320dp\"\r\n            android:layout_gravity=\"center_horizontal\"\r\n            android:layout_marginTop=\"18dp\"\r\n            app:cardCornerRadius=\"24dp\"\r\n            app:cardElevation=\"10dp\"\r\n            xmlns:app=\"http://schemas.android.com/apk/res-auto\">\r\n\r\n            <FrameLayout\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"match_parent\">\r\n\r\n                <ImageView\r\n                    android:id=\"@+id/viewPlayerCover\"\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"match_parent\"\r\n                    android:contentDescription=\"@string/cd_book_cover\"\r\n                    android:scaleType=\"centerCrop\" />\r\n\r\n\r\n                <TextView\r\n                    android:id=\"@+id/tvCoverTitle\"\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_gravity=\"center\"\r\n                    android:fontFamily=\"@font/poppins_bold\"\r\n                    android:gravity=\"center\"\r\n                    android:paddingStart=\"16dp\"\r\n                    android:paddingEnd=\"16dp\"\r\n                    android:textColor=\"#EFFFFFFF\"\r\n                    android:textSize=\"20sp\" />\r\n            </FrameLayout>\r\n        </androidx.cardview.widget.CardView>\r\n\r\n        <!-- Title -->\r\n        <TextView\r\n            android:id=\"@+id/tvPlayerTitle\"\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_marginTop=\"28dp\"\r\n            android:ellipsize=\"end\"\r\n            android:fontFamily=\"@font/poppins_bold\"\r\n            android:maxLines=\"2\"\r\n            android:textAlignment=\"viewStart\"\r\n            android:textColor=\"@color/white\"\r\n            android:textSize=\"22sp\" />\r\n\r\n        <!-- Subtitle -->\r\n        <TextView\r\n            android:id=\"@+id/tvPlayerSubtitle\"\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_marginTop=\"8dp\"\r\n            android:fontFamily=\"@font/poppins_regular\"\r\n            android:textColor=\"#F5E0D6\"\r\n            android:textSize=\"15sp\" />\r\n\r\n        <!-- Seekbar -->\r\n        <SeekBar\r\n            android:id=\"@+id/seekBarAudio\"\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_marginTop=\"18dp\"\r\n            android:max=\"100\"\r\n            android:progress=\"0\"\r\n            android:progressTint=\"@color/white\"\r\n            android:thumbTint=\"@color/white\" />\r\n\r\n        <!-- Time -->\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:orientation=\"horizontal\">\r\n\r\n            <TextView\r\n                android:id=\"@+id/tvCurrentTime\"\r\n                android:layout_width=\"0dp\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:layout_weight=\"1\"\r\n                android:fontFamily=\"@font/poppins_medium\"\r\n                android:text=\"00:00\"\r\n                android:textColor=\"@color/white\"\r\n                android:textSize=\"13sp\" />\r\n\r\n            <TextView\r\n                android:id=\"@+id/tvTotalTime\"\r\n                android:layout_width=\"wrap_content\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:fontFamily=\"@font/poppins_medium\"\r\n                android:text=\"8h 30m\"\r\n                android:textColor=\"@color/white\"\r\n                android:textSize=\"13sp\" />\r\n        </LinearLayout>\r\n\r\n        <!-- Main controls -->\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_marginTop=\"28dp\"\r\n            android:gravity=\"center\"\r\n            android:orientation=\"horizontal\">\r\n\r\n            <TextView\r\n                android:id=\"@+id/btnPrev\"\r\n                android:layout_width=\"44dp\"\r\n                android:layout_height=\"44dp\"\r\n                android:gravity=\"center\"\r\n                android:text=\"|◀\"\r\n                android:textColor=\"@color/white\"\r\n                android:textSize=\"18sp\" />\r\n\r\n            <TextView\r\n                android:id=\"@+id/btnRewind15\"\r\n                android:layout_width=\"64dp\"\r\n                android:layout_height=\"64dp\"\r\n                android:layout_marginStart=\"10dp\"\r\n                android:layout_marginEnd=\"10dp\"\r\n                android:background=\"@drawable/bg_player_small_action\"\r\n                android:fontFamily=\"@font/poppins_bold\"\r\n                android:gravity=\"center\"\r\n                android:text=\"15\"\r\n                android:textColor=\"@color/white\"\r\n                android:textSize=\"18sp\" />\r\n\r\n            <TextView\r\n                android:id=\"@+id/btnPlayPause\"\r\n                android:layout_width=\"84dp\"\r\n                android:layout_height=\"84dp\"\r\n                android:layout_marginStart=\"6dp\"\r\n                android:layout_marginEnd=\"6dp\"\r\n                android:background=\"@drawable/bg_player_play_button\"\r\n                android:fontFamily=\"@font/poppins_bold\"\r\n                android:gravity=\"center\"\r\n                android:text=\"▶\"\r\n                android:textColor=\"#35436A\"\r\n                android:textSize=\"32sp\" />\r\n\r\n            <TextView\r\n                android:id=\"@+id/btnForward30\"\r\n                android:layout_width=\"64dp\"\r\n                android:layout_height=\"64dp\"\r\n                android:layout_marginStart=\"10dp\"\r\n                android:layout_marginEnd=\"10dp\"\r\n                android:background=\"@drawable/bg_player_small_action\"\r\n                android:fontFamily=\"@font/poppins_bold\"\r\n                android:gravity=\"center\"\r\n                android:text=\"30\"\r\n                android:textColor=\"@color/white\"\r\n                android:textSize=\"18sp\" />\r\n\r\n            <TextView\r\n                android:id=\"@+id/btnNext\"\r\n                android:layout_width=\"44dp\"\r\n                android:layout_height=\"44dp\"\r\n                android:gravity=\"center\"\r\n                android:text=\"▶|\"\r\n                android:textColor=\"@color/white\"\r\n                android:textSize=\"18sp\" />\r\n        </LinearLayout>\r\n\r\n        <!-- Bottom actions -->\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_marginTop=\"34dp\"\r\n            android:gravity=\"center\"\r\n            android:orientation=\"horizontal\"\r\n            android:weightSum=\"3\">\r\n\r\n            <LinearLayout\r\n                android:layout_width=\"0dp\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:layout_weight=\"1\"\r\n                android:gravity=\"center\"\r\n                android:orientation=\"vertical\">\r\n\r\n                <TextView\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:text=\"☾\"\r\n                    android:textColor=\"@color/white\"\r\n                    android:textSize=\"26sp\" />\r\n\r\n                <TextView\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_marginTop=\"6dp\"\r\n                    android:fontFamily=\"@font/poppins_regular\"\r\n                    android:text=\"@string/player_sleep_timer\"\r\n                    android:textColor=\"@color/white\"\r\n                    android:textSize=\"13sp\" />\r\n            </LinearLayout>\r\n\r\n            <LinearLayout\r\n                android:layout_width=\"0dp\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:layout_weight=\"1\"\r\n                android:gravity=\"center\"\r\n                android:orientation=\"vertical\">\r\n\r\n                <TextView\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:text=\"≣\"\r\n                    android:textColor=\"@color/white\"\r\n                    android:textSize=\"26sp\" />\r\n\r\n                <TextView\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_marginTop=\"6dp\"\r\n                    android:fontFamily=\"@font/poppins_regular\"\r\n                    android:text=\"@string/player_chapters_action\"\r\n                    android:textColor=\"@color/white\"\r\n                    android:textSize=\"13sp\" />\r\n            </LinearLayout>\r\n\r\n            <LinearLayout\r\n                android:layout_width=\"0dp\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:layout_weight=\"1\"\r\n                android:gravity=\"center\"\r\n                android:orientation=\"vertical\">\r\n\r\n                <TextView\r\n                    android:id=\"@+id/tvSpeedValue\"\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:fontFamily=\"@font/poppins_bold\"\r\n                    android:text=\"1.0x\"\r\n                    android:textColor=\"@color/white\"\r\n                    android:textSize=\"24sp\" />\r\n\r\n                <TextView\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_marginTop=\"6dp\"\r\n                    android:fontFamily=\"@font/poppins_regular\"\r\n                    android:text=\"@string/player_speed\"\r\n                    android:textColor=\"@color/white\"\r\n                    android:textSize=\"13sp\" />\r\n            </LinearLayout>\r\n        </LinearLayout>\r\n\r\n    </LinearLayout>\r\n</ScrollView>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/activity_audio_player.xml b/app/src/main/res/layout/activity_audio_player.xml
+--- a/app/src/main/res/layout/activity_audio_player.xml	(revision 2d135be8bf601d76ce3f03b55e968e34404fd6c1)
++++ b/app/src/main/res/layout/activity_audio_player.xml	(date 1779699300523)
+@@ -218,11 +218,15 @@
+             android:weightSum="3">
+ 
+             <LinearLayout
++                android:id="@+id/btnSleepTimer"
+                 android:layout_width="0dp"
+                 android:layout_height="wrap_content"
+                 android:layout_weight="1"
++                android:clickable="true"
++                android:focusable="true"
+                 android:gravity="center"
+-                android:orientation="vertical">
++                android:orientation="vertical"
++                android:foreground="?android:attr/selectableItemBackground">
+ 
+                 <TextView
+                     android:layout_width="wrap_content"
+@@ -242,11 +246,15 @@
+             </LinearLayout>
+ 
+             <LinearLayout
++                android:id="@+id/btnChapters"
+                 android:layout_width="0dp"
+                 android:layout_height="wrap_content"
+                 android:layout_weight="1"
++                android:clickable="true"
++                android:focusable="true"
+                 android:gravity="center"
+-                android:orientation="vertical">
++                android:orientation="vertical"
++                android:foreground="?android:attr/selectableItemBackground">
+ 
+                 <TextView
+                     android:layout_width="wrap_content"
+Index: app/src/main/java/com/example/fonos/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.fonos;\r\n\r\nimport android.content.Intent;\r\nimport android.content.SharedPreferences;\r\nimport android.os.Bundle;\r\nimport android.widget.ImageView;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\n\r\nimport androidx.activity.EdgeToEdge;\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.core.graphics.Insets;\r\nimport androidx.core.view.ViewCompat;\r\nimport androidx.core.view.WindowInsetsCompat;\r\nimport androidx.fragment.app.Fragment;\r\n\r\nimport com.bumptech.glide.Glide;\r\nimport com.example.fonos.fragment.HomeFragment;\r\nimport com.example.fonos.fragment.LibraryFragment;\r\nimport com.example.fonos.fragment.ProfileFragment;\r\nimport com.example.fonos.fragment.SearchFragment;\r\nimport com.google.android.material.bottomnavigation.BottomNavigationView;\r\n\r\npublic class MainActivity extends AppCompatActivity {\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        EdgeToEdge.enable(this);\r\n        setContentView(R.layout.activity_main);\r\n\r\n        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {\r\n            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());\r\n            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);\r\n            return insets;\r\n        });\r\n\r\n        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);\r\n        setupMiniPlayer();\r\n\r\n        // Do not seed placeholder data from the app.\r\n        // Firestore data should be managed from Firebase Console or official seed scripts.\r\n        // FirestoreSeeder.seedBooks(this);\r\n\r\n        if (savedInstanceState == null) {\r\n            loadFragment(new HomeFragment());\r\n        }\r\n\r\n        bottomNavigationView.setOnItemSelectedListener(item -> {\r\n            Fragment fragment = null;\r\n            int itemId = item.getItemId();\r\n\r\n            if (itemId == R.id.nav_home) {\r\n                fragment = new HomeFragment();\r\n            } else if (itemId == R.id.nav_search) {\r\n                fragment = new SearchFragment();\r\n            } else if (itemId == R.id.nav_library) {\r\n                fragment = new LibraryFragment();\r\n            } else if (itemId == R.id.nav_profile) {\r\n                fragment = new ProfileFragment();\r\n            }\r\n\r\n            if (fragment != null) {\r\n                loadFragment(fragment);\r\n                return true;\r\n            }\r\n\r\n            return false;\r\n        });\r\n    }\r\n\r\n    private void loadFragment(Fragment fragment) {\r\n        getSupportFragmentManager()\r\n                .beginTransaction()\r\n                .replace(R.id.fragmentContainer, fragment)\r\n                .commit();\r\n    }\r\n\r\n    @Override\r\n    protected void onResume() {\r\n        super.onResume();\r\n        updateMiniPlayer();\r\n    }\r\n\r\n    private void setupMiniPlayer() {\r\n        updateMiniPlayer();\r\n    }\r\n\r\n    private void updateMiniPlayer() {\r\n        SharedPreferences sharedPref = getSharedPreferences(\"FonosPref\", MODE_PRIVATE);\r\n\r\n        String activeTitle = sharedPref.getString(\"active_book_title\", null);\r\n        String activeAuthor = sharedPref.getString(\"active_book_author\", null);\r\n        String activeDuration = sharedPref.getString(\"active_book_duration\", null);\r\n        int activeCover = sharedPref.getInt(\"active_book_cover\", R.drawable.bg_book_cover_1);\r\n        String activeCoverUrl = sharedPref.getString(\"active_book_cover_url\", null);\r\n        String activeAudioUrl = sharedPref.getString(\"active_book_audio_url\", null);\r\n\r\n        TextView tvTitle = findViewById(R.id.tvMiniPlayerTitle);\r\n        TextView tvSubtitle = findViewById(R.id.tvMiniPlayerSubtitle);\r\n        ImageView imgCover = findViewById(R.id.imgMiniPlayerCover);\r\n        TextView tvCoverTitle = findViewById(R.id.tvMiniPlayerCoverTitle);\r\n\r\n        if (tvTitle == null ||\r\n                tvSubtitle == null ||\r\n                imgCover == null ||\r\n                tvCoverTitle == null ||\r\n                findViewById(R.id.miniPlayer) == null) {\r\n            return;\r\n        }\r\n\r\n        if (activeTitle != null && !activeTitle.trim().isEmpty()) {\r\n            tvTitle.setText(activeTitle);\r\n            tvSubtitle.setText(\"Tiếp tục nghe • \" + (activeAuthor != null ? activeAuthor : \"\"));\r\n            tvCoverTitle.setText(activeTitle);\r\n\r\n            if (isValidUrl(activeCoverUrl)) {\r\n                Glide.with(this)\r\n                        .load(activeCoverUrl)\r\n                        .placeholder(activeCover)\r\n                        .error(activeCover)\r\n                        .into(imgCover);\r\n            } else {\r\n                imgCover.setImageResource(activeCover);\r\n            }\r\n\r\n            findViewById(R.id.miniPlayer).setOnClickListener(v -> {\r\n                Intent intent = new Intent(MainActivity.this, AudioPlayerActivity.class);\r\n                intent.putExtra(\"book_title\", activeTitle);\r\n                intent.putExtra(\"book_author\", activeAuthor);\r\n                intent.putExtra(\"book_duration\", activeDuration);\r\n                intent.putExtra(\"book_cover\", activeCover);\r\n                intent.putExtra(\"book_cover_url\", activeCoverUrl);\r\n                intent.putExtra(\"audio_url\", activeAudioUrl);\r\n                intent.putExtra(\"book_audio_url\", activeAudioUrl);\r\n                startActivity(intent);\r\n            });\r\n        } else {\r\n            tvTitle.setText(getString(R.string.mini_player_title));\r\n            tvSubtitle.setText(getString(R.string.mini_player_subtitle));\r\n            tvCoverTitle.setText(\"Fonos\");\r\n            imgCover.setImageResource(R.drawable.bg_book_cover_1);\r\n\r\n            findViewById(R.id.miniPlayer).setOnClickListener(v -> {\r\n                Toast.makeText(this, \"Hãy chọn một sách để bắt đầu nghe\", Toast.LENGTH_SHORT).show();\r\n            });\r\n        }\r\n    }\r\n\r\n    private boolean isValidUrl(String value) {\r\n        return value != null &&\r\n                (value.trim().startsWith(\"http://\") || value.trim().startsWith(\"https://\"));\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/fonos/MainActivity.java b/app/src/main/java/com/example/fonos/MainActivity.java
+--- a/app/src/main/java/com/example/fonos/MainActivity.java	(revision 2d135be8bf601d76ce3f03b55e968e34404fd6c1)
++++ b/app/src/main/java/com/example/fonos/MainActivity.java	(date 1779699285745)
+@@ -76,6 +76,13 @@
+                 .commit();
+     }
+ 
++    public void selectSearchTab() {
++        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
++        if (bottomNavigationView != null) {
++            bottomNavigationView.setSelectedItemId(R.id.nav_search);
++        }
++    }
++
+     @Override
+     protected void onResume() {
+         super.onResume();
+Index: app/build.gradle.kts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\r\n    alias(libs.plugins.android.application)\r\n    id(\"com.google.gms.google-services\")\r\n}\r\n\r\nandroid {\r\n    namespace = \"com.example.fonos\"\r\n    compileSdk {\r\n        version = release(36) {\r\n            minorApiLevel = 1\r\n        }\r\n    }\r\n\r\n    defaultConfig {\r\n        applicationId = \"com.example.fonos\"\r\n        minSdk = 24\r\n        targetSdk = 36\r\n        versionCode = 1\r\n        versionName = \"1.0\"\r\n\r\n        testInstrumentationRunner = \"androidx.test.runner.AndroidJUnitRunner\"\r\n    }\r\n\r\n    buildTypes {\r\n        release {\r\n            isMinifyEnabled = false\r\n            proguardFiles(\r\n                getDefaultProguardFile(\"proguard-android-optimize.txt\"),\r\n                \"proguard-rules.pro\"\r\n            )\r\n        }\r\n    }\r\n\r\n    compileOptions {\r\n        sourceCompatibility = JavaVersion.VERSION_11\r\n        targetCompatibility = JavaVersion.VERSION_11\r\n    }\r\n}\r\n\r\ndependencies {\r\n    implementation(libs.activity.ktx)\r\n    implementation(libs.appcompat)\r\n    implementation(libs.constraintlayout)\r\n    implementation(libs.material)\r\n\r\n    implementation(platform(\"com.google.firebase:firebase-bom:34.13.0\"))\r\n    implementation(\"com.google.firebase:firebase-auth\")\r\n    implementation(\"com.google.firebase:firebase-firestore\")\r\n    implementation(\"com.google.firebase:firebase-storage\")\r\n\r\n    implementation(\"com.github.bumptech.glide:glide:4.16.0\")\r\n\r\n    implementation(\"androidx.media3:media3-exoplayer:1.3.0\")\r\n    implementation(\"androidx.media3:media3-ui:1.3.0\")\r\n\r\n    testImplementation(libs.junit)\r\n    androidTestImplementation(libs.espresso.core)\r\n    androidTestImplementation(libs.ext.junit)\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+--- a/app/build.gradle.kts	(revision 2d135be8bf601d76ce3f03b55e968e34404fd6c1)
++++ b/app/build.gradle.kts	(date 1779696733122)
+@@ -49,9 +49,8 @@
+     implementation("com.google.firebase:firebase-storage")
+ 
+     implementation("com.github.bumptech.glide:glide:4.16.0")
+-
+-    implementation("androidx.media3:media3-exoplayer:1.3.0")
+-    implementation("androidx.media3:media3-ui:1.3.0")
++    implementation("androidx.media3:media3-exoplayer:1.3.1")
++    implementation("androidx.media3:media3-session:1.3.1")
+ 
+     testImplementation(libs.junit)
+     androidTestImplementation(libs.espresso.core)
+Index: app/src/main/java/com/example/fonos/fragment/ProfileFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.fonos.fragment;\r\n\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\nimport android.view.LayoutInflater;\r\nimport android.view.View;\r\nimport android.view.ViewGroup;\r\nimport android.widget.Button;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.annotation.Nullable;\r\nimport androidx.fragment.app.Fragment;\r\n\r\nimport com.example.fonos.R;\r\nimport com.example.fonos.auth.LoginActivity;\r\nimport com.example.fonos.auth.RegisterActivity;\r\nimport com.google.firebase.auth.FirebaseAuth;\r\nimport com.google.firebase.auth.FirebaseUser;\r\n\r\npublic class ProfileFragment extends Fragment {\r\n\r\n    private TextView tvProfileName, tvProfileEmail;\r\n    private Button btnLogin, btnRegister, btnLogout;\r\n\r\n    private boolean isLoggedIn() {\r\n        return FirebaseAuth.getInstance().getCurrentUser() != null;\r\n    }\r\n\r\n    @Nullable\r\n    @Override\r\n    public View onCreateView(@NonNull LayoutInflater inflater,\r\n                             @Nullable ViewGroup container,\r\n                             @Nullable Bundle savedInstanceState) {\r\n        View view = inflater.inflate(R.layout.fragment_profile, container, false);\r\n\r\n        tvProfileName = view.findViewById(R.id.tvProfileName);\r\n        tvProfileEmail = view.findViewById(R.id.tvProfileEmail);\r\n        btnLogin   = view.findViewById(R.id.btnLogin);\r\n        btnRegister = view.findViewById(R.id.btnRegister);\r\n        btnLogout  = view.findViewById(R.id.btnLogout);\r\n\r\n        updateUI();\r\n\r\n        btnLogin.setOnClickListener(v -> {\r\n            Intent intent = new Intent(getActivity(), LoginActivity.class);\r\n            startActivity(intent);\r\n        });\r\n\r\n        btnRegister.setOnClickListener(v -> {\r\n            Intent intent = new Intent(getActivity(), RegisterActivity.class);\r\n            startActivity(intent);\r\n        });\r\n\r\n        btnLogout.setOnClickListener(v -> {\r\n            FirebaseAuth.getInstance().signOut();\r\n            Toast.makeText(getContext(), \"Logged out successfully\", Toast.LENGTH_SHORT).show();\r\n            updateUI();\r\n        });\r\n\r\n        return view;\r\n    }\r\n\r\n    private void updateUI() {\r\n        if (isLoggedIn()) {\r\n            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();\r\n            if (user != null) {\r\n                String name = user.getDisplayName();\r\n                tvProfileName.setText(name != null && !name.isEmpty() ? name : \"Fonos User\");\r\n                tvProfileEmail.setText(user.getEmail());\r\n            }\r\n            btnLogin.setVisibility(View.GONE);\r\n            btnRegister.setVisibility(View.GONE);\r\n            btnLogout.setVisibility(View.VISIBLE);\r\n        } else {\r\n            tvProfileName.setText(getString(R.string.profile_guest));\r\n            tvProfileEmail.setText(getString(R.string.profile_guest_email));\r\n            btnLogin.setVisibility(View.VISIBLE);\r\n            btnRegister.setVisibility(View.VISIBLE);\r\n            btnLogout.setVisibility(View.GONE);\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/fonos/fragment/ProfileFragment.java b/app/src/main/java/com/example/fonos/fragment/ProfileFragment.java
+--- a/app/src/main/java/com/example/fonos/fragment/ProfileFragment.java	(revision 2d135be8bf601d76ce3f03b55e968e34404fd6c1)
++++ b/app/src/main/java/com/example/fonos/fragment/ProfileFragment.java	(date 1779699329855)
+@@ -41,6 +41,28 @@
+         btnRegister = view.findViewById(R.id.btnRegister);
+         btnLogout  = view.findViewById(R.id.btnLogout);
+ 
++        View btnSettings = view.findViewById(R.id.btnSettings);
++        View btnHistory = view.findViewById(R.id.btnHistory);
++        View btnDownloads = view.findViewById(R.id.btnDownloads);
++        View btnHelp = view.findViewById(R.id.btnHelp);
++        View btnAbout = view.findViewById(R.id.btnAbout);
++
++        if (btnSettings != null) {
++            btnSettings.setOnClickListener(v -> Toast.makeText(getContext(), "Dang mo Cai dat...", Toast.LENGTH_SHORT).show());
++        }
++        if (btnHistory != null) {
++            btnHistory.setOnClickListener(v -> Toast.makeText(getContext(), "Lich su nghe dang trong", Toast.LENGTH_SHORT).show());
++        }
++        if (btnDownloads != null) {
++            btnDownloads.setOnClickListener(v -> Toast.makeText(getContext(), "Chua co sach nao duoc tai xuong", Toast.LENGTH_SHORT).show());
++        }
++        if (btnHelp != null) {
++            btnHelp.setOnClickListener(v -> Toast.makeText(getContext(), "Dang ket noi den trung tam ho tro...", Toast.LENGTH_SHORT).show());
++        }
++        if (btnAbout != null) {
++            btnAbout.setOnClickListener(v -> Toast.makeText(getContext(), "Fonos - Phien ban 1.0.0", Toast.LENGTH_SHORT).show());
++        }
++
+         updateUI();
+ 
+         btnLogin.setOnClickListener(v -> {
+Index: app/src/main/java/com/example/fonos/AudioPlayerActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.fonos;\r\n\r\nimport android.net.Uri;\r\nimport android.os.Bundle;\r\nimport android.os.Handler;\r\nimport android.os.Looper;\r\nimport android.view.View;\r\nimport android.widget.ImageView;\r\nimport android.widget.SeekBar;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\n\r\nimport androidx.activity.EdgeToEdge;\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.core.graphics.Insets;\r\nimport androidx.core.view.ViewCompat;\r\nimport androidx.core.view.WindowInsetsCompat;\r\nimport androidx.media3.common.C;\r\nimport androidx.media3.common.MediaItem;\r\nimport androidx.media3.common.PlaybackException;\r\nimport androidx.media3.common.PlaybackParameters;\r\nimport androidx.media3.common.Player;\r\nimport androidx.media3.exoplayer.ExoPlayer;\r\n\r\nimport com.bumptech.glide.Glide;\r\n\r\nimport java.util.Locale;\r\n\r\npublic class AudioPlayerActivity extends AppCompatActivity {\r\n\r\n    private TextView tvPlayerTitle, tvPlayerSubtitle, tvCurrentTime, tvTotalTime, tvCoverTitle;\r\n    private TextView btnPlayPause, tvSpeedValue;\r\n    private ImageView viewPlayerCover;\r\n    private SeekBar seekBarAudio;\r\n\r\n    private ExoPlayer player;\r\n    private final Handler handler = new Handler(Looper.getMainLooper());\r\n\r\n    private boolean isUserSeeking = false;\r\n    private float currentSpeed = 1.0f;\r\n\r\n    private String audioUrl;\r\n    private String coverUrl;\r\n    private int coverRes;\r\n\r\n    private final Runnable progressRunnable = new Runnable() {\r\n        @Override\r\n        public void run() {\r\n            updateProgress();\r\n            handler.postDelayed(this, 500);\r\n        }\r\n    };\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        EdgeToEdge.enable(this);\r\n        setContentView(R.layout.activity_audio_player);\r\n\r\n        View root = findViewById(R.id.playerRoot);\r\n        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {\r\n            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());\r\n            v.setPadding(\r\n                    v.getPaddingLeft(),\r\n                    systemBars.top,\r\n                    v.getPaddingRight(),\r\n                    systemBars.bottom\r\n            );\r\n            return insets;\r\n        });\r\n\r\n        initViews();\r\n        loadBookData();\r\n        setupPlayer();\r\n        setupActions();\r\n    }\r\n\r\n    private void initViews() {\r\n        tvPlayerTitle = findViewById(R.id.tvPlayerTitle);\r\n        tvPlayerSubtitle = findViewById(R.id.tvPlayerSubtitle);\r\n        tvCurrentTime = findViewById(R.id.tvCurrentTime);\r\n        tvTotalTime = findViewById(R.id.tvTotalTime);\r\n        tvCoverTitle = findViewById(R.id.tvCoverTitle);\r\n        tvSpeedValue = findViewById(R.id.tvSpeedValue);\r\n\r\n        btnPlayPause = findViewById(R.id.btnPlayPause);\r\n        viewPlayerCover = findViewById(R.id.viewPlayerCover);\r\n        seekBarAudio = findViewById(R.id.seekBarAudio);\r\n    }\r\n\r\n    private void loadBookData() {\r\n        String title = getIntent().getStringExtra(\"book_title\");\r\n        String author = getIntent().getStringExtra(\"book_author\");\r\n        String duration = getIntent().getStringExtra(\"book_duration\");\r\n\r\n        coverRes = getIntent().getIntExtra(\"book_cover\", R.drawable.bg_book_cover_1);\r\n        coverUrl = getIntent().getStringExtra(\"book_cover_url\");\r\n\r\n        audioUrl = getIntent().getStringExtra(\"audio_url\");\r\n        if (!isValidUrl(audioUrl)) {\r\n            audioUrl = getIntent().getStringExtra(\"book_audio_url\");\r\n        }\r\n\r\n        if (title == null) title = getString(R.string.app_name);\r\n        if (author == null) author = \"\";\r\n        if (duration == null) duration = \"00:00\";\r\n\r\n        tvPlayerTitle.setText(title);\r\n        tvPlayerSubtitle.setText(getString(R.string.player_subtitle_demo, author));\r\n        tvCoverTitle.setText(title);\r\n\r\n        tvCurrentTime.setText(\"00:00\");\r\n        tvTotalTime.setText(duration);\r\n\r\n        currentSpeed = 1.0f;\r\n        tvSpeedValue.setText(\"1.0x\");\r\n\r\n        seekBarAudio.setMax(100);\r\n        seekBarAudio.setProgress(0);\r\n\r\n        renderCover();\r\n    }\r\n\r\n    private void renderCover() {\r\n        if (isValidUrl(coverUrl)) {\r\n            Glide.with(this)\r\n                    .load(coverUrl)\r\n                    .placeholder(coverRes)\r\n                    .error(coverRes)\r\n                    .into(viewPlayerCover);\r\n\r\n            tvCoverTitle.setVisibility(View.GONE);\r\n        } else {\r\n            viewPlayerCover.setImageResource(coverRes);\r\n            tvCoverTitle.setVisibility(View.VISIBLE);\r\n        }\r\n    }\r\n\r\n    private void setupPlayer() {\r\n        if (!isValidUrl(audioUrl)) {\r\n            btnPlayPause.setEnabled(false);\r\n            Toast.makeText(this, \"Sách này chưa có audioUrl hợp lệ\", Toast.LENGTH_SHORT).show();\r\n            return;\r\n        }\r\n\r\n        player = new ExoPlayer.Builder(this).build();\r\n        MediaItem mediaItem = MediaItem.fromUri(Uri.parse(audioUrl));\r\n        player.setMediaItem(mediaItem);\r\n\r\n        player.addListener(new Player.Listener() {\r\n            @Override\r\n            public void onIsPlayingChanged(boolean isPlaying) {\r\n                btnPlayPause.setText(isPlaying ? \"❚❚\" : \"▶\");\r\n            }\r\n\r\n            @Override\r\n            public void onPlaybackStateChanged(int playbackState) {\r\n                if (playbackState == Player.STATE_READY) {\r\n                    long durationMs = player.getDuration();\r\n\r\n                    if (durationMs != C.TIME_UNSET && durationMs > 0) {\r\n                        seekBarAudio.setMax((int) durationMs);\r\n                        tvTotalTime.setText(formatTime(durationMs));\r\n                    }\r\n\r\n                    updateProgress();\r\n                } else if (playbackState == Player.STATE_ENDED) {\r\n                    btnPlayPause.setText(\"▶\");\r\n                    seekBarAudio.setProgress(0);\r\n                    tvCurrentTime.setText(\"00:00\");\r\n\r\n                    if (player != null) {\r\n                        player.seekTo(0);\r\n                        player.pause();\r\n                    }\r\n                }\r\n            }\r\n\r\n            @Override\r\n            public void onPlayerError(PlaybackException error) {\r\n                btnPlayPause.setText(\"▶\");\r\n                Toast.makeText(\r\n                        AudioPlayerActivity.this,\r\n                        \"Không phát được audio\",\r\n                        Toast.LENGTH_LONG\r\n                ).show();\r\n            }\r\n        });\r\n\r\n        player.prepare();\r\n    }\r\n\r\n    private void setupActions() {\r\n        findViewById(R.id.btnBack).setOnClickListener(v -> finish());\r\n\r\n        findViewById(R.id.btnPrev).setOnClickListener(v -> {\r\n            Toast.makeText(this, \"Chức năng chuyển chương trước sẽ làm sau\", Toast.LENGTH_SHORT).show();\r\n        });\r\n\r\n        findViewById(R.id.btnNext).setOnClickListener(v -> {\r\n            Toast.makeText(this, \"Chức năng chuyển chương sau sẽ làm sau\", Toast.LENGTH_SHORT).show();\r\n        });\r\n\r\n        findViewById(R.id.btnRewind15).setOnClickListener(v -> {\r\n            if (player == null) return;\r\n\r\n            long newPosition = Math.max(player.getCurrentPosition() - 15_000, 0);\r\n            player.seekTo(newPosition);\r\n            updateProgress();\r\n        });\r\n\r\n        findViewById(R.id.btnForward30).setOnClickListener(v -> {\r\n            if (player == null) return;\r\n\r\n            long currentPosition = player.getCurrentPosition();\r\n            long duration = player.getDuration();\r\n            long newPosition = currentPosition + 30_000;\r\n\r\n            if (duration != C.TIME_UNSET && duration > 0) {\r\n                newPosition = Math.min(newPosition, duration);\r\n            }\r\n\r\n            player.seekTo(newPosition);\r\n            updateProgress();\r\n        });\r\n\r\n        btnPlayPause.setOnClickListener(v -> {\r\n            if (player == null) {\r\n                Toast.makeText(this, \"Chưa sẵn sàng phát audio\", Toast.LENGTH_SHORT).show();\r\n                return;\r\n            }\r\n\r\n            if (player.isPlaying()) {\r\n                player.pause();\r\n            } else {\r\n                player.play();\r\n            }\r\n        });\r\n\r\n        seekBarAudio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {\r\n            @Override\r\n            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {\r\n                if (fromUser) {\r\n                    tvCurrentTime.setText(formatTime(progress));\r\n                }\r\n            }\r\n\r\n            @Override\r\n            public void onStartTrackingTouch(SeekBar seekBar) {\r\n                isUserSeeking = true;\r\n            }\r\n\r\n            @Override\r\n            public void onStopTrackingTouch(SeekBar seekBar) {\r\n                if (player != null) {\r\n                    player.seekTo(seekBar.getProgress());\r\n                }\r\n\r\n                isUserSeeking = false;\r\n            }\r\n        });\r\n\r\n        tvSpeedValue.setOnClickListener(v -> {\r\n            if (player == null) return;\r\n\r\n            if (currentSpeed == 1.0f) {\r\n                currentSpeed = 1.25f;\r\n            } else if (currentSpeed == 1.25f) {\r\n                currentSpeed = 1.5f;\r\n            } else if (currentSpeed == 1.5f) {\r\n                currentSpeed = 2.0f;\r\n            } else {\r\n                currentSpeed = 1.0f;\r\n            }\r\n\r\n            player.setPlaybackParameters(new PlaybackParameters(currentSpeed));\r\n            tvSpeedValue.setText(formatSpeed(currentSpeed));\r\n        });\r\n    }\r\n\r\n    private void updateProgress() {\r\n        if (player == null || isUserSeeking) return;\r\n\r\n        long currentPosition = player.getCurrentPosition();\r\n        long duration = player.getDuration();\r\n\r\n        if (duration != C.TIME_UNSET && duration > 0) {\r\n            seekBarAudio.setMax((int) duration);\r\n        }\r\n\r\n        seekBarAudio.setProgress((int) currentPosition);\r\n        tvCurrentTime.setText(formatTime(currentPosition));\r\n    }\r\n\r\n    private String formatTime(long milliseconds) {\r\n        if (milliseconds < 0) return \"00:00\";\r\n\r\n        long totalSeconds = milliseconds / 1000;\r\n        long hours = totalSeconds / 3600;\r\n        long minutes = (totalSeconds % 3600) / 60;\r\n        long seconds = totalSeconds % 60;\r\n\r\n        if (hours > 0) {\r\n            return String.format(Locale.US, \"%02d:%02d:%02d\", hours, minutes, seconds);\r\n        }\r\n\r\n        return String.format(Locale.US, \"%02d:%02d\", minutes, seconds);\r\n    }\r\n\r\n    private String formatSpeed(float speed) {\r\n        if (speed == 1.0f) return \"1.0x\";\r\n        if (speed == 1.25f) return \"1.25x\";\r\n        if (speed == 1.5f) return \"1.5x\";\r\n        if (speed == 2.0f) return \"2.0x\";\r\n        return speed + \"x\";\r\n    }\r\n\r\n    private boolean isValidUrl(String value) {\r\n        return value != null &&\r\n                (value.trim().startsWith(\"http://\") || value.trim().startsWith(\"https://\"));\r\n    }\r\n\r\n    @Override\r\n    protected void onStart() {\r\n        super.onStart();\r\n        handler.post(progressRunnable);\r\n    }\r\n\r\n    @Override\r\n    protected void onStop() {\r\n        super.onStop();\r\n        handler.removeCallbacks(progressRunnable);\r\n    }\r\n\r\n    @Override\r\n    protected void onDestroy() {\r\n        super.onDestroy();\r\n\r\n        handler.removeCallbacksAndMessages(null);\r\n\r\n        if (player != null) {\r\n            player.release();\r\n            player = null;\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/fonos/AudioPlayerActivity.java b/app/src/main/java/com/example/fonos/AudioPlayerActivity.java
+--- a/app/src/main/java/com/example/fonos/AudioPlayerActivity.java	(revision 2d135be8bf601d76ce3f03b55e968e34404fd6c1)
++++ b/app/src/main/java/com/example/fonos/AudioPlayerActivity.java	(date 1779699321710)
+@@ -1,9 +1,14 @@
+ package com.example.fonos;
+ 
++import android.Manifest;
++import android.content.ComponentName;
++import android.content.pm.PackageManager;
+ import android.net.Uri;
++import android.os.Build;
+ import android.os.Bundle;
+ import android.os.Handler;
+ import android.os.Looper;
++import android.util.Log;
+ import android.view.View;
+ import android.widget.ImageView;
+ import android.widget.SeekBar;
+@@ -11,43 +16,66 @@
+ import android.widget.Toast;
+ 
+ import androidx.activity.EdgeToEdge;
++import androidx.annotation.NonNull;
+ import androidx.appcompat.app.AppCompatActivity;
++import androidx.core.app.ActivityCompat;
++import androidx.core.content.ContextCompat;
+ import androidx.core.graphics.Insets;
+ import androidx.core.view.ViewCompat;
+ import androidx.core.view.WindowInsetsCompat;
+ import androidx.media3.common.C;
+ import androidx.media3.common.MediaItem;
+-import androidx.media3.common.PlaybackException;
+-import androidx.media3.common.PlaybackParameters;
++import androidx.media3.common.MediaMetadata;
+ import androidx.media3.common.Player;
+-import androidx.media3.exoplayer.ExoPlayer;
++import androidx.media3.session.MediaController;
++import androidx.media3.session.SessionToken;
+ 
+ import com.bumptech.glide.Glide;
++import com.example.fonos.model.Book;
++import com.google.common.util.concurrent.ListenableFuture;
++import com.google.firebase.auth.FirebaseAuth;
++import com.google.firebase.auth.FirebaseUser;
++import com.google.firebase.firestore.FirebaseFirestore;
+ 
+ import java.util.Locale;
++import java.util.concurrent.ExecutionException;
+ 
++/**
++ * Spotify-style Audio Player Activity.
++ * It binds to AudioPlayerService using Android Media3 MediaController.
++ * This guarantees the player state persists across rotations or returning to the app.
++ */
+ public class AudioPlayerActivity extends AppCompatActivity {
+ 
++    private static final String TAG = "AudioPlayerActivity";
++    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 101;
++
+     private TextView tvPlayerTitle, tvPlayerSubtitle, tvCurrentTime, tvTotalTime, tvCoverTitle;
+     private TextView btnPlayPause, tvSpeedValue;
+     private ImageView viewPlayerCover;
+     private SeekBar seekBarAudio;
+ 
+-    private ExoPlayer player;
+-    private final Handler handler = new Handler(Looper.getMainLooper());
++    private MediaController mediaController;
++    private ListenableFuture<MediaController> controllerFuture;
+ 
+-    private boolean isUserSeeking = false;
+-    private float currentSpeed = 1.0f;
++    private String title, author, duration, coverUrl, audioUrl, category;
++    private int coverRes, bookId;
++    private int sleepTimerIndex = 0;
+ 
+-    private String audioUrl;
+-    private String coverUrl;
+-    private int coverRes;
+-
++    private final Handler progressHandler = new Handler(Looper.getMainLooper());
+     private final Runnable progressRunnable = new Runnable() {
+         @Override
+         public void run() {
+-            updateProgress();
+-            handler.postDelayed(this, 500);
++            if (mediaController != null && mediaController.isPlaying()) {
++                long currentPos = mediaController.getCurrentPosition();
++                long totalDur = mediaController.getDuration();
++                if (totalDur > 0) {
++                    int progress = (int) ((currentPos * 100) / totalDur);
++                    seekBarAudio.setProgress(progress);
++                }
++                tvCurrentTime.setText(formatTime(currentPos));
++            }
++            progressHandler.postDelayed(this, 1000);
+         }
+     };
+ 
+@@ -69,10 +97,38 @@
+             return insets;
+         });
+ 
++        // 1. Retrieve book metadata passed from BookDetailActivity or MainActivity
++        loadIntentData();
++
++        // 2. Initialize UI Views
+         initViews();
+-        loadBookData();
+-        setupPlayer();
++
++        // 3. Configure player buttons, seekbar, and speed controls
+         setupActions();
++
++        // 4. Handle POST_NOTIFICATIONS permission for Android 13+
++        checkNotificationPermission();
++
++        // 5. Bind/Connect to the AudioPlayerService
++        connectToPlayerService();
++    }
++
++    private void loadIntentData() {
++        if (getIntent() != null) {
++            bookId = getIntent().getIntExtra("book_id", 0);
++            title = getIntent().getStringExtra("book_title");
++            author = getIntent().getStringExtra("book_author");
++            duration = getIntent().getStringExtra("book_duration");
++            coverRes = getIntent().getIntExtra("book_cover", R.drawable.bg_book_cover_1);
++            coverUrl = getIntent().getStringExtra("book_cover_url");
++            audioUrl = getIntent().getStringExtra("book_audio_url");
++            category = getIntent().getStringExtra("book_category");
++        }
++
++        // Apply defaults if empty
++        if (title == null) title = getString(R.string.app_name);
++        if (author == null) author = "";
++        if (duration == null) duration = "8h 30m";
+     }
+ 
+     private void initViews() {
+@@ -82,265 +138,285 @@
+         tvTotalTime = findViewById(R.id.tvTotalTime);
+         tvCoverTitle = findViewById(R.id.tvCoverTitle);
+         tvSpeedValue = findViewById(R.id.tvSpeedValue);
+-
+         btnPlayPause = findViewById(R.id.btnPlayPause);
+         viewPlayerCover = findViewById(R.id.viewPlayerCover);
+         seekBarAudio = findViewById(R.id.seekBarAudio);
+-    }
+-
+-    private void loadBookData() {
+-        String title = getIntent().getStringExtra("book_title");
+-        String author = getIntent().getStringExtra("book_author");
+-        String duration = getIntent().getStringExtra("book_duration");
+-
+-        coverRes = getIntent().getIntExtra("book_cover", R.drawable.bg_book_cover_1);
+-        coverUrl = getIntent().getStringExtra("book_cover_url");
+-
+-        audioUrl = getIntent().getStringExtra("audio_url");
+-        if (!isValidUrl(audioUrl)) {
+-            audioUrl = getIntent().getStringExtra("book_audio_url");
+-        }
+ 
+-        if (title == null) title = getString(R.string.app_name);
+-        if (author == null) author = "";
+-        if (duration == null) duration = "00:00";
+-
++        // Populate initial UI metadata
+         tvPlayerTitle.setText(title);
+         tvPlayerSubtitle.setText(getString(R.string.player_subtitle_demo, author));
+         tvCoverTitle.setText(title);
+-
+-        tvCurrentTime.setText("00:00");
+         tvTotalTime.setText(duration);
+ 
+-        currentSpeed = 1.0f;
+-        tvSpeedValue.setText("1.0x");
+-
+-        seekBarAudio.setMax(100);
+-        seekBarAudio.setProgress(0);
+-
+-        renderCover();
+-    }
+-
+-    private void renderCover() {
+-        if (isValidUrl(coverUrl)) {
+-            Glide.with(this)
+-                    .load(coverUrl)
+-                    .placeholder(coverRes)
+-                    .error(coverRes)
+-                    .into(viewPlayerCover);
+-
+-            tvCoverTitle.setVisibility(View.GONE);
++        // Load cover image using Glide
++        if (coverUrl != null && !coverUrl.isEmpty()) {
++            Glide.with(this).load(coverUrl).into(viewPlayerCover);
+         } else {
+             viewPlayerCover.setImageResource(coverRes);
+-            tvCoverTitle.setVisibility(View.VISIBLE);
+         }
+     }
+-
+-    private void setupPlayer() {
+-        if (!isValidUrl(audioUrl)) {
+-            btnPlayPause.setEnabled(false);
+-            Toast.makeText(this, "Sách này chưa có audioUrl hợp lệ", Toast.LENGTH_SHORT).show();
+-            return;
+-        }
+-
+-        player = new ExoPlayer.Builder(this).build();
+-        MediaItem mediaItem = MediaItem.fromUri(Uri.parse(audioUrl));
+-        player.setMediaItem(mediaItem);
+-
+-        player.addListener(new Player.Listener() {
+-            @Override
+-            public void onIsPlayingChanged(boolean isPlaying) {
+-                btnPlayPause.setText(isPlaying ? "❚❚" : "▶");
+-            }
+-
+-            @Override
+-            public void onPlaybackStateChanged(int playbackState) {
+-                if (playbackState == Player.STATE_READY) {
+-                    long durationMs = player.getDuration();
+-
+-                    if (durationMs != C.TIME_UNSET && durationMs > 0) {
+-                        seekBarAudio.setMax((int) durationMs);
+-                        tvTotalTime.setText(formatTime(durationMs));
+-                    }
+-
+-                    updateProgress();
+-                } else if (playbackState == Player.STATE_ENDED) {
+-                    btnPlayPause.setText("▶");
+-                    seekBarAudio.setProgress(0);
+-                    tvCurrentTime.setText("00:00");
+-
+-                    if (player != null) {
+-                        player.seekTo(0);
+-                        player.pause();
+-                    }
+-                }
+-            }
+-
+-            @Override
+-            public void onPlayerError(PlaybackException error) {
+-                btnPlayPause.setText("▶");
+-                Toast.makeText(
+-                        AudioPlayerActivity.this,
+-                        "Không phát được audio",
+-                        Toast.LENGTH_LONG
+-                ).show();
+-            }
+-        });
+-
+-        player.prepare();
+-    }
+ 
+     private void setupActions() {
+         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+ 
+-        findViewById(R.id.btnPrev).setOnClickListener(v -> {
+-            Toast.makeText(this, "Chức năng chuyển chương trước sẽ làm sau", Toast.LENGTH_SHORT).show();
+-        });
+-
+-        findViewById(R.id.btnNext).setOnClickListener(v -> {
+-            Toast.makeText(this, "Chức năng chuyển chương sau sẽ làm sau", Toast.LENGTH_SHORT).show();
+-        });
+-
+-        findViewById(R.id.btnRewind15).setOnClickListener(v -> {
+-            if (player == null) return;
+-
+-            long newPosition = Math.max(player.getCurrentPosition() - 15_000, 0);
+-            player.seekTo(newPosition);
+-            updateProgress();
+-        });
+-
+-        findViewById(R.id.btnForward30).setOnClickListener(v -> {
+-            if (player == null) return;
+-
+-            long currentPosition = player.getCurrentPosition();
+-            long duration = player.getDuration();
+-            long newPosition = currentPosition + 30_000;
+-
+-            if (duration != C.TIME_UNSET && duration > 0) {
+-                newPosition = Math.min(newPosition, duration);
+-            }
+-
+-            player.seekTo(newPosition);
+-            updateProgress();
+-        });
+-
++        // Play/Pause Click Handler
+         btnPlayPause.setOnClickListener(v -> {
+-            if (player == null) {
+-                Toast.makeText(this, "Chưa sẵn sàng phát audio", Toast.LENGTH_SHORT).show();
+-                return;
+-            }
+-
+-            if (player.isPlaying()) {
+-                player.pause();
+-            } else {
+-                player.play();
++            if (mediaController != null) {
++                if (mediaController.isPlaying()) {
++                    mediaController.pause();
++                } else {
++                    mediaController.play();
++                }
++            }
++        });
++
++        // 15 seconds skip backward
++        findViewById(R.id.btnRewind15).setOnClickListener(v -> {
++            if (mediaController != null) {
++                long targetPos = Math.max(mediaController.getCurrentPosition() - 15000, 0);
++                mediaController.seekTo(targetPos);
++                tvCurrentTime.setText(formatTime(targetPos));
+             }
+         });
+ 
++        // 30 seconds skip forward
++        findViewById(R.id.btnForward30).setOnClickListener(v -> {
++            if (mediaController != null) {
++                long targetPos = Math.min(mediaController.getCurrentPosition() + 30000, mediaController.getDuration());
++                mediaController.seekTo(targetPos);
++                tvCurrentTime.setText(formatTime(targetPos));
++            }
++        });
++
++        // Playback speed selection (cycles 1.0x -> 1.25x -> 1.5x -> 2.0x -> 0.75x -> 1.0x)
++        tvSpeedValue.setOnClickListener(v -> {
++            if (mediaController != null) {
++                float currentSpeed = mediaController.getPlaybackParameters().speed;
++                float newSpeed;
++                if (currentSpeed == 1.0f) newSpeed = 1.25f;
++                else if (currentSpeed == 1.25f) newSpeed = 1.5f;
++                else if (currentSpeed == 1.5f) newSpeed = 2.0f;
++                else if (currentSpeed == 2.0f) newSpeed = 0.75f;
++                else newSpeed = 1.0f;
++
++                mediaController.setPlaybackSpeed(newSpeed);
++                tvSpeedValue.setText(String.format(Locale.getDefault(), "%.2fx", newSpeed));
++            }
++        });
++
++        // Seekbar slide handler
+         seekBarAudio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+             @Override
+             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+-                if (fromUser) {
+-                    tvCurrentTime.setText(formatTime(progress));
++                if (fromUser && mediaController != null) {
++                    long totalDur = mediaController.getDuration();
++                    long targetPos = (totalDur * progress) / 100;
++                    mediaController.seekTo(targetPos);
++                    tvCurrentTime.setText(formatTime(targetPos));
+                 }
+             }
+ 
+             @Override
+-            public void onStartTrackingTouch(SeekBar seekBar) {
+-                isUserSeeking = true;
+-            }
++            public void onStartTrackingTouch(SeekBar seekBar) {}
+ 
+             @Override
+-            public void onStopTrackingTouch(SeekBar seekBar) {
+-                if (player != null) {
+-                    player.seekTo(seekBar.getProgress());
+-                }
++            public void onStopTrackingTouch(SeekBar seekBar) {}
++        });
++
++        // Bookmark listener - saves book dynamically to library if user is logged in
++        findViewById(R.id.btnBookmark).setOnClickListener(v -> {
++            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
++            if (currentUser == null) {
++                Toast.makeText(this, "Da luu sach vao dau trang (Khach)!", Toast.LENGTH_SHORT).show();
++                return;
++            }
++
++            Book book = new Book(bookId, title, author, "", 5.0f, duration, 10, coverRes, category != null ? category : "General");
++            book.setCoverUrl(coverUrl);
++            book.setAudioUrl(audioUrl);
++
++            FirebaseFirestore.getInstance().collection("users")
++                    .document(currentUser.getUid())
++                    .collection("library")
++                    .document(String.valueOf(bookId))
++                    .set(book)
++                    .addOnCompleteListener(task -> {
++                        if (task.isSuccessful()) {
++                            Toast.makeText(AudioPlayerActivity.this, "Da luu sach vao thu vien thanh cong!", Toast.LENGTH_SHORT).show();
++                        } else {
++                            Toast.makeText(AudioPlayerActivity.this, "Luu sach noi that bai.", Toast.LENGTH_SHORT).show();
++                        }
++                    });
++        });
++
++        // Previous button - plays chapter from start
++        findViewById(R.id.btnPrev).setOnClickListener(v -> {
++            if (mediaController != null) {
++                mediaController.seekTo(0);
++                Toast.makeText(this, "Dang phat lai tu dau", Toast.LENGTH_SHORT).show();
++            }
++        });
++
++        // Next button - next chapter placeholder
++        findViewById(R.id.btnNext).setOnClickListener(v -> {
++            Toast.makeText(this, "Day la chuong cuoi cung cua sach", Toast.LENGTH_SHORT).show();
++        });
+ 
+-                isUserSeeking = false;
++        // Sleep Timer - cycle timer options
++        findViewById(R.id.btnSleepTimer).setOnClickListener(v -> {
++            sleepTimerIndex = (sleepTimerIndex + 1) % 4;
++            String message;
++            switch (sleepTimerIndex) {
++                case 1: message = "Da hen gio tat sau 15 phut"; break;
++                case 2: message = "Da hen gio tat sau 30 phut"; break;
++                case 3: message = "Da hen gio tat sau 60 phut"; break;
++                default: message = "Da tat che do hen gio"; break;
+             }
++            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+         });
+ 
+-        tvSpeedValue.setOnClickListener(v -> {
+-            if (player == null) return;
++        // Chapters button - chapters selection placeholder
++        findViewById(R.id.btnChapters).setOnClickListener(v -> {
++            Toast.makeText(this, "Danh sach chuong dang duoc tai...", Toast.LENGTH_SHORT).show();
++        });
++    }
+ 
+-            if (currentSpeed == 1.0f) {
+-                currentSpeed = 1.25f;
+-            } else if (currentSpeed == 1.25f) {
+-                currentSpeed = 1.5f;
+-            } else if (currentSpeed == 1.5f) {
+-                currentSpeed = 2.0f;
+-            } else {
+-                currentSpeed = 1.0f;
++    private void connectToPlayerService() {
++        Log.d(TAG, "connectToPlayerService: Binding to AudioPlayerService");
++        SessionToken sessionToken = new SessionToken(this, new ComponentName(this, AudioPlayerService.class));
++        controllerFuture = new MediaController.Builder(this, sessionToken).buildAsync();
++        controllerFuture.addListener(() -> {
++            try {
++                mediaController = controllerFuture.get();
++                Log.d(TAG, "MediaController connected successfully");
++                onPlayerConnected();
++            } catch (ExecutionException | InterruptedException e) {
++                Log.e(TAG, "Failed to resolve MediaController future: ", e);
++                Toast.makeText(this, "Failed to connect to audio player service.", Toast.LENGTH_SHORT).show();
++            }
++        }, ContextCompat.getMainExecutor(this));
++    }
++
++    private void onPlayerConnected() {
++        if (mediaController == null) return;
++
++        // Listen for player state changes
++        mediaController.addListener(new Player.Listener() {
++            @Override
++            public void onIsPlayingChanged(boolean isPlaying) {
++                updatePlayPauseState(isPlaying);
++            }
++
++            @Override
++            public void onPlaybackStateChanged(int playbackState) {
++                if (playbackState == Player.STATE_READY) {
++                    long durationMs = mediaController.getDuration();
++                    tvTotalTime.setText(formatTime(durationMs));
++                    startProgressUpdater();
++                }
++            }
++        });
++
++        // Initialize state
++        updatePlayPauseState(mediaController.isPlaying());
++
++        // Check if we should load the new book or resume currently playing audio
++        boolean isNewBook = true;
++        MediaItem activeItem = mediaController.getCurrentMediaItem();
++        if (activeItem != null && activeItem.mediaMetadata.title != null) {
++            if (activeItem.mediaMetadata.title.toString().equalsIgnoreCase(title)) {
++                isNewBook = false;
++            }
++        }
++
++        if (isNewBook && audioUrl != null && !audioUrl.isEmpty()) {
++            Log.d(TAG, "Loading new audiobook URL: " + audioUrl);
++            
++            // Build media metadata with titles and artwork URL for native lockscreen controls
++            MediaMetadata metadata = new MediaMetadata.Builder()
++                    .setTitle(title)
++                    .setArtist(author)
++                    .setArtworkUri(coverUrl != null ? Uri.parse(coverUrl) : null)
++                    .build();
++
++            MediaItem mediaItem = new MediaItem.Builder()
++                    .setUri(audioUrl)
++                    .setMediaMetadata(metadata)
++                    .build();
++
++            mediaController.setMediaItem(mediaItem);
++            mediaController.prepare();
++            mediaController.play();
++        } else {
++            Log.d(TAG, "Resuming display of active audiobook: " + title);
++            if (mediaController.getPlaybackState() == Player.STATE_READY) {
++                long durationMs = mediaController.getDuration();
++                tvTotalTime.setText(formatTime(durationMs));
++                startProgressUpdater();
+             }
+-
+-            player.setPlaybackParameters(new PlaybackParameters(currentSpeed));
+-            tvSpeedValue.setText(formatSpeed(currentSpeed));
+-        });
++        }
+     }
+-
+-    private void updateProgress() {
+-        if (player == null || isUserSeeking) return;
+-
+-        long currentPosition = player.getCurrentPosition();
+-        long duration = player.getDuration();
+ 
+-        if (duration != C.TIME_UNSET && duration > 0) {
+-            seekBarAudio.setMax((int) duration);
++    private void updatePlayPauseState(boolean isPlaying) {
++        btnPlayPause.setText(isPlaying ? "❚❚" : "▶");
++        if (isPlaying) {
++            startProgressUpdater();
++        } else {
++            progressHandler.removeCallbacks(progressRunnable);
+         }
++    }
+ 
+-        seekBarAudio.setProgress((int) currentPosition);
+-        tvCurrentTime.setText(formatTime(currentPosition));
++    private void startProgressUpdater() {
++        progressHandler.removeCallbacks(progressRunnable);
++        progressHandler.post(progressRunnable);
+     }
+ 
+-    private String formatTime(long milliseconds) {
+-        if (milliseconds < 0) return "00:00";
+-
+-        long totalSeconds = milliseconds / 1000;
++    private String formatTime(long ms) {
++        if (ms == C.TIME_UNSET || ms < 0) return "00:00";
++        long totalSeconds = ms / 1000;
+         long hours = totalSeconds / 3600;
+         long minutes = (totalSeconds % 3600) / 60;
+         long seconds = totalSeconds % 60;
+ 
+         if (hours > 0) {
+-            return String.format(Locale.US, "%02d:%02d:%02d", hours, minutes, seconds);
++            return String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds);
++        } else {
++            return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+         }
+-
+-        return String.format(Locale.US, "%02d:%02d", minutes, seconds);
+     }
+ 
+-    private String formatSpeed(float speed) {
+-        if (speed == 1.0f) return "1.0x";
+-        if (speed == 1.25f) return "1.25x";
+-        if (speed == 1.5f) return "1.5x";
+-        if (speed == 2.0f) return "2.0x";
+-        return speed + "x";
+-    }
+-
+-    private boolean isValidUrl(String value) {
+-        return value != null &&
+-                (value.trim().startsWith("http://") || value.trim().startsWith("https://"));
++    private void checkNotificationPermission() {
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
++            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
++                    != PackageManager.PERMISSION_GRANTED) {
++                ActivityCompat.requestPermissions(this,
++                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
++                        NOTIFICATION_PERMISSION_REQUEST_CODE);
++            }
++        }
+     }
+ 
+     @Override
+-    protected void onStart() {
+-        super.onStart();
+-        handler.post(progressRunnable);
+-    }
+-
+-    @Override
+-    protected void onStop() {
+-        super.onStop();
+-        handler.removeCallbacks(progressRunnable);
++    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
++        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
++        if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
++            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
++                Log.d(TAG, "Notification permission granted");
++            } else {
++                Toast.makeText(this, "Notification permission is required to control playback from the background.", Toast.LENGTH_LONG).show();
++            }
++        }
+     }
+ 
+     @Override
+     protected void onDestroy() {
++        Log.d(TAG, "onDestroy: Cleaning up activity references");
++        progressHandler.removeCallbacks(progressRunnable);
++        
++        // Release MediaController future cleanly to prevent memory leaks
++        if (controllerFuture != null) {
++            MediaController.releaseFuture(controllerFuture);
++        }
+         super.onDestroy();
+-
+-        handler.removeCallbacksAndMessages(null);
+-
+-        if (player != null) {
+-            player.release();
+-            player = null;
+-        }
+     }
+ }
+\ No newline at end of file
+Index: app/src/main/res/layout/fragment_profile.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<ScrollView xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:background=\"@color/background_page\"\r\n    android:fillViewport=\"true\">\r\n\r\n    <LinearLayout\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:orientation=\"vertical\">\r\n\r\n        <!-- Header -->\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:background=\"@color/white\"\r\n            android:elevation=\"2dp\"\r\n            android:orientation=\"vertical\"\r\n            android:paddingStart=\"20dp\"\r\n            android:paddingTop=\"40dp\"\r\n            android:paddingEnd=\"20dp\"\r\n            android:paddingBottom=\"20dp\">\r\n\r\n            <TextView\r\n                android:layout_width=\"wrap_content\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:fontFamily=\"@font/poppins_bold\"\r\n                android:text=\"@string/profile_title\"\r\n                android:textColor=\"@color/text_primary\"\r\n                android:textSize=\"24sp\" />\r\n        </LinearLayout>\r\n\r\n        <!-- Profile Card -->\r\n        <androidx.cardview.widget.CardView\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_marginStart=\"16dp\"\r\n            android:layout_marginTop=\"16dp\"\r\n            android:layout_marginEnd=\"16dp\"\r\n            app:cardBackgroundColor=\"@color/white\"\r\n            app:cardCornerRadius=\"16dp\"\r\n            app:cardElevation=\"2dp\">\r\n\r\n            <LinearLayout\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:gravity=\"center_vertical\"\r\n                android:orientation=\"horizontal\"\r\n                android:padding=\"16dp\">\r\n\r\n                <FrameLayout\r\n                    android:layout_width=\"56dp\"\r\n                    android:layout_height=\"56dp\">\r\n\r\n                    <View\r\n                        android:layout_width=\"56dp\"\r\n                        android:layout_height=\"56dp\"\r\n                        android:background=\"@drawable/bg_home_header\" />\r\n\r\n                    <ImageView\r\n                        android:layout_width=\"30dp\"\r\n                        android:layout_height=\"30dp\"\r\n                        android:layout_gravity=\"center\"\r\n                        android:contentDescription=\"@string/cd_icon_person\"\r\n                        android:src=\"@drawable/ic_profile\"\r\n                        app:tint=\"@color/white\" />\r\n                </FrameLayout>\r\n\r\n                <LinearLayout\r\n                    android:layout_width=\"0dp\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_marginStart=\"14dp\"\r\n                    android:layout_weight=\"1\"\r\n                    android:orientation=\"vertical\">\r\n\r\n                    <TextView\r\n                        android:id=\"@+id/tvProfileName\"\r\n                        android:layout_width=\"wrap_content\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:fontFamily=\"@font/poppins_semibold\"\r\n                        android:text=\"@string/profile_guest\"\r\n                        android:textColor=\"@color/text_primary\"\r\n                        android:textSize=\"16sp\" />\r\n\r\n                    <TextView\r\n                        android:id=\"@+id/tvProfileEmail\"\r\n                        android:layout_width=\"wrap_content\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:fontFamily=\"@font/poppins_regular\"\r\n                        android:text=\"@string/profile_guest_email\"\r\n                        android:textColor=\"@color/text_muted\"\r\n                        android:textSize=\"12sp\" />\r\n                </LinearLayout>\r\n            </LinearLayout>\r\n        </androidx.cardview.widget.CardView>\r\n\r\n        <!-- Menu Items -->\r\n        <androidx.cardview.widget.CardView\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_margin=\"16dp\"\r\n            app:cardBackgroundColor=\"@color/white\"\r\n            app:cardCornerRadius=\"16dp\"\r\n            app:cardElevation=\"2dp\">\r\n\r\n            <LinearLayout\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:orientation=\"vertical\"\r\n                android:padding=\"8dp\">\r\n\r\n                <LinearLayout\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"52dp\"\r\n                    android:background=\"?attr/selectableItemBackground\"\r\n                    android:clickable=\"true\"\r\n                    android:focusable=\"true\"\r\n                    android:gravity=\"center_vertical\"\r\n                    android:paddingStart=\"16dp\"\r\n                    android:paddingEnd=\"16dp\">\r\n                    <TextView\r\n                        android:layout_width=\"0dp\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:layout_weight=\"1\"\r\n                        android:fontFamily=\"@font/poppins_medium\"\r\n                        android:text=\"@string/profile_settings\"\r\n                        android:textColor=\"@color/text_primary\"\r\n                        android:textSize=\"15sp\" />\r\n                </LinearLayout>\r\n\r\n                <View android:layout_width=\"match_parent\" android:layout_height=\"1dp\"\r\n                    android:layout_marginStart=\"16dp\" android:layout_marginEnd=\"16dp\"\r\n                    android:background=\"@color/divider\" />\r\n\r\n                <LinearLayout\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"52dp\"\r\n                    android:background=\"?attr/selectableItemBackground\"\r\n                    android:clickable=\"true\"\r\n                    android:focusable=\"true\"\r\n                    android:gravity=\"center_vertical\"\r\n                    android:paddingStart=\"16dp\"\r\n                    android:paddingEnd=\"16dp\">\r\n                    <TextView\r\n                        android:layout_width=\"0dp\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:layout_weight=\"1\"\r\n                        android:fontFamily=\"@font/poppins_medium\"\r\n                        android:text=\"@string/profile_history\"\r\n                        android:textColor=\"@color/text_primary\"\r\n                        android:textSize=\"15sp\" />\r\n                </LinearLayout>\r\n\r\n                <View android:layout_width=\"match_parent\" android:layout_height=\"1dp\"\r\n                    android:layout_marginStart=\"16dp\" android:layout_marginEnd=\"16dp\"\r\n                    android:background=\"@color/divider\" />\r\n\r\n                <LinearLayout\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"52dp\"\r\n                    android:background=\"?attr/selectableItemBackground\"\r\n                    android:clickable=\"true\"\r\n                    android:focusable=\"true\"\r\n                    android:gravity=\"center_vertical\"\r\n                    android:paddingStart=\"16dp\"\r\n                    android:paddingEnd=\"16dp\">\r\n                    <TextView\r\n                        android:layout_width=\"0dp\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:layout_weight=\"1\"\r\n                        android:fontFamily=\"@font/poppins_medium\"\r\n                        android:text=\"@string/profile_downloads\"\r\n                        android:textColor=\"@color/text_primary\"\r\n                        android:textSize=\"15sp\" />\r\n                </LinearLayout>\r\n\r\n                <View android:layout_width=\"match_parent\" android:layout_height=\"1dp\"\r\n                    android:layout_marginStart=\"16dp\" android:layout_marginEnd=\"16dp\"\r\n                    android:background=\"@color/divider\" />\r\n\r\n                <LinearLayout\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"52dp\"\r\n                    android:background=\"?attr/selectableItemBackground\"\r\n                    android:clickable=\"true\"\r\n                    android:focusable=\"true\"\r\n                    android:gravity=\"center_vertical\"\r\n                    android:paddingStart=\"16dp\"\r\n                    android:paddingEnd=\"16dp\">\r\n                    <TextView\r\n                        android:layout_width=\"0dp\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:layout_weight=\"1\"\r\n                        android:fontFamily=\"@font/poppins_medium\"\r\n                        android:text=\"@string/profile_help\"\r\n                        android:textColor=\"@color/text_primary\"\r\n                        android:textSize=\"15sp\" />\r\n                </LinearLayout>\r\n\r\n                <View android:layout_width=\"match_parent\" android:layout_height=\"1dp\"\r\n                    android:layout_marginStart=\"16dp\" android:layout_marginEnd=\"16dp\"\r\n                    android:background=\"@color/divider\" />\r\n\r\n                <LinearLayout\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"52dp\"\r\n                    android:background=\"?attr/selectableItemBackground\"\r\n                    android:clickable=\"true\"\r\n                    android:focusable=\"true\"\r\n                    android:gravity=\"center_vertical\"\r\n                    android:paddingStart=\"16dp\"\r\n                    android:paddingEnd=\"16dp\">\r\n                    <TextView\r\n                        android:layout_width=\"0dp\"\r\n                        android:layout_height=\"wrap_content\"\r\n                        android:layout_weight=\"1\"\r\n                        android:fontFamily=\"@font/poppins_medium\"\r\n                        android:text=\"@string/profile_about\"\r\n                        android:textColor=\"@color/text_primary\"\r\n                        android:textSize=\"15sp\" />\r\n                </LinearLayout>\r\n            </LinearLayout>\r\n        </androidx.cardview.widget.CardView>\r\n\r\n        <!-- Nút ĐĂNG NHẬP — hiển thị khi chưa đăng nhập -->\r\n        <Button\r\n            android:id=\"@+id/btnLogin\"\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"52dp\"\r\n            android:layout_marginStart=\"16dp\"\r\n            android:layout_marginEnd=\"16dp\"\r\n            android:layout_marginBottom=\"12dp\"\r\n            android:background=\"@drawable/bg_home_header\"\r\n            android:fontFamily=\"@font/poppins_semibold\"\r\n            android:text=\"@string/profile_login\"\r\n            android:textColor=\"@color/white\"\r\n            android:textSize=\"15sp\"\r\n            android:visibility=\"visible\" />\r\n\r\n        <!-- Nút ĐĂNG KÝ — hiển thị khi chưa đăng nhập -->\r\n        <Button\r\n            android:id=\"@+id/btnRegister\"\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"52dp\"\r\n            android:layout_marginStart=\"16dp\"\r\n            android:layout_marginEnd=\"16dp\"\r\n            android:layout_marginBottom=\"12dp\"\r\n            android:background=\"@drawable/bg_button_outline_orange\"\r\n            android:fontFamily=\"@font/poppins_semibold\"\r\n            android:text=\"@string/profile_register\"\r\n            android:textColor=\"@color/orange_primary\"\r\n            android:textSize=\"15sp\"\r\n            android:visibility=\"visible\" />\r\n\r\n        <!-- Nút ĐĂNG XUẤT — chỉ hiển thị khi đã đăng nhập -->\r\n        <Button\r\n            android:id=\"@+id/btnLogout\"\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"52dp\"\r\n            android:layout_marginStart=\"16dp\"\r\n            android:layout_marginEnd=\"16dp\"\r\n            android:layout_marginBottom=\"24dp\"\r\n            android:background=\"@drawable/bg_button_outline_orange\"\r\n            android:fontFamily=\"@font/poppins_semibold\"\r\n            android:text=\"@string/profile_logout\"\r\n            android:textColor=\"@color/orange_primary\"\r\n            android:textSize=\"15sp\"\r\n            android:visibility=\"gone\" />\r\n    </LinearLayout>\r\n</ScrollView>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/fragment_profile.xml b/app/src/main/res/layout/fragment_profile.xml
+--- a/app/src/main/res/layout/fragment_profile.xml	(revision 2d135be8bf601d76ce3f03b55e968e34404fd6c1)
++++ b/app/src/main/res/layout/fragment_profile.xml	(date 1779699326930)
+@@ -112,6 +112,7 @@
+                 android:padding="8dp">
+ 
+                 <LinearLayout
++                    android:id="@+id/btnSettings"
+                     android:layout_width="match_parent"
+                     android:layout_height="52dp"
+                     android:background="?attr/selectableItemBackground"
+@@ -135,6 +136,7 @@
+                     android:background="@color/divider" />
+ 
+                 <LinearLayout
++                    android:id="@+id/btnHistory"
+                     android:layout_width="match_parent"
+                     android:layout_height="52dp"
+                     android:background="?attr/selectableItemBackground"
+@@ -158,6 +160,7 @@
+                     android:background="@color/divider" />
+ 
+                 <LinearLayout
++                    android:id="@+id/btnDownloads"
+                     android:layout_width="match_parent"
+                     android:layout_height="52dp"
+                     android:background="?attr/selectableItemBackground"
+@@ -181,6 +184,7 @@
+                     android:background="@color/divider" />
+ 
+                 <LinearLayout
++                    android:id="@+id/btnHelp"
+                     android:layout_width="match_parent"
+                     android:layout_height="52dp"
+                     android:background="?attr/selectableItemBackground"
+@@ -204,6 +208,7 @@
+                     android:background="@color/divider" />
+ 
+                 <LinearLayout
++                    android:id="@+id/btnAbout"
+                     android:layout_width="match_parent"
+                     android:layout_height="52dp"
+                     android:background="?attr/selectableItemBackground"
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\">\r\n\r\n    <uses-permission android:name=\"android.permission.INTERNET\" />\r\n\r\n    <application\r\n        android:allowBackup=\"true\"\r\n        android:dataExtractionRules=\"@xml/data_extraction_rules\"\r\n        android:fullBackupContent=\"@xml/backup_rules\"\r\n        android:icon=\"@mipmap/ic_launcher\"\r\n        android:label=\"@string/app_name\"\r\n        android:roundIcon=\"@mipmap/ic_launcher_round\"\r\n        android:supportsRtl=\"true\"\r\n        android:theme=\"@style/Theme.Fonos\">\r\n        <activity\r\n            android:name=\".MainActivity\"\r\n            android:exported=\"true\">\r\n            <intent-filter>\r\n                <action android:name=\"android.intent.action.MAIN\" />\r\n                <category android:name=\"android.intent.category.LAUNCHER\" />\r\n            </intent-filter>\r\n        </activity>\r\n        <activity\r\n            android:name=\".BookDetailActivity\"\r\n            android:exported=\"false\"\r\n            android:parentActivityName=\".MainActivity\" />\r\n\r\n        <activity\r\n            android:name=\".AudioPlayerActivity\"\r\n            android:exported=\"false\"\r\n            android:parentActivityName=\".BookDetailActivity\" />\r\n        <activity\r\n            android:name=\".auth.LoginActivity\"\r\n            android:exported=\"false\"/>\r\n        <activity\r\n            android:name=\".auth.RegisterActivity\"\r\n            android:exported=\"false\" />\r\n    </application>\r\n\r\n</manifest>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+--- a/app/src/main/AndroidManifest.xml	(revision 2d135be8bf601d76ce3f03b55e968e34404fd6c1)
++++ b/app/src/main/AndroidManifest.xml	(date 1779696741897)
+@@ -3,6 +3,9 @@
+     xmlns:tools="http://schemas.android.com/tools">
+ 
+     <uses-permission android:name="android.permission.INTERNET" />
++    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
++    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
++    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+ 
+     <application
+         android:allowBackup="true"
+@@ -36,6 +39,16 @@
+         <activity
+             android:name=".auth.RegisterActivity"
+             android:exported="false" />
++
++        <service
++            android:name=".AudioPlayerService"
++            android:enabled="true"
++            android:exported="false"
++            android:foregroundServiceType="mediaPlayback">
++            <intent-filter>
++                <action android:name="androidx.media3.session.MediaSessionService" />
++            </intent-filter>
++        </service>
+     </application>
+ 
+ </manifest>
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ExternalStorageConfigurationManager\" enabled=\"true\" />\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_21\" default=\"true\" project-jdk-name=\"jbr-21\" project-jdk-type=\"JavaSDK\">\r\n    <output url=\"file://$PROJECT_DIR$/build/classes\" />\r\n  </component>\r\n  <component name=\"ProjectType\">\r\n    <option name=\"id\" value=\"Android\" />\r\n  </component>\r\n  <component name=\"VisualizationToolProject\">\r\n    <option name=\"state\">\r\n      <ProjectState>\r\n        <option name=\"scale\" value=\"0.0125\" />\r\n      </ProjectState>\r\n    </option>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision 2d135be8bf601d76ce3f03b55e968e34404fd6c1)
++++ b/.idea/misc.xml	(date 1779804125199)
+@@ -1,4 +1,3 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="ExternalStorageConfigurationManager" enabled="true" />
+   <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="jbr-21" project-jdk-type="JavaSDK">
+Index: app/src/main/java/com/example/fonos/fragment/SearchFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.fonos.fragment;\r\n\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\nimport android.text.Editable;\r\nimport android.text.TextWatcher;\r\nimport android.view.LayoutInflater;\r\nimport android.view.View;\r\nimport android.view.ViewGroup;\r\nimport android.widget.EditText;\r\nimport android.widget.LinearLayout;\r\nimport android.widget.TextView;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.annotation.Nullable;\r\nimport androidx.fragment.app.Fragment;\r\nimport androidx.recyclerview.widget.LinearLayoutManager;\r\nimport androidx.recyclerview.widget.RecyclerView;\r\n\r\nimport com.example.fonos.BookDetailActivity;\r\nimport com.example.fonos.R;\r\nimport com.example.fonos.adapter.BookAdapter;\r\nimport com.example.fonos.model.Book;\r\nimport com.google.firebase.firestore.FirebaseFirestore;\r\nimport com.google.firebase.firestore.QueryDocumentSnapshot;\r\n\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\npublic class SearchFragment extends Fragment implements BookAdapter.OnBookClickListener {\r\n\r\n    private EditText etSearch;\r\n    private RecyclerView rvSearchResults;\r\n    private LinearLayout layoutEmptyState;\r\n    private TextView tvEmptyState;\r\n\r\n    private BookAdapter bookAdapter;\r\n    private List<Book> allBooksList = new ArrayList<>();\r\n    private List<Book> filteredBooksList = new ArrayList<>();\r\n\r\n    private FirebaseFirestore db;\r\n\r\n    @Nullable\r\n    @Override\r\n    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {\r\n        View view = inflater.inflate(R.layout.fragment_search, container, false);\r\n\r\n        db = FirebaseFirestore.getInstance();\r\n\r\n        initViews(view);\r\n        setupRecyclerView();\r\n        loadBooksFromFirestore();\r\n        setupSearchListener();\r\n\r\n        return view;\r\n    }\r\n\r\n    private void initViews(View view) {\r\n        etSearch = view.findViewById(R.id.etSearch);\r\n        rvSearchResults = view.findViewById(R.id.rvSearchResults);\r\n        layoutEmptyState = view.findViewById(R.id.layoutEmptyState);\r\n        tvEmptyState = view.findViewById(R.id.tvEmptyState);\r\n    }\r\n\r\n    private void setupRecyclerView() {\r\n        bookAdapter = new BookAdapter(filteredBooksList, this);\r\n        rvSearchResults.setLayoutManager(new LinearLayoutManager(getContext()));\r\n        rvSearchResults.setAdapter(bookAdapter);\r\n    }\r\n\r\n    private void loadBooksFromFirestore() {\r\n        db.collection(\"books\")\r\n                .get()\r\n                .addOnCompleteListener(task -> {\r\n                    if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {\r\n                        allBooksList.clear();\r\n\r\n                        for (QueryDocumentSnapshot document : task.getResult()) {\r\n                            Book book = document.toObject(Book.class);\r\n                            allBooksList.add(book);\r\n                        }\r\n\r\n                        filterBooks(etSearch.getText().toString());\r\n                    } else {\r\n                        loadLocalSampleBooks();\r\n                    }\r\n                });\r\n    }\r\n\r\n    private void loadLocalSampleBooks() {\r\n        allBooksList = getLocalSampleBooksList();\r\n        filterBooks(etSearch.getText().toString());\r\n    }\r\n\r\n    private List<Book> getLocalSampleBooksList() {\r\n        List<Book> books = new ArrayList<>();\r\n\r\n        books.add(new Book(1, getString(R.string.book1_title), getString(R.string.book1_author), getString(R.string.book1_desc), 4.8f, \"8h 30m\", 12, R.drawable.bg_book_cover_1, \"Self-help\"));\r\n        books.add(new Book(2, getString(R.string.book2_title), getString(R.string.book2_author), getString(R.string.book2_desc), 4.7f, \"5h 45m\", 15, R.drawable.bg_book_cover_2, \"Fiction\"));\r\n        books.add(new Book(3, getString(R.string.book3_title), getString(R.string.book3_author), getString(R.string.book3_desc), 4.6f, \"6h 20m\", 10, R.drawable.bg_book_cover_3, \"Self-help\"));\r\n        books.add(new Book(4, getString(R.string.book4_title), getString(R.string.book4_author), getString(R.string.book4_desc), 4.9f, \"15h 10m\", 20, R.drawable.bg_book_cover_4, \"Science\"));\r\n        books.add(new Book(5, getString(R.string.book5_title), getString(R.string.book5_author), getString(R.string.book5_desc), 4.5f, \"14h 05m\", 18, R.drawable.bg_book_cover_5, \"Psychology\"));\r\n        books.add(new Book(6, getString(R.string.book6_title), getString(R.string.book6_author), getString(R.string.book6_desc), 4.8f, \"7h 15m\", 11, R.drawable.bg_book_cover_6, \"Business\"));\r\n        books.add(new Book(7, getString(R.string.book7_title), getString(R.string.book7_author), getString(R.string.book7_desc), 4.4f, \"5h 50m\", 9, R.drawable.bg_book_cover_7, \"Self-help\"));\r\n        books.add(new Book(8, getString(R.string.book8_title), getString(R.string.book8_author), getString(R.string.book8_desc), 4.9f, \"9h 40m\", 16, R.drawable.bg_book_cover_1, \"Business\"));\r\n        books.add(new Book(9, getString(R.string.book9_title), getString(R.string.book9_author), getString(R.string.book9_desc), 4.7f, \"12h 30m\", 21, R.drawable.bg_book_cover_2, \"Self-help\"));\r\n        books.add(new Book(10, getString(R.string.book10_title), getString(R.string.book10_author), getString(R.string.book10_desc), 4.6f, \"8h 15m\", 14, R.drawable.bg_book_cover_3, \"Psychology\"));\r\n\r\n        return books;\r\n    }\r\n\r\n    private void setupSearchListener() {\r\n        etSearch.addTextChangedListener(new TextWatcher() {\r\n            @Override\r\n            public void beforeTextChanged(CharSequence s, int start, int count, int after) {\r\n                // No action needed\r\n            }\r\n\r\n            @Override\r\n            public void onTextChanged(CharSequence s, int start, int before, int count) {\r\n                filterBooks(s.toString());\r\n            }\r\n\r\n            @Override\r\n            public void afterTextChanged(Editable s) {\r\n                // No action needed\r\n            }\r\n        });\r\n    }\r\n\r\n    private void filterBooks(String query) {\r\n        filteredBooksList.clear();\r\n\r\n        String lowercaseQuery = query.toLowerCase().trim();\r\n\r\n        if (lowercaseQuery.isEmpty()) {\r\n            rvSearchResults.setVisibility(View.GONE);\r\n            layoutEmptyState.setVisibility(View.VISIBLE);\r\n            tvEmptyState.setText(getString(R.string.search_empty));\r\n        } else {\r\n            for (Book book : allBooksList) {\r\n                if (book.getTitle().toLowerCase().contains(lowercaseQuery) ||\r\n                        book.getAuthor().toLowerCase().contains(lowercaseQuery)) {\r\n                    filteredBooksList.add(book);\r\n                }\r\n            }\r\n\r\n            if (filteredBooksList.isEmpty()) {\r\n                rvSearchResults.setVisibility(View.GONE);\r\n                layoutEmptyState.setVisibility(View.VISIBLE);\r\n                tvEmptyState.setText(\"No results found for \\\"\" + query + \"\\\"\");\r\n            } else {\r\n                rvSearchResults.setVisibility(View.VISIBLE);\r\n                layoutEmptyState.setVisibility(View.GONE);\r\n            }\r\n        }\r\n\r\n        bookAdapter.notifyDataSetChanged();\r\n    }\r\n\r\n    @Override\r\n    public void onBookClick(Book book) {\r\n        Intent intent = new Intent(getActivity(), BookDetailActivity.class);\r\n\r\n        intent.putExtra(\"book_id\", book.getId());\r\n        intent.putExtra(\"book_title\", book.getTitle());\r\n        intent.putExtra(\"book_author\", book.getAuthor());\r\n        intent.putExtra(\"book_desc\", book.getDescription());\r\n        intent.putExtra(\"book_rating\", book.getRating());\r\n        intent.putExtra(\"book_duration\", book.getDuration());\r\n        intent.putExtra(\"book_chapters\", book.getChapterCount());\r\n        intent.putExtra(\"book_cover\", book.getCoverDrawableRes());\r\n        intent.putExtra(\"book_cover_url\", book.getCoverUrl());\r\n        intent.putExtra(\"book_audio_url\", book.getAudioUrl());\r\n        intent.putExtra(\"book_category\", book.getCategory());\r\n\r\n        startActivity(intent);\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/fonos/fragment/SearchFragment.java b/app/src/main/java/com/example/fonos/fragment/SearchFragment.java
+--- a/app/src/main/java/com/example/fonos/fragment/SearchFragment.java	(revision 2d135be8bf601d76ce3f03b55e968e34404fd6c1)
++++ b/app/src/main/java/com/example/fonos/fragment/SearchFragment.java	(date 1779697637930)
+@@ -2,6 +2,7 @@
+ 
+ import android.content.Intent;
+ import android.os.Bundle;
++import android.util.Log;
+ import android.text.Editable;
+ import android.text.TextWatcher;
+ import android.view.LayoutInflater;
+@@ -72,6 +73,12 @@
+         db.collection("books")
+                 .get()
+                 .addOnCompleteListener(task -> {
++                    // Safety check: skip callback if fragment is detached
++                    if (!isAdded() || getContext() == null) {
++                        Log.d("SearchFragment", "Fragment not attached. Skipping callback.");
++                        return;
++                    }
++
+                     if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
+                         allBooksList.clear();
+ 
+@@ -82,6 +89,9 @@
+ 
+                         filterBooks(etSearch.getText().toString());
+                     } else {
++                        if (task.getException() != null) {
++                            Log.e("SearchFragment", "Firestore query failed: ", task.getException());
++                        }
+                         loadLocalSampleBooks();
+                     }
+                 });
