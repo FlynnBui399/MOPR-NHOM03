@@ -62,6 +62,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
     private String title, author, duration, coverUrl, audioUrl, category;
     private int coverRes, bookId;
     private int sleepTimerIndex = 0;
+    private boolean hasRestoredPosition = false;
 
     private final Handler progressHandler = new Handler(Looper.getMainLooper());
     private final Runnable progressRunnable = new Runnable() {
@@ -76,6 +77,10 @@ public class AudioPlayerActivity extends AppCompatActivity {
                     tvTotalTime.setText(formatTime(totalDur));
                 }
                 tvCurrentTime.setText(formatTime(currentPos));
+
+                // Save dynamic playback position to SharedPreferences
+                android.content.SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);
+                sharedPref.edit().putLong("progress_book_" + bookId, currentPos).apply();
             }
             progressHandler.postDelayed(this, 1000);
         }
@@ -146,9 +151,18 @@ public class AudioPlayerActivity extends AppCompatActivity {
 
         // Populate initial UI metadata
         tvPlayerTitle.setText(title);
-        tvPlayerSubtitle.setText(getString(R.string.player_subtitle_demo, author));
         tvCoverTitle.setText(title);
         tvTotalTime.setText("00:00");
+
+        // Check for saved resumption progress position
+        android.content.SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);
+        long savedPos = sharedPref.getLong("progress_book_" + bookId, 0L);
+        if (savedPos > 5000) {
+            tvPlayerSubtitle.setText(getString(R.string.player_subtitle_demo, author) + " • Tiep tuc tu " + formatTime(savedPos));
+            Toast.makeText(this, "Da tiep tuc nghe tu " + formatTime(savedPos), Toast.LENGTH_SHORT).show();
+        } else {
+            tvPlayerSubtitle.setText(getString(R.string.player_subtitle_demo, author));
+        }
 
         // Load cover image using Glide
         if (coverUrl != null && !coverUrl.isEmpty()) {
@@ -315,6 +329,21 @@ public class AudioPlayerActivity extends AppCompatActivity {
                     long durationMs = mediaController.getDuration();
                     tvTotalTime.setText(formatTime(durationMs));
                     startProgressUpdater();
+
+                    // Restore saved progress exactly when the stream is ready to play (metadata fully resolved)
+                    if (!hasRestoredPosition) {
+                        android.content.SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);
+                        long savedPos = sharedPref.getLong("progress_book_" + bookId, 0L);
+                        if (savedPos > 5000 && savedPos < durationMs) {
+                            Log.d(TAG, "Restoring playback position to: " + savedPos);
+                            mediaController.seekTo(savedPos);
+                        }
+                        hasRestoredPosition = true; // Mark position restoration as done
+                    }
+                } else if (playbackState == Player.STATE_ENDED) {
+                    // Book has finished, remove the saved playback position
+                    android.content.SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);
+                    sharedPref.edit().remove("progress_book_" + bookId).apply();
                 }
             }
         });
@@ -348,10 +377,14 @@ public class AudioPlayerActivity extends AppCompatActivity {
                     .build();
 
             mediaController.setMediaItem(mediaItem);
+
+            hasRestoredPosition = false; // Reset progress restore flag for new stream
+
             mediaController.prepare();
             mediaController.play();
         } else {
             Log.d(TAG, "Resuming display of active audiobook: " + title);
+            hasRestoredPosition = true; // No restore needed since it is already actively playing
             if (mediaController.getPlaybackState() == Player.STATE_READY) {
                 long durationMs = mediaController.getDuration();
                 tvTotalTime.setText(formatTime(durationMs));
