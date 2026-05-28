@@ -192,5 +192,9 @@
     <string name="player_sleep_timer_off_toast_msg">Đã tắt chế độ hẹn giờ</string>
     <string name="player_chapters_loading_toast">Danh sách chương đang được tải…</string>
     <string name="player_service_connection_failed_toast">Kết nối tới dịch vụ nghe nhạc thất bại.</string>
+    <string name="player_chapters_title">Chọn chương</string>
+    <string name="player_chapter_item">Chương %1$d</string>
+    <string name="player_chapter_selected_toast">Đã chuyển đến Chương %1$d</string>
+    <string name="player_duration_not_ready">Audio đang được tải, vui lòng thử lại.</string>
 
 </resources>

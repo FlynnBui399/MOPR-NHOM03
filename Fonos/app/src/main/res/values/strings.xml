@@ -235,5 +235,9 @@
     <string name="player_sleep_timer_off_toast_msg">Sleep timer turned off</string>
     <string name="player_chapters_loading_toast">Chapter list is loading…</string>
     <string name="player_service_connection_failed_toast">Failed to connect to audio player service.</string>
+    <string name="player_chapters_title">Select Chapter</string>
+    <string name="player_chapter_item">Chapter %1$d</string>
+    <string name="player_chapter_selected_toast">Skipped to Chapter %1$d</string>
+    <string name="player_duration_not_ready">Audio is still loading, please try again.</string>
 
 </resources>

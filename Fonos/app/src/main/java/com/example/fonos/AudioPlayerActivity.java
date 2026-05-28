@@ -323,9 +323,29 @@ public class AudioPlayerActivity extends AppCompatActivity {
             }
         });
 
-        // Next button - next chapter placeholder
+        // Next button - skips to start of next chapter
         findViewById(R.id.btnNext).setOnClickListener(v -> {
-            Toast.makeText(this, getString(R.string.player_last_chapter_toast), Toast.LENGTH_SHORT).show();
+            if (mediaController != null) {
+                long totalDur = mediaController.getDuration();
+                if (totalDur > 0) {
+                    int totalChapters = chapters > 0 ? chapters : 10;
+                    long chapterDuration = totalDur / totalChapters;
+                    long currentPos = mediaController.getCurrentPosition();
+                    
+                    int currentChapter = (int) (currentPos / chapterDuration) + 1;
+                    if (currentChapter >= totalChapters) {
+                        Toast.makeText(this, getString(R.string.player_last_chapter_toast), Toast.LENGTH_SHORT).show();
+                    } else {
+                        int nextChapter = currentChapter + 1;
+                        long targetPos = (nextChapter - 1) * chapterDuration;
+                        mediaController.seekTo(targetPos);
+                        tvCurrentTime.setText(formatTime(targetPos));
+                        Toast.makeText(this, getString(R.string.player_chapter_selected_toast, nextChapter), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(this, getString(R.string.player_duration_not_ready), Toast.LENGTH_SHORT).show();
+                }
+            }
         });
 
         // Sleep Timer - fully functional premium cyclic countdown handler
@@ -370,9 +390,32 @@ public class AudioPlayerActivity extends AppCompatActivity {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         });
 
-        // Chapters button - chapters selection placeholder
+        // Chapters button - displays a selection dialog jumping to selected chapter start time
         findViewById(R.id.btnChapters).setOnClickListener(v -> {
-            Toast.makeText(this, getString(R.string.player_chapters_loading_toast), Toast.LENGTH_SHORT).show();
+            if (mediaController != null) {
+                long totalDur = mediaController.getDuration();
+                if (totalDur > 0) {
+                    int totalChapters = chapters > 0 ? chapters : 10;
+                    String[] chapterNames = new String[totalChapters];
+                    for (int i = 0; i < totalChapters; i++) {
+                        chapterNames[i] = getString(R.string.player_chapter_item, i + 1);
+                    }
+
+                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle(getString(R.string.player_chapters_title))
+                            .setItems(chapterNames, (dialog, which) -> {
+                                int selectedChapter = which + 1;
+                                long chapterDuration = totalDur / totalChapters;
+                                long targetPos = (selectedChapter - 1) * chapterDuration;
+                                mediaController.seekTo(targetPos);
+                                tvCurrentTime.setText(formatTime(targetPos));
+                                Toast.makeText(this, getString(R.string.player_chapter_selected_toast, selectedChapter), Toast.LENGTH_SHORT).show();
+                            })
+                            .show();
+                } else {
+                    Toast.makeText(this, getString(R.string.player_duration_not_ready), Toast.LENGTH_SHORT).show();
+                }
+            }
         });
     }
 
