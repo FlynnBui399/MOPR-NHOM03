@@ -210,6 +210,12 @@ public class BookDetailActivity extends AppCompatActivity {
                 return;
             }
 
+            if (!OfflineAudioManager.canUseOfflineDownloads()) {
+                Toast.makeText(this, "Please log in to download audio", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(BookDetailActivity.this, LoginActivity.class));
+                return;
+            }
+
             if (OfflineAudioManager.hasDownloadedAudio(this, bookId, audioUrl)) {
                 updateDownloadButtonState();
                 saveActiveBookToMiniPlayer();
@@ -222,6 +228,12 @@ public class BookDetailActivity extends AppCompatActivity {
     }
 
     private void downloadAudioForOffline() {
+        if (!OfflineAudioManager.canUseOfflineDownloads()) {
+            Toast.makeText(this, "Please log in to download audio", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(BookDetailActivity.this, LoginActivity.class));
+            return;
+        }
+
         if (!OfflineAudioManager.ensureAudioDirectory(this)) {
             Toast.makeText(this, getString(R.string.detail_audio_download_failed), Toast.LENGTH_SHORT).show();
             return;
@@ -229,6 +241,12 @@ public class BookDetailActivity extends AppCompatActivity {
 
         Context appContext = getApplicationContext();
         File targetFile = OfflineAudioManager.getDownloadTargetFile(appContext, bookId, audioUrl);
+        if (targetFile == null) {
+            Toast.makeText(this, "Please log in to download audio", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(BookDetailActivity.this, LoginActivity.class));
+            return;
+        }
+
         setAudioDownloadInProgress(0);
 
         if (OfflineAudioManager.isDirectStreamingUrl(audioUrl)) {
@@ -367,8 +385,20 @@ public class BookDetailActivity extends AppCompatActivity {
             return;
         }
 
+        if (!OfflineAudioManager.canUseOfflineDownloads()) {
+            btnDownloadAudio.setEnabled(true);
+            btnDownloadAudio.setText(getString(R.string.detail_download_audio));
+            return;
+        }
+
         boolean hasOfflineAudio = OfflineAudioManager.hasDownloadedAudio(this, bookId, audioUrl);
         if (hasOfflineAudio) {
+            String actualDuration = OfflineAudioManager.getDownloadedAudioDuration(this, bookId, audioUrl);
+            if (!actualDuration.isEmpty()) {
+                duration = actualDuration;
+                tvDetailDuration.setText(actualDuration);
+            }
+
             File localFile = OfflineAudioManager.getDownloadedAudioFile(this, bookId, audioUrl);
             if (localFile != null) {
                 saveDownloadedBookMetadata(getApplicationContext(), localFile);

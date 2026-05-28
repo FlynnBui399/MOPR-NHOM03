@@ -7,6 +7,8 @@ import android.os.Environment;
 import com.example.fonos.data.DownloadedBookEntity;
 import com.example.fonos.data.FonosDatabase;
 import com.example.fonos.model.Book;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -21,6 +23,10 @@ public final class OfflineAudioManager {
     private static final String AUDIO_DIR = "fonos/audio";
 
     private OfflineAudioManager() {
+    }
+
+    public static boolean canUseOfflineDownloads() {
+        return getCurrentUserId() != null;
     }
 
     public static boolean isRemoteAudioSource(String value) {
@@ -63,12 +69,17 @@ public final class OfflineAudioManager {
 
     public static boolean ensureAudioDirectory(Context context) {
         File dir = getAudioDirectory(context);
-        return dir.exists() || dir.mkdirs();
+        return dir != null && (dir.exists() || dir.mkdirs());
     }
 
     public static File getDownloadTargetFile(Context context, int bookId, String audioSource) {
         File dir = getAudioDirectory(context);
-        String fileName = "book_" + buildDownloadKey(bookId, audioSource) + getAudioExtension(audioSource);
+        if (dir == null) return null;
+
+        String userId = getCurrentUserId();
+        if (userId == null) return null;
+
+        String fileName = "book_" + buildDownloadKey(userId, bookId, audioSource) + getAudioExtension(audioSource);
         return new File(dir, fileName);
     }
 
@@ -96,6 +107,11 @@ public final class OfflineAudioManager {
         return getDownloadedAudioFile(context, bookId, audioSource) != null;
     }
 
+    public static String getDownloadedAudioDuration(Context context, int bookId, String audioSource) {
+        File localFile = getDownloadedAudioFile(context, bookId, audioSource);
+        return AudioDurationUtils.getLocalAudioDuration(localFile);
+    }
+
     public static void saveDownloadedBook(
             Context context,
             int bookId,
@@ -111,15 +127,20 @@ public final class OfflineAudioManager {
             String audioUrl,
             File audioFile
     ) {
-        String key = buildDownloadKey(bookId, audioUrl);
+        String userId = getCurrentUserId();
+        if (userId == null || audioFile == null) return;
+
+        String actualDuration = AudioDurationUtils.getLocalAudioDuration(audioFile);
+        String key = buildDownloadKey(userId, bookId, audioUrl);
         DownloadedBookEntity entity = new DownloadedBookEntity(
                 key,
+                userId,
                 bookId,
                 safeString(title),
                 safeString(author),
                 safeString(description),
                 rating,
-                safeString(duration),
+                !actualDuration.isEmpty() ? actualDuration : safeString(duration),
                 chapterCount,
                 coverRes,
                 safeString(category),
@@ -135,9 +156,14 @@ public final class OfflineAudioManager {
     }
 
     public static List<Book> getDownloadedBooks(Context context) {
+        String userId = getCurrentUserId();
+        if (userId == null) {
+            return new ArrayList<>();
+        }
+
         List<DownloadedBookEntity> entities = FonosDatabase.getInstance(context)
                 .downloadedBookDao()
-                .getAll();
+                .getAllForUser(userId);
         List<Book> books = new ArrayList<>();
 
         for (DownloadedBookEntity entity : entities) {
@@ -147,6 +173,7 @@ public final class OfflineAudioManager {
                 continue;
             }
 
+            refreshDurationFromLocalFile(context, entity, audioFile);
             books.add(toBook(entity));
         }
 
@@ -154,9 +181,14 @@ public final class OfflineAudioManager {
     }
 
     public static List<DownloadedBookEntity> getDownloadedBookEntities(Context context) {
+        String userId = getCurrentUserId();
+        if (userId == null) {
+            return new ArrayList<>();
+        }
+
         List<DownloadedBookEntity> entities = FonosDatabase.getInstance(context)
                 .downloadedBookDao()
-                .getAll();
+                .getAllForUser(userId);
         List<DownloadedBookEntity> validEntities = new ArrayList<>();
 
         for (DownloadedBookEntity entity : entities) {
@@ -164,6 +196,7 @@ public final class OfflineAudioManager {
             if (audioFile == null || !audioFile.exists() || audioFile.length() <= 0) {
                 FonosDatabase.getInstance(context).downloadedBookDao().delete(entity);
             } else {
+                refreshDurationFromLocalFile(context, entity, audioFile);
                 validEntities.add(entity);
             }
         }
@@ -176,11 +209,14 @@ public final class OfflineAudioManager {
     }
 
     public static void clearDownloadedAudio(Context context, int bookId, String audioSource, boolean deleteFile) {
+        String userId = getCurrentUserId();
+        if (userId == null) return;
+
         DownloadedBookEntity entity = getDownloadedEntity(context, bookId, audioSource);
         if (entity == null) {
             FonosDatabase.getInstance(context)
                     .downloadedBookDao()
-                    .deleteByKey(buildDownloadKey(bookId, audioSource));
+                    .deleteByKey(buildDownloadKey(userId, bookId, audioSource));
             return;
         }
 
@@ -196,6 +232,9 @@ public final class OfflineAudioManager {
 
     public static void deleteDownloadedBook(Context context, DownloadedBookEntity entity) {
         if (entity == null) return;
+
+        String userId = getCurrentUserId();
+        if (userId == null || !userId.equals(entity.userId)) return;
 
         if (entity.localFilePath != null) {
             File localFile = new File(entity.localFilePath);
@@ -237,30 +276,51 @@ public final class OfflineAudioManager {
     }
 
     private static DownloadedBookEntity getDownloadedEntity(Context context, int bookId, String audioSource) {
-        String key = buildDownloadKey(bookId, audioSource);
+        String userId = getCurrentUserId();
+        if (userId == null) return null;
+
+        String key = buildDownloadKey(userId, bookId, audioSource);
         return FonosDatabase.getInstance(context).downloadedBookDao().getByKey(key);
     }
 
+    private static void refreshDurationFromLocalFile(
+            Context context,
+            DownloadedBookEntity entity,
+            File audioFile
+    ) {
+        String actualDuration = AudioDurationUtils.getLocalAudioDuration(audioFile);
+        if (actualDuration.isEmpty() || actualDuration.equals(entity.duration)) {
+            return;
+        }
+
+        entity.duration = actualDuration;
+        FonosDatabase.getInstance(context).downloadedBookDao().upsert(entity);
+    }
+
     private static File getAudioDirectory(Context context) {
+        String userId = getCurrentUserId();
+        if (userId == null) return null;
+
         File baseDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
         if (baseDir == null) {
             baseDir = context.getFilesDir();
         }
 
-        return new File(baseDir, AUDIO_DIR);
+        return new File(new File(baseDir, AUDIO_DIR), sanitizeFileName(userId));
     }
 
-    private static String buildDownloadKey(int bookId, String audioSource) {
+    private static String buildDownloadKey(String userId, int bookId, String audioSource) {
+        String bookKey;
         if (bookId > 0) {
-            return String.valueOf(bookId);
+            bookKey = String.valueOf(bookId);
+        } else if (audioSource == null || audioSource.trim().isEmpty()) {
+            bookKey = "unknown";
+        } else {
+            long hash = Math.abs((long) audioSource.trim().hashCode());
+            bookKey = "url_" + hash;
         }
 
-        if (audioSource == null || audioSource.trim().isEmpty()) {
-            return "unknown";
-        }
-
-        long hash = Math.abs((long) audioSource.trim().hashCode());
-        return "url_" + hash;
+        return sanitizeFileName(userId) + "_" + bookKey;
     }
 
     private static String safeString(String value) {
@@ -296,5 +356,15 @@ public final class OfflineAudioManager {
                 lower.contains(".wav") ||
                 lower.contains(".ogg") ||
                 lower.contains(".opus");
+    }
+
+    private static String getCurrentUserId() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        return currentUser != null ? currentUser.getUid() : null;
+    }
+
+    private static String sanitizeFileName(String value) {
+        if (value == null || value.trim().isEmpty()) return "unknown";
+        return value.replaceAll("[^A-Za-z0-9_-]", "_");
     }
 }

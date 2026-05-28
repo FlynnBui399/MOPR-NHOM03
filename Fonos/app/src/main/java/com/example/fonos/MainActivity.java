@@ -2,6 +2,7 @@ package com.example.fonos;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -9,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -68,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
     }
-
     private void loadFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()

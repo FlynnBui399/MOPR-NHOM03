@@ -73,6 +73,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
                 if (totalDur > 0) {
                     int progress = (int) ((currentPos * 100) / totalDur);
                     seekBarAudio.setProgress(progress);
+                    tvTotalTime.setText(formatTime(totalDur));
                 }
                 tvCurrentTime.setText(formatTime(currentPos));
             }
@@ -129,7 +130,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
         // Apply defaults if empty
         if (title == null) title = getString(R.string.app_name);
         if (author == null) author = "";
-        if (duration == null) duration = "8h 30m";
+        if (duration == null) duration = "";
     }
 
     private void initViews() {
@@ -147,7 +148,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
         tvPlayerTitle.setText(title);
         tvPlayerSubtitle.setText(getString(R.string.player_subtitle_demo, author));
         tvCoverTitle.setText(title);
-        tvTotalTime.setText(duration);
+        tvTotalTime.setText("00:00");
 
         // Load cover image using Glide
         if (coverUrl != null && !coverUrl.isEmpty()) {
@@ -330,8 +331,9 @@ public class AudioPlayerActivity extends AppCompatActivity {
             }
         }
 
-        if (isNewBook && audioUrl != null && !audioUrl.isEmpty()) {
-            Log.d(TAG, "Loading new audiobook URL: " + audioUrl);
+        Uri playableAudioUri = getPlayableAudioUri();
+        if (isNewBook && playableAudioUri != null) {
+            Log.d(TAG, "Loading new audiobook URI: " + playableAudioUri);
 
             // Build media metadata with titles and artwork URL for native lockscreen controls
             MediaMetadata metadata = new MediaMetadata.Builder()
@@ -341,7 +343,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
                     .build();
 
             MediaItem mediaItem = new MediaItem.Builder()
-                    .setUri(audioUrl)
+                    .setUri(playableAudioUri)
                     .setMediaMetadata(metadata)
                     .build();
 
@@ -356,6 +358,15 @@ public class AudioPlayerActivity extends AppCompatActivity {
                 startProgressUpdater();
             }
         }
+    }
+
+    private Uri getPlayableAudioUri() {
+        if (audioUrl == null || audioUrl.trim().isEmpty()) {
+            return null;
+        }
+
+        Uri downloadedAudioUri = OfflineAudioManager.getDownloadedAudioUri(this, bookId, audioUrl);
+        return downloadedAudioUri != null ? downloadedAudioUri : Uri.parse(audioUrl);
     }
 
     private void updatePlayPauseState(boolean isPlaying) {
@@ -374,16 +385,8 @@ public class AudioPlayerActivity extends AppCompatActivity {
 
     private String formatTime(long ms) {
         if (ms == C.TIME_UNSET || ms < 0) return "00:00";
-        long totalSeconds = ms / 1000;
-        long hours = totalSeconds / 3600;
-        long minutes = (totalSeconds % 3600) / 60;
-        long seconds = totalSeconds % 60;
-
-        if (hours > 0) {
-            return String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds);
-        } else {
-            return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
-        }
+        String formattedDuration = AudioDurationUtils.formatDuration(ms);
+        return !formattedDuration.isEmpty() ? formattedDuration : "00:00";
     }
 
     private void checkNotificationPermission() {

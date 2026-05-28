@@ -1,6 +1,7 @@
 package com.example.fonos.fragment;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.fonos.DownloadsActivity;
+import com.example.fonos.AudioPlayerService;
 import com.example.fonos.R;
 import com.example.fonos.auth.LoginActivity;
 import com.example.fonos.auth.RegisterActivity;
@@ -81,6 +83,7 @@ public class ProfileFragment extends Fragment {
 
         btnLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
+            clearActivePlaybackState();
             Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
             updateUI();
         });
@@ -106,5 +109,22 @@ public class ProfileFragment extends Fragment {
             btnRegister.setVisibility(View.VISIBLE);
             btnLogout.setVisibility(View.GONE);
         }
+    }
+
+    private void clearActivePlaybackState() {
+        if (getActivity() == null) return;
+
+        SharedPreferences sharedPref = getActivity().getSharedPreferences("FonosPref", 0);
+        sharedPref.edit()
+                .remove("active_book_id")
+                .remove("active_book_title")
+                .remove("active_book_author")
+                .remove("active_book_duration")
+                .remove("active_book_cover")
+                .remove("active_book_cover_url")
+                .remove("active_book_audio_url")
+                .apply();
+
+        getActivity().stopService(new Intent(getActivity(), AudioPlayerService.class));
     }
 }

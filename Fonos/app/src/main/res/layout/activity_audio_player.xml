@@ -130,7 +130,7 @@
                 android:fontFamily="@font/poppins_medium"
                 android:text="00:00"
                 android:textColor="@color/white"
-                android:textSize="13sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/tvTotalTime"
@@ -139,7 +139,7 @@
                 android:fontFamily="@font/poppins_medium"
                 android:text="8h 30m"
                 android:textColor="@color/white"
-                android:textSize="13sp" />
+                android:textSize="16sp" />
         </LinearLayout>
 
         <!-- Main controls -->

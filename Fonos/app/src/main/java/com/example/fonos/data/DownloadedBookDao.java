@@ -16,6 +16,9 @@ public interface DownloadedBookDao {
     @Query("SELECT * FROM downloaded_books ORDER BY downloadedAt DESC")
     List<DownloadedBookEntity> getAll();
 
+    @Query("SELECT * FROM downloaded_books WHERE userId = :userId ORDER BY downloadedAt DESC")
+    List<DownloadedBookEntity> getAllForUser(String userId);
+
     @Query("SELECT * FROM downloaded_books WHERE downloadKey = :downloadKey LIMIT 1")
     DownloadedBookEntity getByKey(String downloadKey);
 

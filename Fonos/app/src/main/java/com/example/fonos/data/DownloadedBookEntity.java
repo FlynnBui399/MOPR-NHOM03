@@ -10,6 +10,8 @@ public class DownloadedBookEntity {
     @NonNull
     public String downloadKey;
 
+    @NonNull
+    public String userId;
     public int bookId;
     public String title;
     public String author;
@@ -28,6 +30,7 @@ public class DownloadedBookEntity {
 
     public DownloadedBookEntity(
             @NonNull String downloadKey,
+            @NonNull String userId,
             int bookId,
             String title,
             String author,
@@ -45,6 +48,7 @@ public class DownloadedBookEntity {
             long downloadedAt
     ) {
         this.downloadKey = downloadKey;
+        this.userId = userId;
         this.bookId = bookId;
         this.title = title;
         this.author = author;
