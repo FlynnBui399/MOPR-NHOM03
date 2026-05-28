@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.RatingBar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +39,7 @@ import java.util.concurrent.Executors;
 public class BookDetailActivity extends AppCompatActivity {
 
     private TextView tvDetailTitle, tvDetailAuthor, tvDetailRating, tvDetailDuration;
+    private RatingBar ratingBar;
     private TextView tvDetailChapters, tvDetailDescription, tvDetailCoverTitle;
     private ImageView imgDetailCover;
     private Toolbar toolbar;
@@ -95,6 +97,7 @@ public class BookDetailActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         btnAddLibrary = findViewById(R.id.btnAddLibrary);
         btnDownloadAudio = findViewById(R.id.btnDownloadAudio);
+        ratingBar = findViewById(R.id.ratingBar);
     }
 
     private void setupToolbar() {
@@ -133,6 +136,8 @@ public class BookDetailActivity extends AppCompatActivity {
         tvDetailAuthor.setText(author);
         tvDetailDescription.setText(desc);
         tvDetailRating.setText(String.valueOf(rating));
+        // Set visual star rating bar
+        if (ratingBar != null) ratingBar.setRating(rating);
         tvDetailDuration.setText(duration);
         tvDetailChapters.setText(getString(R.string.detail_chapter_count, chapters));
         tvDetailCoverTitle.setText(title);

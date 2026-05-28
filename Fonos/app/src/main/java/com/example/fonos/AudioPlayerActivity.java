@@ -452,6 +452,12 @@ public class AudioPlayerActivity extends AppCompatActivity {
                     tvTotalTime.setText(formatTime(durationMs));
                     startProgressUpdater();
 
+                    // Save real total duration from ExoPlayer for accurate progress calculation
+                    getSharedPreferences("FonosPref", MODE_PRIVATE)
+                        .edit()
+                        .putLong("total_duration_ms_" + bookId, durationMs)
+                        .apply();
+
                     // Restore saved progress exactly when the stream is ready to play (metadata fully resolved)
                     if (!hasRestoredPosition) {
                         android.content.SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);

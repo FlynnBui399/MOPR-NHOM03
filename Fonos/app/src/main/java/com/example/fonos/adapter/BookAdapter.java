@@ -6,6 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ProgressBar;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +21,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.fonos.R;
 import com.example.fonos.model.Book;
+import com.example.fonos.AudioDurationUtils;
 
 import java.util.List;
 
@@ -101,6 +105,29 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
                 listener.onBookClick(book);
             }
         });
+
+        // Show per-book listening progress from saved playback position
+        SharedPreferences pref = holder.itemView.getContext()
+                .getSharedPreferences("FonosPref", Context.MODE_PRIVATE);
+        long savedPos = pref.getLong("progress_book_" + book.getId(), 0L);
+
+        if (savedPos > 0 && holder.progressListenedBar != null) {
+            // Priority 1: use real duration cached from ExoPlayer
+            long totalMs = pref.getLong("total_duration_ms_" + book.getId(), 0L);
+            // Priority 2: fallback - parse the duration string from Firestore
+            if (totalMs <= 0) {
+                totalMs = AudioDurationUtils.parseDurationToMs(book.getDuration());
+            }
+            if (totalMs > 0) {
+                int pct = (int) ((savedPos * 100) / totalMs);
+                holder.progressListenedBar.setProgress(Math.min(pct, 100));
+                holder.progressListenedBar.setVisibility(View.VISIBLE);
+            } else {
+                holder.progressListenedBar.setVisibility(View.GONE);
+            }
+        } else if (holder.progressListenedBar != null) {
+            holder.progressListenedBar.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -116,6 +143,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     public static class BookViewHolder extends RecyclerView.ViewHolder {
         TextView tvBookTitle, tvBookAuthor, tvBookRating, tvCoverTitle, tvBookDuration;
         ImageView imgCover;
+        ProgressBar progressListenedBar;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -126,6 +154,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             tvCoverTitle = itemView.findViewById(R.id.tvCoverTitle);
             tvBookDuration = itemView.findViewById(R.id.tvBookDuration);
             imgCover = itemView.findViewById(R.id.imgCover);
+            progressListenedBar = itemView.findViewById(R.id.progressListenedBar);
         }
     }
 }

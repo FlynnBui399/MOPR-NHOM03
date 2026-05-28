@@ -5,6 +5,8 @@ import android.media.MediaMetadataRetriever;
 import java.io.IOException;
 import java.io.File;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class AudioDurationUtils {
     private AudioDurationUtils() {
@@ -53,5 +55,33 @@ public final class AudioDurationUtils {
         }
 
         return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+    }
+
+    /**
+     * Parses human-readable duration strings like "8h 30m", "5h 45m", "45m", "1h"
+     * into milliseconds.
+     * @param durationStr the duration string to parse
+     * @return duration in milliseconds, or 0 if parsing fails
+     */
+    public static long parseDurationToMs(String durationStr) {
+        if (durationStr == null || durationStr.trim().isEmpty()) {
+            return 0L;
+        }
+        long hours = 0;
+        long minutes = 0;
+
+        // Extract hours (number before 'h')
+        Matcher hMatcher = Pattern.compile("(\\d+)\\s*h").matcher(durationStr);
+        if (hMatcher.find()) {
+            hours = Long.parseLong(hMatcher.group(1));
+        }
+
+        // Extract minutes (number before 'm')
+        Matcher mMatcher = Pattern.compile("(\\d+)\\s*m").matcher(durationStr);
+        if (mMatcher.find()) {
+            minutes = Long.parseLong(mMatcher.group(1));
+        }
+
+        return (hours * 3600000L) + (minutes * 60000L);
     }
 }

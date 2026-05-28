@@ -26,6 +26,7 @@ import com.example.fonos.BookDetailActivity;
 import com.example.fonos.R;
 import com.example.fonos.adapter.BookAdapter;
 import com.example.fonos.model.Book;
+import com.example.fonos.SearchCache;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -87,6 +88,14 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
     }
 
     private void loadBooksFromFirestore() {
+        // Check cache first to avoid redundant Firestore calls
+        if (!SearchCache.isEmpty()) {
+            allBooksList.clear();
+            allBooksList.addAll(SearchCache.get());
+            filterBooks(etSearch.getText().toString());
+            return;
+        }
+
         db.collection("books")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -104,6 +113,9 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
                             allBooksList.add(book);
                         }
 
+                        // Populate cache so other fragments can reuse this data
+                        SearchCache.set(allBooksList);
+
                         filterBooks(etSearch.getText().toString());
                     } else {
                         if (task.getException() != null) {
@@ -116,6 +128,8 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
 
     private void loadLocalSampleBooks() {
         allBooksList = getLocalSampleBooksList();
+        // Cache local fallback data so it can be reused
+        SearchCache.set(allBooksList);
         filterBooks(etSearch.getText().toString());
     }
 

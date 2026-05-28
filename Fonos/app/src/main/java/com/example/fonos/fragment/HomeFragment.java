@@ -18,6 +18,7 @@ import com.example.fonos.BookDetailActivity;
 import com.example.fonos.MainActivity;
 import com.example.fonos.RecentlyPlayedManager;
 import com.example.fonos.R;
+import com.example.fonos.SearchCache;
 import com.example.fonos.adapter.BookAdapter;
 import com.example.fonos.adapter.CategoryAdapter;
 import com.example.fonos.model.Book;
@@ -160,6 +161,8 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
                         if (!allBooks.isEmpty()) {
                             allBooksFromFirestore.clear();
                             allBooksFromFirestore.addAll(allBooks);
+                            // Populate SearchCache so SearchFragment can reuse this data
+                            SearchCache.set(allBooksFromFirestore);
                             updateUIWithBooks(allBooksFromFirestore);
                         } else {
                             loadLocalSampleBooks();
