@@ -1,6 +1,7 @@
 package com.example.fonos.fragment;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.fonos.DownloadsActivity;
+import com.example.fonos.AudioPlayerService;
 import com.example.fonos.R;
 import com.example.fonos.auth.LoginActivity;
 import com.example.fonos.auth.RegisterActivity;
@@ -48,19 +51,22 @@ public class ProfileFragment extends Fragment {
         View btnAbout = view.findViewById(R.id.btnAbout);
 
         if (btnSettings != null) {
-            btnSettings.setOnClickListener(v -> Toast.makeText(getContext(), "Dang mo Cai dat...", Toast.LENGTH_SHORT).show());
+            btnSettings.setOnClickListener(v -> Toast.makeText(getContext(), "Đang mở Cài đặt...", Toast.LENGTH_SHORT).show());
         }
         if (btnHistory != null) {
-            btnHistory.setOnClickListener(v -> Toast.makeText(getContext(), "Lich su nghe dang trong", Toast.LENGTH_SHORT).show());
+            btnHistory.setOnClickListener(v -> Toast.makeText(getContext(), "Lịch sử nghe đang trống", Toast.LENGTH_SHORT).show());
         }
         if (btnDownloads != null) {
-            btnDownloads.setOnClickListener(v -> Toast.makeText(getContext(), "Chua co sach nao duoc tai xuong", Toast.LENGTH_SHORT).show());
+            btnDownloads.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), DownloadsActivity.class);
+                startActivity(intent);
+            });
         }
         if (btnHelp != null) {
-            btnHelp.setOnClickListener(v -> Toast.makeText(getContext(), "Dang ket noi den trung tam ho tro...", Toast.LENGTH_SHORT).show());
+            btnHelp.setOnClickListener(v -> Toast.makeText(getContext(), "Đang kết nối đến trung tâm hỗ trợ...", Toast.LENGTH_SHORT).show());
         }
         if (btnAbout != null) {
-            btnAbout.setOnClickListener(v -> Toast.makeText(getContext(), "Fonos - Phien ban 1.0.0", Toast.LENGTH_SHORT).show());
+            btnAbout.setOnClickListener(v -> Toast.makeText(getContext(), "Fonos - Phiên bản 1.0.0", Toast.LENGTH_SHORT).show());
         }
 
         updateUI();
@@ -77,6 +83,7 @@ public class ProfileFragment extends Fragment {
 
         btnLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
+            clearActivePlaybackState();
             Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
             updateUI();
         });
@@ -102,5 +109,22 @@ public class ProfileFragment extends Fragment {
             btnRegister.setVisibility(View.VISIBLE);
             btnLogout.setVisibility(View.GONE);
         }
+    }
+
+    private void clearActivePlaybackState() {
+        if (getActivity() == null) return;
+
+        SharedPreferences sharedPref = getActivity().getSharedPreferences("FonosPref", 0);
+        sharedPref.edit()
+                .remove("active_book_id")
+                .remove("active_book_title")
+                .remove("active_book_author")
+                .remove("active_book_duration")
+                .remove("active_book_cover")
+                .remove("active_book_cover_url")
+                .remove("active_book_audio_url")
+                .apply();
+
+        getActivity().stopService(new Intent(getActivity(), AudioPlayerService.class));
     }
 }

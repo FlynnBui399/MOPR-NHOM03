@@ -34,6 +34,10 @@
             android:exported="false"
             android:parentActivityName=".BookDetailActivity" />
         <activity
+            android:name=".DownloadsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+        <activity
             android:name=".auth.LoginActivity"
             android:exported="false"/>
         <activity

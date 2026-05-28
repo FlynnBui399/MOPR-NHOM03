@@ -177,7 +177,7 @@
                             android:src="@drawable/ic_email_orange" />
 
                         <EditText
-                            android:id="@+id/etEmailOrPhone"
+                            android:id="@+id/etEmail"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_marginStart="10dp"
