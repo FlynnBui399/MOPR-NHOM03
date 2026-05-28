@@ -223,5 +223,17 @@
     <string name="history_title">Listening History</string>
     <string name="history_empty">Your listening history is empty</string>
     <string name="history_empty_sub">Books you listen to will appear here</string>
+    
+    <!-- Audio Player Toasts -->
+    <string name="player_sleep_timer_triggered_toast">Music has been stopped by the Sleep Timer.</string>
+    <string name="player_bookmark_guest_toast">Bookmarked (Guest Mode)!</string>
+    <string name="player_bookmark_success_toast">Book saved to library successfully!</string>
+    <string name="player_bookmark_failed_toast">Failed to save audiobook.</string>
+    <string name="player_replay_from_start_toast">Playing again from the beginning.</string>
+    <string name="player_last_chapter_toast">This is the last chapter of the book.</string>
+    <string name="player_sleep_timer_set_toast">Sleep timer set for %1$d minutes</string>
+    <string name="player_sleep_timer_off_toast_msg">Sleep timer turned off</string>
+    <string name="player_chapters_loading_toast">Chapter list is loading…</string>
+    <string name="player_service_connection_failed_toast">Failed to connect to audio player service.</string>
 
 </resources>

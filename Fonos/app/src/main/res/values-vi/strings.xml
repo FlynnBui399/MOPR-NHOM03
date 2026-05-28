@@ -180,4 +180,17 @@
     <string name="history_title">Lịch sử nghe</string>
     <string name="history_empty">Lịch sử nghe đang trống</string>
     <string name="history_empty_sub">Sách bạn đã nghe sẽ xuất hiện ở đây</string>
+
+    <!-- Audio Player Toasts -->
+    <string name="player_sleep_timer_triggered_toast">Đã tắt nhạc bằng Chế độ Hẹn giờ.</string>
+    <string name="player_bookmark_guest_toast">Đã lưu sách vào dấu trang (Khách)!</string>
+    <string name="player_bookmark_success_toast">Đã lưu sách vào thư viện thành công!</string>
+    <string name="player_bookmark_failed_toast">Lưu sách nói thất bại.</string>
+    <string name="player_replay_from_start_toast">Đang phát lại từ đầu.</string>
+    <string name="player_last_chapter_toast">Đây là chương cuối cùng của sách.</string>
+    <string name="player_sleep_timer_set_toast">Đã hẹn giờ tắt sau %1$d phút</string>
+    <string name="player_sleep_timer_off_toast_msg">Đã tắt chế độ hẹn giờ</string>
+    <string name="player_chapters_loading_toast">Danh sách chương đang được tải…</string>
+    <string name="player_service_connection_failed_toast">Kết nối tới dịch vụ nghe nhạc thất bại.</string>
+
 </resources>

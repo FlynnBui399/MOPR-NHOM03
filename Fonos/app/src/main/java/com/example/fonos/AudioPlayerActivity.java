@@ -73,7 +73,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
         public void run() {
             if (mediaController != null) {
                 mediaController.pause();
-                Toast.makeText(AudioPlayerActivity.this, "Da tat nhac bang Che do Hen gio", Toast.LENGTH_LONG).show();
+                Toast.makeText(AudioPlayerActivity.this, getString(R.string.player_sleep_timer_triggered_toast), Toast.LENGTH_LONG).show();
             }
             resetSleepTimer();
         }
@@ -293,7 +293,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
         findViewById(R.id.btnBookmark).setOnClickListener(v -> {
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
             if (currentUser == null) {
-                Toast.makeText(this, "Da luu sach vao dau trang (Khach)!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.player_bookmark_guest_toast), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -308,9 +308,9 @@ public class AudioPlayerActivity extends AppCompatActivity {
                     .set(book)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Toast.makeText(AudioPlayerActivity.this, "Da luu sach vao thu vien thanh cong!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AudioPlayerActivity.this, getString(R.string.player_bookmark_success_toast), Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(AudioPlayerActivity.this, "Luu sach noi that bai.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AudioPlayerActivity.this, getString(R.string.player_bookmark_failed_toast), Toast.LENGTH_SHORT).show();
                         }
                     });
         });
@@ -319,13 +319,13 @@ public class AudioPlayerActivity extends AppCompatActivity {
         findViewById(R.id.btnPrev).setOnClickListener(v -> {
             if (mediaController != null) {
                 mediaController.seekTo(0);
-                Toast.makeText(this, "Dang phat lai tu dau", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.player_replay_from_start_toast), Toast.LENGTH_SHORT).show();
             }
         });
 
         // Next button - next chapter placeholder
         findViewById(R.id.btnNext).setOnClickListener(v -> {
-            Toast.makeText(this, "Day la chuong cuoi cung cua sach", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.player_last_chapter_toast), Toast.LENGTH_SHORT).show();
         });
 
         // Sleep Timer - fully functional premium cyclic countdown handler
@@ -337,18 +337,21 @@ public class AudioPlayerActivity extends AppCompatActivity {
             switch (sleepTimerIndex) {
                 case 1:
                     durationMs = 1 * 60 * 1000; // 15 minutes
-                    message = "Da hen gio tat sau 1 phut";
+                    int mins1 = (int) (durationMs / 60000);
+                    message = getString(R.string.player_sleep_timer_set_toast, mins1);
                     break;
                 case 2:
                     durationMs = 30 * 60 * 1000; // 30 minutes
-                    message = "Da hen gio tat sau 30 phut";
+                    int mins2 = (int) (durationMs / 60000);
+                    message = getString(R.string.player_sleep_timer_set_toast, mins2);
                     break;
                 case 3:
                     durationMs = 60 * 60 * 1000; // 60 minutes
-                    message = "Da hen gio tat sau 60 phut";
+                    int mins3 = (int) (durationMs / 60000);
+                    message = getString(R.string.player_sleep_timer_set_toast, mins3);
                     break;
                 default:
-                    message = "Da tat che do hen gio";
+                    message = getString(R.string.player_sleep_timer_off_toast_msg);
                     break;
             }
 
@@ -369,7 +372,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
 
         // Chapters button - chapters selection placeholder
         findViewById(R.id.btnChapters).setOnClickListener(v -> {
-            Toast.makeText(this, "Danh sach chuong dang duoc tai...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.player_chapters_loading_toast), Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -384,7 +387,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
                 onPlayerConnected();
             } catch (ExecutionException | InterruptedException e) {
                 Log.e(TAG, "Failed to resolve MediaController future: ", e);
-                Toast.makeText(this, "Failed to connect to audio player service.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.player_service_connection_failed_toast), Toast.LENGTH_SHORT).show();
             }
         }, ContextCompat.getMainExecutor(this));
     }
