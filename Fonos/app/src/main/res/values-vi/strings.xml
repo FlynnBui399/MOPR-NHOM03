@@ -168,4 +168,11 @@
     <string name="downloads_delete_title">Xóa file đã tải?</string>
     <string name="downloads_delete_message">File audio offline sẽ bị xóa khỏi thiết bị này.</string>
     <string name="downloads_deleted">Đã xóa file đã tải</string>
+    <string name="library_tab_saved">Đã lưu</string>
+    <string name="library_tab_downloaded">Đã tải</string>
+    <string name="library_empty_downloaded">Chưa có sách nào được tải về</string>
+    <string name="library_empty_downloaded_sub">Sách nói đã tải về sẽ xuất hiện ở đây</string>
+    <string name="mini_player_select_book">Hãy chọn một sách để bắt đầu nghe</string>
+    <string name="player_resume_toast">Đã tiếp tục nghe từ %1$s</string>
+    <string name="player_resume_subtitle"> • Tiếp tục từ %1$s</string>
 </resources>

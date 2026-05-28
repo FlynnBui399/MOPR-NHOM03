@@ -309,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             if (miniPlayerContainer != null) {
                 miniPlayerContainer.setOnClickListener(v -> {
-                    Toast.makeText(this, "Hãy chọn một sách để bắt đầu nghe", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.mini_player_select_book), Toast.LENGTH_SHORT).show();
                 });
             }
         }

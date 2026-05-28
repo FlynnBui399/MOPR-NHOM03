@@ -204,8 +204,8 @@ public class AudioPlayerActivity extends AppCompatActivity {
         android.content.SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);
         long savedPos = sharedPref.getLong("progress_book_" + bookId, 0L);
         if (savedPos > 5000) {
-            tvPlayerSubtitle.setText(getString(R.string.player_subtitle_demo, author) + " • Tiep tuc tu " + formatTime(savedPos));
-            Toast.makeText(this, "Da tiep tuc nghe tu " + formatTime(savedPos), Toast.LENGTH_SHORT).show();
+            tvPlayerSubtitle.setText(getString(R.string.player_subtitle_demo, author) + getString(R.string.player_resume_subtitle, formatTime(savedPos)));
+            Toast.makeText(this, getString(R.string.player_resume_toast, formatTime(savedPos)), Toast.LENGTH_SHORT).show();
         } else {
             tvPlayerSubtitle.setText(getString(R.string.player_subtitle_demo, author));
         }

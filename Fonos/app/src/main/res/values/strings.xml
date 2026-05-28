@@ -211,5 +211,12 @@
     <string name="downloads_delete_title">Delete download?</string>
     <string name="downloads_delete_message">This removes the offline audio file from this device.</string>
     <string name="downloads_deleted">Download deleted</string>
+    <string name="library_tab_saved">Saved</string>
+    <string name="library_tab_downloaded">Downloaded</string>
+    <string name="library_empty_downloaded">No downloaded books yet</string>
+    <string name="library_empty_downloaded_sub">Downloaded books will appear here</string>
+    <string name="mini_player_select_book">Please select a book to start listening</string>
+    <string name="player_resume_toast">Resumed playback from %1$s</string>
+    <string name="player_resume_subtitle"> • Resumed from %1$s</string>
 
 </resources>

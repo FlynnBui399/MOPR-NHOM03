@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,10 +16,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fonos.BookDetailActivity;
+import com.example.fonos.OfflineAudioManager;
 import com.example.fonos.R;
 import com.example.fonos.adapter.BookAdapter;
 import com.example.fonos.auth.LoginActivity;
 import com.example.fonos.model.Book;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -36,6 +39,11 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
 
     private BookAdapter bookAdapter;
     private final List<Book> libraryBooks = new ArrayList<>();
+    private final List<Book> savedBooks = new ArrayList<>();
+    private int currentTab = 0; // 0 = Saved, 1 = Downloaded
+
+    private TabLayout tabLayoutLibrary;
+    private TextView tvEmptyTitle, tvEmptySubtitle;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -61,6 +69,20 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
         layoutLoginRequired = view.findViewById(R.id.layoutLoginRequired);
         layoutEmptyState = view.findViewById(R.id.layoutEmptyState);
         btnLibraryLogin = view.findViewById(R.id.btnLibraryLogin);
+        tabLayoutLibrary = view.findViewById(R.id.tabLayoutLibrary);
+        tvEmptyTitle = view.findViewById(R.id.tvEmptyTitle);
+        tvEmptySubtitle = view.findViewById(R.id.tvEmptySubtitle);
+
+        if (tabLayoutLibrary != null) {
+            tabLayoutLibrary.removeAllTabs();
+            tabLayoutLibrary.addTab(tabLayoutLibrary.newTab().setText(R.string.library_tab_saved));
+            tabLayoutLibrary.addTab(tabLayoutLibrary.newTab().setText(R.string.library_tab_downloaded));
+            
+            TabLayout.Tab tab = tabLayoutLibrary.getTabAt(currentTab);
+            if (tab != null) {
+                tab.select();
+            }
+        }
     }
 
     private void setupRecyclerView() {
@@ -74,6 +96,22 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
         });
+
+        if (tabLayoutLibrary != null) {
+            tabLayoutLibrary.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    currentTab = tab.getPosition();
+                    loadActiveTabData();
+                }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {}
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {}
+            });
+        }
     }
 
     @Override
@@ -97,6 +135,9 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
 
         if (user == null) {
             layoutLoginRequired.setVisibility(View.VISIBLE);
+            if (tabLayoutLibrary != null) {
+                tabLayoutLibrary.setVisibility(View.GONE);
+            }
             rvLibrary.setVisibility(View.GONE);
             layoutEmptyState.setVisibility(View.GONE);
 
@@ -106,7 +147,11 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
             }
         } else {
             layoutLoginRequired.setVisibility(View.GONE);
+            if (tabLayoutLibrary != null) {
+                tabLayoutLibrary.setVisibility(View.VISIBLE);
+            }
             observeLibrary(user.getUid());
+            loadActiveTabData();
         }
     }
 
@@ -120,29 +165,60 @@ public class LibraryFragment extends Fragment implements BookAdapter.OnBookClick
                 .collection("library")
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        libraryBooks.clear();
-                        bookAdapter.notifyDataSetChanged();
-                        showEmptyState();
+                        savedBooks.clear();
+                        if (currentTab == 0) {
+                            loadActiveTabData();
+                        }
                         return;
                     }
 
                     if (value != null) {
-                        libraryBooks.clear();
+                        savedBooks.clear();
 
                         for (QueryDocumentSnapshot document : value) {
                             Book book = document.toObject(Book.class);
-                            libraryBooks.add(book);
+                            savedBooks.add(book);
                         }
 
-                        bookAdapter.notifyDataSetChanged();
-
-                        if (libraryBooks.isEmpty()) {
-                            showEmptyState();
-                        } else {
-                            showLibraryList();
+                        if (currentTab == 0) {
+                            loadActiveTabData();
                         }
                     }
                 });
+    }
+
+    private void loadActiveTabData() {
+        if (mAuth.getCurrentUser() == null) {
+            return;
+        }
+
+        libraryBooks.clear();
+        if (currentTab == 0) {
+            // Saved books
+            libraryBooks.addAll(savedBooks);
+            bookAdapter.notifyDataSetChanged();
+
+            if (libraryBooks.isEmpty()) {
+                if (tvEmptyTitle != null) tvEmptyTitle.setText(R.string.library_empty);
+                if (tvEmptySubtitle != null) tvEmptySubtitle.setText(R.string.library_empty_sub);
+                showEmptyState();
+            } else {
+                showLibraryList();
+            }
+        } else {
+            // Downloaded books
+            List<Book> downloaded = OfflineAudioManager.getDownloadedBooks(getContext());
+            libraryBooks.addAll(downloaded);
+            bookAdapter.notifyDataSetChanged();
+
+            if (libraryBooks.isEmpty()) {
+                if (tvEmptyTitle != null) tvEmptyTitle.setText(R.string.library_empty_downloaded);
+                if (tvEmptySubtitle != null) tvEmptySubtitle.setText(R.string.library_empty_downloaded_sub);
+                showEmptyState();
+            } else {
+                showLibraryList();
+            }
+        }
     }
 
     private void showEmptyState() {

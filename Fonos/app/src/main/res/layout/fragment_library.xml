@@ -26,6 +26,21 @@
             android:textSize="24sp" />
     </LinearLayout>
 
+    <!-- Tabs -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutLibrary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="2dp"
+        android:visibility="gone"
+        app:tabIndicatorColor="@color/orange_primary"
+        app:tabIndicatorHeight="3dp"
+        app:tabSelectedTextColor="@color/orange_primary"
+        app:tabTextColor="@color/text_secondary"
+        app:tabRippleColor="@android:color/transparent"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+
     <!-- Results list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvLibrary"
@@ -102,6 +117,7 @@
             android:src="@drawable/ic_library" />
 
         <TextView
+            android:id="@+id/tvEmptyTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -112,6 +128,7 @@
             android:textSize="17sp" />
 
         <TextView
+            android:id="@+id/tvEmptySubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
