@@ -39,7 +39,7 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
     private List<Book> recommendedBooks;
     private final List<Book> allBooksFromFirestore = new ArrayList<>();
 
-    private View progressBar;
+    private com.facebook.shimmer.ShimmerFrameLayout shimmerHome;
     private View homeScrollView;
     private View cardHomeSearch;
 
@@ -56,12 +56,28 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (shimmerHome != null && shimmerHome.getVisibility() == View.VISIBLE) {
+            shimmerHome.startShimmer();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (shimmerHome != null) {
+            shimmerHome.stopShimmer();
+        }
+        super.onPause();
+    }
+
     private void initViews(View view) {
         rvCategories = view.findViewById(R.id.rvCategories);
         rvTrending = view.findViewById(R.id.rvTrending);
         rvNewReleases = view.findViewById(R.id.rvNewReleases);
         rvRecommended = view.findViewById(R.id.rvRecommended);
-        progressBar = view.findViewById(R.id.progressBar);
+        shimmerHome = view.findViewById(R.id.shimmerHome);
         homeScrollView = view.findViewById(R.id.homeScrollView);
         cardHomeSearch = view.findViewById(R.id.cardHomeSearch);
 
@@ -100,7 +116,10 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
                         return;
                     }
 
-                    if (progressBar != null) progressBar.setVisibility(View.GONE);
+                    if (shimmerHome != null) {
+                        shimmerHome.stopShimmer();
+                        shimmerHome.setVisibility(View.GONE);
+                    }
                     if (homeScrollView != null) homeScrollView.setVisibility(View.VISIBLE);
 
                     if (task.isSuccessful() && task.getResult() != null) {

@@ -2,6 +2,8 @@ package com.example.fonos.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,7 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,14 +34,25 @@ import java.util.List;
 
 public class SearchFragment extends Fragment implements BookAdapter.OnBookClickListener {
 
+    // Search state constants
+    private static final int STATE_IDLE = 0;
+    private static final int STATE_LOADING = 1;
+    private static final int STATE_RESULTS = 2;
+    private static final int STATE_EMPTY = 3;
+
     private EditText etSearch;
     private RecyclerView rvSearchResults;
     private LinearLayout layoutEmptyState;
     private TextView tvEmptyState;
+    private ProgressBar pbSearchLoading;
+    private ImageView imgEmptyStateIcon;
 
     private BookAdapter bookAdapter;
     private List<Book> allBooksList = new ArrayList<>();
     private List<Book> filteredBooksList = new ArrayList<>();
+
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
+    private Runnable searchRunnable;
 
     private FirebaseFirestore db;
 
@@ -61,6 +76,8 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
         rvSearchResults = view.findViewById(R.id.rvSearchResults);
         layoutEmptyState = view.findViewById(R.id.layoutEmptyState);
         tvEmptyState = view.findViewById(R.id.tvEmptyState);
+        pbSearchLoading = view.findViewById(R.id.pbSearchLoading);
+        imgEmptyStateIcon = view.findViewById(R.id.imgEmptyStateIcon);
     }
 
     private void setupRecyclerView() {
@@ -139,33 +156,97 @@ public class SearchFragment extends Fragment implements BookAdapter.OnBookClickL
     }
 
     private void filterBooks(String query) {
-        filteredBooksList.clear();
+        if (searchRunnable != null) {
+            searchHandler.removeCallbacks(searchRunnable);
+        }
 
+        String trimmed = query.trim();
+        if (trimmed.isEmpty()) {
+            updateSearchState(STATE_IDLE, "");
+            filteredBooksList.clear();
+            bookAdapter.notifyDataSetChanged();
+            return;
+        }
+
+        updateSearchState(STATE_LOADING, "");
+
+        searchRunnable = new Runnable() {
+            @Override
+            public void run() {
+                performSearch(trimmed);
+            }
+        };
+        searchHandler.postDelayed(searchRunnable, 300);
+    }
+
+    private void performSearch(String query) {
+        filteredBooksList.clear();
         String lowercaseQuery = query.toLowerCase().trim();
 
         if (lowercaseQuery.isEmpty()) {
-            rvSearchResults.setVisibility(View.GONE);
-            layoutEmptyState.setVisibility(View.VISIBLE);
-            tvEmptyState.setText(getString(R.string.search_empty));
-        } else {
-            for (Book book : allBooksList) {
-                if (book.getTitle().toLowerCase().contains(lowercaseQuery) ||
-                        book.getAuthor().toLowerCase().contains(lowercaseQuery)) {
-                    filteredBooksList.add(book);
-                }
-            }
+            updateSearchState(STATE_IDLE, "");
+            bookAdapter.notifyDataSetChanged();
+            return;
+        }
 
-            if (filteredBooksList.isEmpty()) {
-                rvSearchResults.setVisibility(View.GONE);
-                layoutEmptyState.setVisibility(View.VISIBLE);
-                tvEmptyState.setText("No results found for \"" + query + "\"");
-            } else {
-                rvSearchResults.setVisibility(View.VISIBLE);
-                layoutEmptyState.setVisibility(View.GONE);
+        for (Book book : allBooksList) {
+            if (book.getTitle().toLowerCase().contains(lowercaseQuery) ||
+                    book.getAuthor().toLowerCase().contains(lowercaseQuery)) {
+                filteredBooksList.add(book);
             }
         }
 
+        if (filteredBooksList.isEmpty()) {
+            updateSearchState(STATE_EMPTY, query);
+        } else {
+            updateSearchState(STATE_RESULTS, "");
+        }
         bookAdapter.notifyDataSetChanged();
+    }
+
+    private void updateSearchState(int state, String query) {
+        if (!isAdded() || getContext() == null) return;
+
+        switch (state) {
+            case STATE_IDLE:
+                rvSearchResults.setVisibility(View.GONE);
+                pbSearchLoading.setVisibility(View.GONE);
+                layoutEmptyState.setVisibility(View.VISIBLE);
+                if (imgEmptyStateIcon != null) {
+                    imgEmptyStateIcon.setImageResource(R.drawable.ic_search);
+                    imgEmptyStateIcon.setAlpha(0.3f);
+                }
+                tvEmptyState.setText(getString(R.string.search_idle_hint));
+                break;
+            case STATE_LOADING:
+                rvSearchResults.setVisibility(View.GONE);
+                pbSearchLoading.setVisibility(View.VISIBLE);
+                layoutEmptyState.setVisibility(View.GONE);
+                break;
+            case STATE_RESULTS:
+                rvSearchResults.setVisibility(View.VISIBLE);
+                pbSearchLoading.setVisibility(View.GONE);
+                layoutEmptyState.setVisibility(View.GONE);
+                break;
+            case STATE_EMPTY:
+                rvSearchResults.setVisibility(View.GONE);
+                pbSearchLoading.setVisibility(View.GONE);
+                layoutEmptyState.setVisibility(View.VISIBLE);
+                if (imgEmptyStateIcon != null) {
+                    imgEmptyStateIcon.setImageResource(R.drawable.ic_headphones);
+                    imgEmptyStateIcon.setAlpha(0.3f);
+                }
+                tvEmptyState.setText(getString(R.string.search_no_results, query));
+                break;
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (searchRunnable != null) {
+            searchHandler.removeCallbacks(searchRunnable);
+        }
+        super.onDestroyView();
     }
 
     @Override

@@ -124,6 +124,8 @@
     <string name="search_popular">Popular Searches</string>
     <string name="search_recent">Recent Searches</string>
     <string name="search_empty">Start searching for your favorite audiobooks</string>
+    <string name="search_idle_hint">Search for the books you want to hear</string>
+    <string name="search_no_results">No results found for \"%1$s\"</string>
 
     <!-- Library Screen -->
     <string name="library_title">My Library</string>

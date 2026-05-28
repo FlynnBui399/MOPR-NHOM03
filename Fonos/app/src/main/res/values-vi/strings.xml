@@ -103,6 +103,8 @@
     <string name="search_popular">Tìm Kiếm Phổ Biến</string>
     <string name="search_recent">Tìm Kiếm Gần Đây</string>
     <string name="search_empty">Bắt đầu tìm kiếm sách nói yêu thích</string>
+    <string name="search_idle_hint">Tìm kiếm sách bạn muốn nghe</string>
+    <string name="search_no_results">Không tìm thấy kết quả cho \"%1$s\"</string>
 
     <!-- Library Screen -->
     <string name="library_title">Thư Viện Của Tôi</string>

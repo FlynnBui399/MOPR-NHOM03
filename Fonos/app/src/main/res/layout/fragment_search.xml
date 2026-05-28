@@ -66,41 +66,57 @@
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 
-    <!-- Results list -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvSearchResults"
+    <!-- FrameLayout container for the dynamic search states -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:padding="16dp"
-        android:visibility="gone" />
+        android:layout_height="match_parent">
 
-    <!-- Empty state -->
-    <LinearLayout
-        android:id="@+id/layoutEmptyState"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="40dp"
-        android:visibility="visible">
+        <!-- Results list -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSearchResults"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="16dp"
+            android:visibility="gone" />
 
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:alpha="0.3"
-            android:contentDescription="@string/nav_search"
-            android:src="@drawable/ic_search" />
-
-        <TextView
-            android:id="@+id/tvEmptyState"
+        <!-- Centered Search Loading Indicator -->
+        <ProgressBar
+            android:id="@+id/pbSearchLoading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:fontFamily="@font/poppins_medium"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/orange_primary"
+            android:visibility="gone" />
+
+        <!-- Empty state -->
+        <LinearLayout
+            android:id="@+id/layoutEmptyState"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:gravity="center"
-            android:text="@string/search_empty"
-            android:textColor="@color/text_muted"
-            android:textSize="15sp" />
-    </LinearLayout>
+            android:orientation="vertical"
+            android:padding="40dp"
+            android:visibility="visible">
+
+            <ImageView
+                android:id="@+id/imgEmptyStateIcon"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:alpha="0.3"
+                android:contentDescription="@string/nav_search"
+                android:src="@drawable/ic_search" />
+
+            <TextView
+                android:id="@+id/tvEmptyState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/poppins_medium"
+                android:gravity="center"
+                android:text="@string/search_idle_hint"
+                android:textColor="@color/text_muted"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

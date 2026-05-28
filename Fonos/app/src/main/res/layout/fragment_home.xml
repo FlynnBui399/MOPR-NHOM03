@@ -5,14 +5,108 @@
     android:layout_height="match_parent"
     android:background="@color/background_warm">
 
-    <!-- Loading progress spinner -->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:indeterminateTint="@color/orange_primary"
-        android:visibility="visible" />
+    <!-- Loading Shimmer Skeleton -->
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/shimmerHome"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        app:shimmer_auto_start="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingTop="18dp">
+
+            <!-- Top bar skeleton -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="14dp">
+                <View
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:background="#E5E5E5" />
+                <View
+                    android:layout_width="120dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="10dp"
+                    android:background="#E5E5E5" />
+            </LinearLayout>
+
+            <!-- Search input skeleton -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="20dp"
+                android:background="#E5E5E5" />
+
+            <!-- Row 1: Section Title -->
+            <View
+                android:layout_width="150dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="28dp"
+                android:background="#E5E5E5" />
+
+            <!-- Row 1: 4 cards side by side -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:scrollbars="none">
+                
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
+
+                    <include layout="@layout/skeleton_book_card" />
+                    <include layout="@layout/skeleton_book_card" />
+                    <include layout="@layout/skeleton_book_card" />
+                    <include layout="@layout/skeleton_book_card" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- Row 2: Section Title -->
+            <View
+                android:layout_width="180dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="28dp"
+                android:background="#E5E5E5" />
+
+            <!-- Row 2: 4 cards side by side -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:scrollbars="none">
+                
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
+
+                    <include layout="@layout/skeleton_book_card" />
+                    <include layout="@layout/skeleton_book_card" />
+                    <include layout="@layout/skeleton_book_card" />
+                    <include layout="@layout/skeleton_book_card" />
+                </LinearLayout>
+            </HorizontalScrollView>
+        </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/homeScrollView"
