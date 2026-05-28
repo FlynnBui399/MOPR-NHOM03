@@ -82,6 +82,7 @@
     <string name="section_trending">Trending Now</string>
     <string name="section_new_releases">New Releases</string>
     <string name="section_recommended">Recommended For You</string>
+    <string name="section_recently_played">Recently Played</string>
     <string name="see_all">See All</string>
 
     <!-- Bottom Navigation -->

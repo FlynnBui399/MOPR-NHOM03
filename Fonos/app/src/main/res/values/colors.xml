@@ -2,6 +2,7 @@
 <resources>
     <!-- ===== PRIMARY ORANGE PALETTE ===== -->
     <color name="orange_primary">#FF6B35</color>
+    <color name="colorPrimary">#FF6B35</color>
     <color name="orange_dark">#E85A25</color>
     <color name="orange_light">#FF8C5A</color>
     <color name="orange_soft">#FFCCB0</color>

@@ -12,9 +12,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.fonos.BookDetailActivity;
 import com.example.fonos.MainActivity;
+import com.example.fonos.RecentlyPlayedManager;
 import com.example.fonos.R;
 import com.example.fonos.adapter.BookAdapter;
 import com.example.fonos.adapter.CategoryAdapter;
@@ -29,19 +31,22 @@ import java.util.List;
 
 public class HomeFragment extends Fragment implements BookAdapter.OnBookClickListener, CategoryAdapter.OnCategoryClickListener {
 
-    private RecyclerView rvCategories, rvTrending, rvNewReleases, rvRecommended;
+    private RecyclerView rvCategories, rvTrending, rvNewReleases, rvRecommended, rvRecentlyPlayed;
+    private View layoutRecentlyPlayed;
     private CategoryAdapter categoryAdapter;
-    private BookAdapter trendingAdapter, newReleasesAdapter, recommendedAdapter;
+    private BookAdapter trendingAdapter, newReleasesAdapter, recommendedAdapter, recentlyPlayedAdapter;
     
     private List<Category> categoryList;
     private List<Book> trendingBooks;
     private List<Book> newReleaseBooks;
     private List<Book> recommendedBooks;
+    private List<Book> recentlyPlayedBooks;
     private final List<Book> allBooksFromFirestore = new ArrayList<>();
 
     private com.facebook.shimmer.ShimmerFrameLayout shimmerHome;
     private View homeScrollView;
     private View cardHomeSearch;
+    private SwipeRefreshLayout swipeRefreshHome;
 
     @Nullable
     @Override
@@ -62,6 +67,8 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         if (shimmerHome != null && shimmerHome.getVisibility() == View.VISIBLE) {
             shimmerHome.startShimmer();
         }
+        // Refresh recently played books list when returning to Home tab
+        loadRecentlyPlayed();
     }
 
     @Override
@@ -77,15 +84,33 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         rvTrending = view.findViewById(R.id.rvTrending);
         rvNewReleases = view.findViewById(R.id.rvNewReleases);
         rvRecommended = view.findViewById(R.id.rvRecommended);
+        rvRecentlyPlayed = view.findViewById(R.id.rvRecentlyPlayed);
+        layoutRecentlyPlayed = view.findViewById(R.id.layoutRecentlyPlayed);
         shimmerHome = view.findViewById(R.id.shimmerHome);
         homeScrollView = view.findViewById(R.id.homeScrollView);
         cardHomeSearch = view.findViewById(R.id.cardHomeSearch);
+        swipeRefreshHome = view.findViewById(R.id.swipeRefreshHome);
 
         if (cardHomeSearch != null) {
             cardHomeSearch.setOnClickListener(v -> {
                 if (getActivity() instanceof MainActivity) {
                     ((MainActivity) getActivity()).selectSearchTab();
                 }
+            });
+        }
+
+        if (swipeRefreshHome != null) {
+            swipeRefreshHome.setColorSchemeResources(R.color.colorPrimary);
+            swipeRefreshHome.setOnRefreshListener(() -> {
+                trendingBooks.clear();
+                newReleaseBooks.clear();
+                recommendedBooks.clear();
+                allBooksFromFirestore.clear();
+                trendingAdapter.notifyDataSetChanged();
+                newReleasesAdapter.notifyDataSetChanged();
+                recommendedAdapter.notifyDataSetChanged();
+                loadBooksFromFirestore();
+                loadRecentlyPlayed();
             });
         }
     }
@@ -103,6 +128,7 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         trendingBooks = new ArrayList<>();
         newReleaseBooks = new ArrayList<>();
         recommendedBooks = new ArrayList<>();
+        recentlyPlayedBooks = new ArrayList<>();
     }
 
     private void loadBooksFromFirestore() {
@@ -119,6 +145,9 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
                     if (shimmerHome != null) {
                         shimmerHome.stopShimmer();
                         shimmerHome.setVisibility(View.GONE);
+                    }
+                    if (swipeRefreshHome != null) {
+                        swipeRefreshHome.setVisibility(View.VISIBLE);
                     }
                     if (homeScrollView != null) homeScrollView.setVisibility(View.VISIBLE);
 
@@ -140,6 +169,10 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
                             Log.e("HomeFragment", "Firestore query failed: ", task.getException());
                         }
                         loadLocalSampleBooks();
+                    }
+
+                    if (swipeRefreshHome != null) {
+                        swipeRefreshHome.setRefreshing(false);
                     }
                 });
     }
@@ -203,6 +236,11 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         recommendedAdapter = new BookAdapter(recommendedBooks, this);
         rvRecommended.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvRecommended.setAdapter(recommendedAdapter);
+
+        // Recently Played
+        recentlyPlayedAdapter = new BookAdapter(recentlyPlayedBooks, this);
+        rvRecentlyPlayed.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        rvRecentlyPlayed.setAdapter(recentlyPlayedAdapter);
     }
 
     @Override
@@ -257,5 +295,33 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         trendingAdapter.notifyDataSetChanged();
         newReleasesAdapter.notifyDataSetChanged();
         recommendedAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Loads recently played books using RecentlyPlayedManager and dynamically toggles 
+     * the visibility of the "Nghe gần đây" section based on whether history exists.
+     */
+    private void loadRecentlyPlayed() {
+        if (!isAdded() || getContext() == null) return;
+
+        List<Book> history = RecentlyPlayedManager.getHistory(requireContext());
+        if (history != null && !history.isEmpty()) {
+            recentlyPlayedBooks.clear();
+            recentlyPlayedBooks.addAll(history);
+            if (recentlyPlayedAdapter != null) {
+                recentlyPlayedAdapter.notifyDataSetChanged();
+            }
+            if (layoutRecentlyPlayed != null) {
+                layoutRecentlyPlayed.setVisibility(View.VISIBLE);
+            }
+        } else {
+            recentlyPlayedBooks.clear();
+            if (recentlyPlayedAdapter != null) {
+                recentlyPlayedAdapter.notifyDataSetChanged();
+            }
+            if (layoutRecentlyPlayed != null) {
+                layoutRecentlyPlayed.setVisibility(View.GONE);
+            }
+        }
     }
 }

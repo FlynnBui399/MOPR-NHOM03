@@ -61,6 +61,7 @@
     <string name="section_trending">Đang Thịnh Hành</string>
     <string name="section_new_releases">Mới Phát Hành</string>
     <string name="section_recommended">Gợi Ý Cho Bạn</string>
+    <string name="section_recently_played">Nghe gần đây</string>
     <string name="see_all">Xem tất cả</string>
 
     <!-- Bottom Navigation -->
