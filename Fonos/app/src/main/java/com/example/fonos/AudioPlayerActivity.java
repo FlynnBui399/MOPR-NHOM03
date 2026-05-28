@@ -584,6 +584,12 @@ public class AudioPlayerActivity extends AppCompatActivity {
     }
 
     @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.stay, R.anim.slide_down);
+    }
+
+    @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy: Cleaning up activity references");
         progressHandler.removeCallbacks(progressRunnable);

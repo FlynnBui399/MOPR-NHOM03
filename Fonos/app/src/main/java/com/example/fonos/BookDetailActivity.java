@@ -186,6 +186,7 @@ public class BookDetailActivity extends AppCompatActivity {
         intent.putExtra("book_category", category);
 
         startActivity(intent);
+        overridePendingTransition(R.anim.slide_up, R.anim.stay);
     }
 
     private void saveActiveBookToMiniPlayer() {

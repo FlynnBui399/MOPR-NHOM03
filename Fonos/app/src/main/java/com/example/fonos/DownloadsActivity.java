@@ -74,6 +74,7 @@ public class DownloadsActivity extends AppCompatActivity
         intent.putExtra("audio_url", book.getAudioUrl());
         intent.putExtra("book_audio_url", book.getAudioUrl());
         startActivity(intent);
+        overridePendingTransition(R.anim.slide_up, R.anim.stay);
     }
 
     @Override

@@ -310,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("book_chapters", sharedPref.getInt("active_book_chapters", 0));
                     
                     startActivity(intent);
+                    overridePendingTransition(R.anim.slide_up, R.anim.stay);
                 });
             }
         } else {
