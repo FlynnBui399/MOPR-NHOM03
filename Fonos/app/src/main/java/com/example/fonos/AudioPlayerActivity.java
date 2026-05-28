@@ -64,6 +64,51 @@ public class AudioPlayerActivity extends AppCompatActivity {
     private int sleepTimerIndex = 0;
     private boolean hasRestoredPosition = false;
 
+    private TextView tvSleepTimer;
+    private long sleepTimerEndTime = 0;
+    private final Handler sleepTimerHandler = new Handler(Looper.getMainLooper());
+    private final Runnable sleepTimerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mediaController != null) {
+                mediaController.pause();
+                Toast.makeText(AudioPlayerActivity.this, "Da tat nhac bang Che do Hen gio", Toast.LENGTH_LONG).show();
+            }
+            resetSleepTimer();
+        }
+    };
+
+    private final Handler countdownHandler = new Handler(Looper.getMainLooper());
+    private final Runnable countdownRunnable = new Runnable() {
+        @Override
+        public void run() {
+            long timeLeftMs = sleepTimerEndTime - System.currentTimeMillis();
+            if (timeLeftMs > 0) {
+                long totalSeconds = timeLeftMs / 1000;
+                long minutes = totalSeconds / 60;
+                long seconds = totalSeconds % 60;
+                if (tvSleepTimer != null) {
+                    tvSleepTimer.setVisibility(View.VISIBLE);
+                    tvSleepTimer.setText(String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds));
+                }
+                countdownHandler.postDelayed(this, 1000);
+            } else {
+                resetSleepTimer();
+            }
+        }
+    };
+
+    private void resetSleepTimer() {
+        sleepTimerHandler.removeCallbacks(sleepTimerRunnable);
+        countdownHandler.removeCallbacks(countdownRunnable);
+        sleepTimerEndTime = 0;
+        sleepTimerIndex = 0;
+        if (tvSleepTimer != null) {
+            tvSleepTimer.setText("");
+            tvSleepTimer.setVisibility(View.GONE);
+        }
+    }
+
     private final Handler progressHandler = new Handler(Looper.getMainLooper());
     private final Runnable progressRunnable = new Runnable() {
         @Override
@@ -148,6 +193,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
         btnPlayPause = findViewById(R.id.btnPlayPause);
         viewPlayerCover = findViewById(R.id.viewPlayerCover);
         seekBarAudio = findViewById(R.id.seekBarAudio);
+        tvSleepTimer = findViewById(R.id.tvSleepTimer);
 
         // Populate initial UI metadata
         tvPlayerTitle.setText(title);
@@ -278,16 +324,42 @@ public class AudioPlayerActivity extends AppCompatActivity {
             Toast.makeText(this, "Day la chuong cuoi cung cua sach", Toast.LENGTH_SHORT).show();
         });
 
-        // Sleep Timer - cycle timer options
+        // Sleep Timer - fully functional premium cyclic countdown handler
         findViewById(R.id.btnSleepTimer).setOnClickListener(v -> {
             sleepTimerIndex = (sleepTimerIndex + 1) % 4;
+            long durationMs = 0;
             String message;
+
             switch (sleepTimerIndex) {
-                case 1: message = "Da hen gio tat sau 15 phut"; break;
-                case 2: message = "Da hen gio tat sau 30 phut"; break;
-                case 3: message = "Da hen gio tat sau 60 phut"; break;
-                default: message = "Da tat che do hen gio"; break;
+                case 1:
+                    durationMs = 1 * 60 * 1000; // 15 minutes
+                    message = "Da hen gio tat sau 1 phut";
+                    break;
+                case 2:
+                    durationMs = 30 * 60 * 1000; // 30 minutes
+                    message = "Da hen gio tat sau 30 phut";
+                    break;
+                case 3:
+                    durationMs = 60 * 60 * 1000; // 60 minutes
+                    message = "Da hen gio tat sau 60 phut";
+                    break;
+                default:
+                    message = "Da tat che do hen gio";
+                    break;
             }
+
+            // Cancel any pending timers and loops
+            sleepTimerHandler.removeCallbacks(sleepTimerRunnable);
+            countdownHandler.removeCallbacks(countdownRunnable);
+
+            if (durationMs > 0) {
+                sleepTimerEndTime = System.currentTimeMillis() + durationMs;
+                sleepTimerHandler.postDelayed(sleepTimerRunnable, durationMs);
+                countdownHandler.post(countdownRunnable);
+            } else {
+                resetSleepTimer();
+            }
+
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         });
 
@@ -449,6 +521,8 @@ public class AudioPlayerActivity extends AppCompatActivity {
     protected void onDestroy() {
         Log.d(TAG, "onDestroy: Cleaning up activity references");
         progressHandler.removeCallbacks(progressRunnable);
+        sleepTimerHandler.removeCallbacks(sleepTimerRunnable);
+        countdownHandler.removeCallbacks(countdownRunnable);
 
         // Release MediaController future cleanly to prevent memory leaks
         if (controllerFuture != null) {
