@@ -195,6 +195,7 @@ public class BookDetailActivity extends AppCompatActivity {
         editor.putInt("active_book_cover", coverRes);
         editor.putString("active_book_cover_url", coverUrl);
         editor.putString("active_book_audio_url", audioUrl);
+        editor.putString("active_book_category", category);
 
         editor.apply();
     }
