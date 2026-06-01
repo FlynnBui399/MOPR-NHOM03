@@ -53,8 +53,17 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         holder.tvBookTitle.setText(book.getTitle());
         holder.tvBookAuthor.setText(book.getAuthor());
         holder.tvBookRating.setText(String.valueOf(book.getRating()));
-        holder.tvBookDuration.setText(book.getDuration());
         holder.tvCoverTitle.setText(book.getTitle());
+
+        SharedPreferences pref = holder.itemView.getContext()
+                .getSharedPreferences("FonosPref", Context.MODE_PRIVATE);
+        String durationText = resolveDurationText(book, pref);
+        if (durationText.isEmpty()) {
+            holder.tvBookDuration.setVisibility(View.GONE);
+        } else {
+            holder.tvBookDuration.setVisibility(View.VISIBLE);
+            holder.tvBookDuration.setText(durationText);
+        }
 
         int fallbackCover = book.getCoverDrawableRes() != 0
                 ? book.getCoverDrawableRes()
@@ -107,8 +116,6 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         });
 
         // Show per-book listening progress from saved playback position
-        SharedPreferences pref = holder.itemView.getContext()
-                .getSharedPreferences("FonosPref", Context.MODE_PRIVATE);
         long savedPos = pref.getLong("progress_book_" + book.getId(), 0L);
 
         if (savedPos > 0 && holder.progressListenedBar != null) {
@@ -138,6 +145,31 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     private boolean isValidUrl(String value) {
         return value != null &&
                 (value.trim().startsWith("http://") || value.trim().startsWith("https://"));
+    }
+
+    private String resolveDurationText(Book book, SharedPreferences pref) {
+        long cachedDurationMs = pref.getLong("total_duration_ms_" + book.getId(), 0L);
+        if (cachedDurationMs > 0) {
+            String formattedDuration = AudioDurationUtils.formatDuration(cachedDurationMs);
+            if (!formattedDuration.isEmpty()) {
+                return formattedDuration;
+            }
+        }
+
+        String duration = book.getDuration();
+        if (duration == null) {
+            return "";
+        }
+
+        duration = duration.trim();
+        if (duration.isEmpty() ||
+                "0".equals(duration) ||
+                "00:00".equals(duration) ||
+                "0:00".equals(duration)) {
+            return "";
+        }
+
+        return duration;
     }
 
     public static class BookViewHolder extends RecyclerView.ViewHolder {

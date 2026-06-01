@@ -33,12 +33,16 @@ public final class RecentlyPlayedManager {
         SharedPreferences pref = ctx.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         List<Book> history = getHistory(ctx);
 
-        // Remove duplicate by book ID to move it to the front
+        Book existingBook = null;
         for (int i = 0; i < history.size(); i++) {
             if (history.get(i).getId() == book.getId()) {
-                history.remove(i);
+                existingBook = history.remove(i);
                 break;
             }
+        }
+
+        if (book.getRating() <= 0f && existingBook != null && existingBook.getRating() > 0f) {
+            book.setRating(existingBook.getRating());
         }
 
         // Add to front (index 0)
@@ -80,6 +84,19 @@ public final class RecentlyPlayedManager {
             return history != null ? history : new ArrayList<>();
         } catch (Exception e) {
             return new ArrayList<>();
+        }
+    }
+
+    public static synchronized void saveHistory(Context ctx, List<Book> history) {
+        if (ctx == null || history == null) return;
+
+        SharedPreferences pref = ctx.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        try {
+            Gson gson = new Gson();
+            String json = gson.toJson(history);
+            pref.edit().putString(HISTORY_KEY, json).apply();
+        } catch (Exception e) {
+            // Safe fallback
         }
     }
 }

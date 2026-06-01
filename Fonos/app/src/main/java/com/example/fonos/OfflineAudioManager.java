@@ -83,6 +83,11 @@ public final class OfflineAudioManager {
         return new File(dir, fileName);
     }
 
+    public static String getDownloadKey(int bookId, String audioSource) {
+        String userId = getCurrentUserId();
+        return userId != null ? buildDownloadKey(userId, bookId, audioSource) : null;
+    }
+
     public static File getDownloadedAudioFile(Context context, int bookId, String audioSource) {
         DownloadedBookEntity entity = getDownloadedEntity(context, bookId, audioSource);
         if (entity == null || entity.localFilePath == null) {

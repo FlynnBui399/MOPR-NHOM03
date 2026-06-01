@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DownloadsActivity extends AppCompatActivity
-        implements DownloadedBookAdapter.OnDownloadedBookActionListener {
+        implements DownloadedBookAdapter.OnDownloadedBookActionListener,
+        AudioDownloadService.DownloadListener {
 
     private RecyclerView rvDownloads;
     private LinearLayout layoutEmptyDownloads;
@@ -45,6 +46,18 @@ public class DownloadsActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         loadDownloadedBooks();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        AudioDownloadService.addListener(this);
+    }
+
+    @Override
+    protected void onStop() {
+        AudioDownloadService.removeListener(this);
+        super.onStop();
     }
 
     private void loadDownloadedBooks() {
@@ -89,5 +102,18 @@ public class DownloadsActivity extends AppCompatActivity
                     loadDownloadedBooks();
                 })
                 .show();
+    }
+
+    @Override
+    public void onDownloadStateChanged(AudioDownloadService.DownloadState state) {
+        if (state == null || state.isActive()) {
+            return;
+        }
+
+        runOnUiThread(() -> {
+            if (!isFinishing() && !isDestroyed()) {
+                loadDownloadedBooks();
+            }
+        });
     }
 }

@@ -1,7 +1,9 @@
 package com.example.fonos;
 
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -12,8 +14,11 @@ import android.widget.Toast;
 import android.widget.RatingBar;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -24,19 +29,12 @@ import com.example.fonos.model.Book;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.StorageReference;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class BookDetailActivity extends AppCompatActivity {
+public class BookDetailActivity extends AppCompatActivity implements AudioDownloadService.DownloadListener {
+
+    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 2002;
 
     private TextView tvDetailTitle, tvDetailAuthor, tvDetailRating, tvDetailDuration;
     private RatingBar ratingBar;
@@ -54,7 +52,7 @@ public class BookDetailActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private boolean isAddedToLibrary = false;
     private boolean isDownloadingAudio = false;
-    private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+    private String downloadKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +81,19 @@ public class BookDetailActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateDownloadButtonState();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        AudioDownloadService.addListener(this);
+        updateDownloadButtonState();
+    }
+
+    @Override
+    protected void onStop() {
+        AudioDownloadService.removeListener(this);
+        super.onStop();
     }
 
     private void initViews() {
@@ -253,158 +264,57 @@ public class BookDetailActivity extends AppCompatActivity {
             return;
         }
 
-        Context appContext = getApplicationContext();
-        File targetFile = OfflineAudioManager.getDownloadTargetFile(appContext, bookId, audioUrl);
-        if (targetFile == null) {
+        downloadKey = OfflineAudioManager.getDownloadKey(bookId, audioUrl);
+        if (downloadKey == null) {
             Toast.makeText(this, "Please log in to download audio", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(BookDetailActivity.this, LoginActivity.class));
             return;
         }
 
+        checkNotificationPermission();
         setAudioDownloadInProgress(0);
-
-        if (OfflineAudioManager.isDirectStreamingUrl(audioUrl)) {
-            downloadAudioFromHttpUrl(appContext, targetFile);
-            return;
-        }
-
-        StorageReference audioRef = OfflineAudioManager.createStorageReference(audioUrl);
-        if (audioRef == null) {
-            isDownloadingAudio = false;
-            updateDownloadButtonState();
-            Toast.makeText(this, getString(R.string.detail_audio_download_unsupported), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        audioRef.getFile(targetFile)
-                .addOnProgressListener(snapshot -> {
-                    if (isFinishing() || isDestroyed()) return;
-
-                    long totalBytes = snapshot.getTotalByteCount();
-                    if (totalBytes <= 0) return;
-
-                    int progress = (int) ((snapshot.getBytesTransferred() * 100) / totalBytes);
-                    setAudioDownloadInProgress(progress);
-                })
-                .addOnSuccessListener(taskSnapshot -> {
-                    saveDownloadedBookMetadata(appContext, targetFile);
-                    isDownloadingAudio = false;
-                    if (isFinishing() || isDestroyed()) return;
-
-                    updateDownloadButtonState();
-                    Toast.makeText(this, getString(R.string.detail_audio_download_success), Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    if (targetFile.exists()) {
-                        targetFile.delete();
-                    }
-
-                    OfflineAudioManager.clearDownloadedAudio(appContext, bookId, audioUrl);
-                    isDownloadingAudio = false;
-                    if (isFinishing() || isDestroyed()) return;
-
-                    updateDownloadButtonState();
-                    Toast.makeText(this, getString(R.string.detail_audio_download_failed), Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void downloadAudioFromHttpUrl(Context appContext, File targetFile) {
-        String source = audioUrl.trim();
-
-        downloadExecutor.execute(() -> {
-            HttpURLConnection connection = null;
-
-            try {
-                URL url = new URL(source);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setConnectTimeout(15_000);
-                connection.setReadTimeout(30_000);
-                connection.connect();
-
-                int responseCode = connection.getResponseCode();
-                if (responseCode < 200 || responseCode >= 300) {
-                    throw new IOException("Unexpected HTTP response " + responseCode);
-                }
-
-                long totalBytes = connection.getContentLengthLong();
-                long downloadedBytes = 0;
-                int lastProgress = -1;
-
-                try (InputStream input = new BufferedInputStream(connection.getInputStream());
-                     FileOutputStream output = new FileOutputStream(targetFile, false)) {
-                    byte[] buffer = new byte[8192];
-                    int bytesRead;
-
-                    while ((bytesRead = input.read(buffer)) != -1) {
-                        if (Thread.currentThread().isInterrupted()) {
-                            throw new IOException("Download interrupted");
-                        }
-
-                        output.write(buffer, 0, bytesRead);
-                        downloadedBytes += bytesRead;
-
-                        if (totalBytes > 0) {
-                            int progress = (int) ((downloadedBytes * 100) / totalBytes);
-                            if (progress != lastProgress) {
-                                lastProgress = progress;
-                                runOnUiThread(() -> {
-                                    if (!isFinishing() && !isDestroyed()) {
-                                        setAudioDownloadInProgress(progress);
-                                    }
-                                });
-                            }
-                        }
-                    }
-                }
-
-                if (targetFile.length() <= 0) {
-                    throw new IOException("Downloaded file is empty");
-                }
-
-                saveDownloadedBookMetadata(appContext, targetFile);
-                runOnUiThread(() -> {
-                    isDownloadingAudio = false;
-                    if (isFinishing() || isDestroyed()) return;
-
-                    updateDownloadButtonState();
-                    Toast.makeText(this, getString(R.string.detail_audio_download_success), Toast.LENGTH_SHORT).show();
-                });
-            } catch (IOException e) {
-                if (targetFile.exists()) {
-                    targetFile.delete();
-                }
-
-                OfflineAudioManager.clearDownloadedAudio(appContext, bookId, audioUrl);
-                runOnUiThread(() -> {
-                    isDownloadingAudio = false;
-                    if (isFinishing() || isDestroyed()) return;
-
-                    updateDownloadButtonState();
-                    Toast.makeText(this, getString(R.string.detail_audio_download_failed), Toast.LENGTH_SHORT).show();
-                });
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
-            }
-        });
+        AudioDownloadService.enqueueDownload(
+                this,
+                bookId,
+                title,
+                author,
+                desc,
+                rating,
+                duration,
+                chapters,
+                coverRes,
+                category,
+                coverUrl,
+                audioUrl
+        );
     }
 
     private void updateDownloadButtonState() {
-        if (btnDownloadAudio == null || isDownloadingAudio) return;
+        if (btnDownloadAudio == null) return;
 
         if (!OfflineAudioManager.isRemoteAudioSource(audioUrl)) {
+            isDownloadingAudio = false;
             btnDownloadAudio.setEnabled(false);
             btnDownloadAudio.setText(getString(R.string.detail_download_unavailable));
             return;
         }
 
         if (!OfflineAudioManager.canUseOfflineDownloads()) {
+            isDownloadingAudio = false;
             btnDownloadAudio.setEnabled(true);
             btnDownloadAudio.setText(getString(R.string.detail_download_audio));
             return;
         }
 
+        downloadKey = OfflineAudioManager.getDownloadKey(bookId, audioUrl);
+        AudioDownloadService.DownloadState downloadState =
+                AudioDownloadService.getDownloadState(downloadKey);
+        if (downloadState != null && downloadState.isActive()) {
+            setAudioDownloadInProgress(downloadState.progress);
+            return;
+        }
+
+        isDownloadingAudio = false;
         boolean hasOfflineAudio = OfflineAudioManager.hasDownloadedAudio(this, bookId, audioUrl);
         if (hasOfflineAudio) {
             String actualDuration = OfflineAudioManager.getDownloadedAudioDuration(this, bookId, audioUrl);
@@ -415,7 +325,7 @@ public class BookDetailActivity extends AppCompatActivity {
 
             File localFile = OfflineAudioManager.getDownloadedAudioFile(this, bookId, audioUrl);
             if (localFile != null) {
-                saveDownloadedBookMetadata(getApplicationContext(), localFile);
+                saveDownloadedBookMetadata(localFile);
             }
         }
 
@@ -431,9 +341,9 @@ public class BookDetailActivity extends AppCompatActivity {
         btnDownloadAudio.setText(getString(R.string.detail_downloading_audio, progress));
     }
 
-    private void saveDownloadedBookMetadata(Context appContext, File targetFile) {
+    private void saveDownloadedBookMetadata(File targetFile) {
         OfflineAudioManager.saveDownloadedBook(
-                appContext,
+                getApplicationContext(),
                 bookId,
                 title,
                 author,
@@ -447,6 +357,56 @@ public class BookDetailActivity extends AppCompatActivity {
                 audioUrl,
                 targetFile
         );
+    }
+
+    @Override
+    public void onDownloadStateChanged(AudioDownloadService.DownloadState state) {
+        if (state == null || downloadKey == null || !downloadKey.equals(state.downloadKey)) {
+            return;
+        }
+
+        runOnUiThread(() -> {
+            if (isFinishing() || isDestroyed()) return;
+
+            if (state.isActive()) {
+                setAudioDownloadInProgress(state.progress);
+                return;
+            }
+
+            isDownloadingAudio = false;
+            updateDownloadButtonState();
+
+            if (AudioDownloadService.STATUS_SUCCEEDED.equals(state.status)) {
+                Toast.makeText(this, getString(R.string.detail_audio_download_success), Toast.LENGTH_SHORT).show();
+            } else if (AudioDownloadService.STATUS_FAILED.equals(state.status)) {
+                Toast.makeText(this, getString(R.string.detail_audio_download_failed), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                        != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    NOTIFICATION_PERMISSION_REQUEST_CODE
+            );
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode,
+            @NonNull String[] permissions,
+            @NonNull int[] grantResults
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE &&
+                (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)) {
+            Toast.makeText(this, "Notifications are needed to show download completion.", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void setupLibraryButton() {
@@ -531,9 +491,4 @@ public class BookDetailActivity extends AppCompatActivity {
                 (value.trim().startsWith("http://") || value.trim().startsWith("https://"));
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        downloadExecutor.shutdownNow();
-    }
 }

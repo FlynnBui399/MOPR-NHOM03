@@ -70,6 +70,7 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         }
         // Refresh recently played books list when returning to Home tab
         loadRecentlyPlayed();
+        notifyBookAdapters();
     }
 
     @Override
@@ -164,6 +165,7 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
                             // Populate SearchCache so SearchFragment can reuse this data
                             SearchCache.set(allBooksFromFirestore);
                             updateUIWithBooks(allBooksFromFirestore);
+                            loadRecentlyPlayed();
                         } else {
                             loadLocalSampleBooks();
                         }
@@ -310,7 +312,7 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
         List<Book> history = RecentlyPlayedManager.getHistory(requireContext());
         if (history != null && !history.isEmpty()) {
             recentlyPlayedBooks.clear();
-            recentlyPlayedBooks.addAll(history);
+            recentlyPlayedBooks.addAll(enrichRecentlyPlayedBooks(history));
             if (recentlyPlayedAdapter != null) {
                 recentlyPlayedAdapter.notifyDataSetChanged();
             }
@@ -326,5 +328,43 @@ public class HomeFragment extends Fragment implements BookAdapter.OnBookClickLis
                 layoutRecentlyPlayed.setVisibility(View.GONE);
             }
         }
+    }
+
+    private void notifyBookAdapters() {
+        if (trendingAdapter != null) trendingAdapter.notifyDataSetChanged();
+        if (newReleasesAdapter != null) newReleasesAdapter.notifyDataSetChanged();
+        if (recommendedAdapter != null) recommendedAdapter.notifyDataSetChanged();
+        if (recentlyPlayedAdapter != null) recentlyPlayedAdapter.notifyDataSetChanged();
+    }
+
+    private List<Book> enrichRecentlyPlayedBooks(List<Book> history) {
+        if (allBooksFromFirestore.isEmpty()) {
+            return history;
+        }
+
+        for (Book recentBook : history) {
+            Book sourceBook = findBookById(recentBook.getId());
+            if (sourceBook == null) continue;
+
+            if (recentBook.getRating() <= 0f && sourceBook.getRating() > 0f) {
+                recentBook.setRating(sourceBook.getRating());
+            }
+            if ((recentBook.getDuration() == null || recentBook.getDuration().trim().isEmpty()) &&
+                    sourceBook.getDuration() != null) {
+                recentBook.setDuration(sourceBook.getDuration());
+            }
+        }
+
+        RecentlyPlayedManager.saveHistory(requireContext(), history);
+        return history;
+    }
+
+    private Book findBookById(int bookId) {
+        for (Book book : allBooksFromFirestore) {
+            if (book.getId() == bookId) {
+                return book;
+            }
+        }
+        return null;
     }
 }
