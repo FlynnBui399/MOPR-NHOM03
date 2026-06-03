@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="@android:color/transparent" />
-    <stroke android:width="1.5dp" android:color="#FF6B35" />
-    <corners android:radius="14dp" />
-</shape>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Pressed state -->
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFE5D6" />
+            <stroke android:width="1.5dp" android:color="#E85A25" />
+            <corners android:radius="14dp" />
+        </shape>
+    </item>
+
+    <!-- Default state: light orange fill with orange border -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFF8F4" />
+            <stroke android:width="1.5dp" android:color="#FF6B35" />
+            <corners android:radius="14dp" />
+        </shape>
+    </item>
+
+</selector>

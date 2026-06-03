@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvMiniPlayerTitle;
     private TextView tvMiniPlayerSubtitle;
     private ImageButton btnMiniPlayerPlayPause;
+    private TextView btnMiniPlayerPrev;
+    private TextView btnMiniPlayerNext;
     private ProgressBar miniPlayerProgress;
 
     private final Handler progressHandler = new Handler(Looper.getMainLooper());
@@ -147,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
             tvMiniPlayerTitle = miniPlayerContainer.findViewById(R.id.tvMiniPlayerTitle);
             tvMiniPlayerSubtitle = miniPlayerContainer.findViewById(R.id.tvMiniPlayerSubtitle);
             btnMiniPlayerPlayPause = miniPlayerContainer.findViewById(R.id.btnMiniPlayerPlayPause);
+            btnMiniPlayerPrev = miniPlayerContainer.findViewById(R.id.btnMiniPlayerPrev);
+            btnMiniPlayerNext = miniPlayerContainer.findViewById(R.id.btnMiniPlayerNext);
             miniPlayerProgress = miniPlayerContainer.findViewById(R.id.miniPlayerProgress);
 
             if (btnMiniPlayerPlayPause != null) {
@@ -156,6 +160,42 @@ public class MainActivity extends AppCompatActivity {
                             mediaController.pause();
                         } else {
                             mediaController.play();
+                        }
+                    }
+                });
+            }
+
+            if (btnMiniPlayerPrev != null) {
+                btnMiniPlayerPrev.setOnClickListener(v -> {
+                    if (mediaController != null) {
+                        mediaController.seekTo(0);
+                        Toast.makeText(this, getString(R.string.player_replay_from_start_toast), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            if (btnMiniPlayerNext != null) {
+                btnMiniPlayerNext.setOnClickListener(v -> {
+                    if (mediaController != null) {
+                        long totalDur = mediaController.getDuration();
+                        if (totalDur > 0) {
+                            SharedPreferences sharedPref = getSharedPreferences("FonosPref", MODE_PRIVATE);
+                            int chapters = sharedPref.getInt("active_book_chapters", 10);
+                            int totalChapters = chapters > 0 ? chapters : 10;
+                            long chapterDuration = totalDur / totalChapters;
+                            long currentPos = mediaController.getCurrentPosition();
+                            
+                            int currentChapter = (int) (currentPos / chapterDuration) + 1;
+                            if (currentChapter >= totalChapters) {
+                                Toast.makeText(this, getString(R.string.player_last_chapter_toast), Toast.LENGTH_SHORT).show();
+                            } else {
+                                int nextChapter = currentChapter + 1;
+                                long targetPos = (nextChapter - 1) * chapterDuration;
+                                mediaController.seekTo(targetPos);
+                                Toast.makeText(this, getString(R.string.player_chapter_selected_toast, nextChapter), Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(this, getString(R.string.player_duration_not_ready), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

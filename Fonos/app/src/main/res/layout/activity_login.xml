@@ -269,12 +269,16 @@
                     android:id="@+id/btnLogin"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
-                    android:background="@drawable/bg_button_orange_register"
+                    android:background="@drawable/bg_button_listen_now"
+                    app:backgroundTint="@null"
+                    android:stateListAnimator="@null"
                     android:fontFamily="@font/poppins_bold"
+                    android:gravity="center"
                     android:letterSpacing="0.05"
                     android:text="@string/login_button"
                     android:textColor="@color/white"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:textAllCaps="false" />
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>

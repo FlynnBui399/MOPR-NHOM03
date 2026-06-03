@@ -237,11 +237,15 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="12dp"
-            android:background="@drawable/bg_home_header"
+            android:background="@drawable/bg_button_listen_now"
+            app:backgroundTint="@null"
+            android:stateListAnimator="@null"
             android:fontFamily="@font/poppins_semibold"
+            android:gravity="center"
             android:text="@string/profile_login"
             android:textColor="@color/white"
             android:textSize="15sp"
+            android:textAllCaps="false"
             android:visibility="visible" />
 
         <!-- Nút ĐĂNG KÝ — hiển thị khi chưa đăng nhập -->
@@ -253,10 +257,14 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="12dp"
             android:background="@drawable/bg_button_outline_orange"
+            app:backgroundTint="@null"
+            android:stateListAnimator="@null"
             android:fontFamily="@font/poppins_semibold"
+            android:gravity="center"
             android:text="@string/profile_register"
             android:textColor="@color/orange_primary"
             android:textSize="15sp"
+            android:textAllCaps="false"
             android:visibility="visible" />
 
         <!-- Nút ĐĂNG XUẤT — chỉ hiển thị khi đã đăng nhập -->
@@ -268,10 +276,14 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="24dp"
             android:background="@drawable/bg_button_outline_orange"
+            app:backgroundTint="@null"
+            android:stateListAnimator="@null"
             android:fontFamily="@font/poppins_semibold"
+            android:gravity="center"
             android:text="@string/profile_logout"
             android:textColor="@color/orange_primary"
             android:textSize="15sp"
+            android:textAllCaps="false"
             android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

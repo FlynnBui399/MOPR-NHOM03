@@ -326,12 +326,15 @@
                     android:id="@+id/btnRegister"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
-                    android:background="@drawable/bg_button_orange_register"
+                    android:background="@drawable/bg_button_listen_now"
+                    app:backgroundTint="@null"
+                    android:stateListAnimator="@null"
                     android:fontFamily="@font/poppins_semibold"
+                    android:gravity="center"
                     android:text="@string/register_button"
                     android:textColor="@color/white"
                     android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textAllCaps="false" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
