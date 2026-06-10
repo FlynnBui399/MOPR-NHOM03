@@ -89,8 +89,8 @@ public class AuthViewModel extends AndroidViewModel {
     }
 
     public void sendOtp(@NonNull String phoneNumber, @NonNull Activity activity) {
-        String trimmedPhone = phoneNumber.trim();
-        if (trimmedPhone.isEmpty()) {
+        String trimmedPhone = normalizePhoneNumber(phoneNumber);
+        if (trimmedPhone.isEmpty() || trimmedPhone.replaceAll("[^0-9]", "").length() < 9) {
             errorMessage.setValue(getApplication().getString(R.string.otp_invalid_phone));
             return;
         }
@@ -120,6 +120,17 @@ public class AuthViewModel extends AndroidViewModel {
                 })
                 .build();
         PhoneAuthProvider.verifyPhoneNumber(options);
+    }
+
+    private String normalizePhoneNumber(String raw) {
+        String phone = raw.trim().replaceAll("[\\s\\-()]", "");
+        if (phone.startsWith("0") && phone.length() == 10) {
+            return "+84" + phone.substring(1);
+        }
+        if (phone.startsWith("84") && phone.length() == 11) {
+            return "+" + phone;
+        }
+        return phone;
     }
 
     public void verifyOtp(@NonNull String code) {
