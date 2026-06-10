@@ -40,7 +40,7 @@ public class UserRepository {
 
     public void getUserByPhone(@NonNull String phone, @NonNull Callback<User> callback) {
         firestore.collection(Constants.COLLECTION_USERS)
-                .whereEqualTo("phoneNumber", phone.trim())
+                .whereEqualTo("phoneNumber", normalizePhoneNumber(phone))
                 .limit(1)
                 .get()
                 .addOnSuccessListener(snapshot -> {
@@ -58,6 +58,17 @@ public class UserRepository {
                     Log.e(TAG, "Failed to get user by phone", error);
                     callback.onError(error);
                 });
+    }
+
+    private String normalizePhoneNumber(String raw) {
+        String phone = raw.trim().replaceAll("[\\s\\-()]", "");
+        if (phone.startsWith("0") && phone.length() == 10) {
+            return "+84" + phone.substring(1);
+        }
+        if (phone.startsWith("84") && phone.length() == 11) {
+            return "+" + phone;
+        }
+        return phone;
     }
 
     public void getUserById(@NonNull String uid, @NonNull Callback<User> callback) {
