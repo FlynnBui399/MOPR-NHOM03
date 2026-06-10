@@ -20,6 +20,7 @@
     <color name="pocket_background">#F6F8FB</color>
     <color name="pocket_surface">#FFFFFFFF</color>
     <color name="pocket_surface_variant">#F8FAFC</color>
+    <color name="pocket_widget_background">#1A1A1A</color>
     <color name="pocket_outline">#CBD5E1</color>
     <color name="pocket_divider">#E5E7EB</color>
 

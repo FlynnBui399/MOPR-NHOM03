@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="pocket_primary">#2DD4BF</color>
-    <color name="pocket_primary_dark">#5EEAD4</color>
+    <color name="pocket_primary">#14B8A6</color>
+    <color name="pocket_primary_dark">#0F766E</color>
     <color name="pocket_primary_container">#134E4A</color>
-    <color name="pocket_on_primary">#042F2E</color>
+    <color name="pocket_on_primary">#FFFFFF</color>
 
-    <color name="pocket_secondary">#93C5FD</color>
-    <color name="pocket_secondary_container">#1E3A8A</color>
+    <color name="pocket_secondary">#3B82F6</color>
+    <color name="pocket_secondary_container">#1E3A5F</color>
     <color name="pocket_accent">#FBBF24</color>
 
     <color name="pocket_success">#4ADE80</color>
@@ -15,14 +15,15 @@
     <color name="pocket_on_danger">#450A0A</color>
 
     <color name="pocket_background">#0F172A</color>
-    <color name="pocket_surface">#111827</color>
-    <color name="pocket_surface_variant">#1F2937</color>
-    <color name="pocket_outline">#475569</color>
+    <color name="pocket_surface">#1E293B</color>
+    <color name="pocket_surface_variant">#1E293B</color>
+    <color name="pocket_widget_background">#1A1A1A</color>
+    <color name="pocket_outline">#334155</color>
     <color name="pocket_divider">#334155</color>
 
-    <color name="pocket_text_primary">#F9FAFB</color>
-    <color name="pocket_text_secondary">#CBD5E1</color>
-    <color name="pocket_text_muted">#94A3B8</color>
+    <color name="pocket_text_primary">#F1F5F9</color>
+    <color name="pocket_text_secondary">#94A3B8</color>
+    <color name="pocket_text_muted">#64748B</color>
     <color name="pocket_placeholder">#64748B</color>
     <color name="pocket_shimmer_base">#1E293B</color>
     <color name="pocket_shimmer_highlight">#334155</color>
