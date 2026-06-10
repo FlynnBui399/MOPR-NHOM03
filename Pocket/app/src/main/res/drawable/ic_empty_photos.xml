@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <path
+        android:fillColor="@color/pocket_primary_container"
+        android:pathData="M8,20H88V76H8Z" />
+    <path
+        android:fillColor="@color/pocket_primary"
+        android:pathData="M20,64L36,46L48,58L58,48L76,68H20Z" />
+    <path
+        android:fillColor="@color/pocket_secondary"
+        android:pathData="M64,30H76V42H64Z" />
+</vector>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.Pocket.Display" parent="TextAppearance.MaterialComponents.Headline4">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/pocket_text_primary</item>
+        <item name="android:textSize">@dimen/pocket_text_display</item>
+    </style>
+
+    <style name="TextAppearance.Pocket.Headline" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/pocket_text_primary</item>
+        <item name="android:textSize">@dimen/pocket_text_headline</item>
+    </style>
+
+    <style name="TextAppearance.Pocket.Title" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/pocket_text_primary</item>
+        <item name="android:textSize">@dimen/pocket_text_title</item>
+    </style>
+
+    <style name="TextAppearance.Pocket.Body" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/pocket_text_primary</item>
+        <item name="android:textSize">@dimen/pocket_text_body</item>
+    </style>
+
+    <style name="TextAppearance.Pocket.BodySmall" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/pocket_text_secondary</item>
+        <item name="android:textSize">@dimen/pocket_text_body_sm</item>
+    </style>
+
+    <style name="TextAppearance.Pocket.Caption" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/pocket_text_muted</item>
+        <item name="android:textSize">@dimen/pocket_text_caption</item>
+    </style>
+
+    <style name="Widget.Pocket.Button.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="android:minHeight">@dimen/pocket_button_height</item>
+        <item name="android:paddingStart">@dimen/pocket_space_lg</item>
+        <item name="android:paddingEnd">@dimen/pocket_space_lg</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/pocket_on_primary</item>
+        <item name="backgroundTint">@color/pocket_primary</item>
+        <item name="cornerRadius">@dimen/pocket_radius_md</item>
+        <item name="iconSize">@dimen/pocket_button_icon_size</item>
+        <item name="iconTint">@color/pocket_on_primary</item>
+    </style>
+
+    <style name="Widget.Pocket.Button.Secondary" parent="Widget.Pocket.Button.Primary">
+        <item name="android:textColor">@color/pocket_primary_dark</item>
+        <item name="backgroundTint">@color/pocket_primary_container</item>
+        <item name="iconTint">@color/pocket_primary_dark</item>
+    </style>
+
+    <style name="Widget.Pocket.Button.Outline" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:minHeight">@dimen/pocket_button_height</item>
+        <item name="android:paddingStart">@dimen/pocket_space_lg</item>
+        <item name="android:paddingEnd">@dimen/pocket_space_lg</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/pocket_primary</item>
+        <item name="cornerRadius">@dimen/pocket_radius_md</item>
+        <item name="strokeColor">@color/pocket_outline</item>
+        <item name="strokeWidth">@dimen/pocket_stroke_hairline</item>
+    </style>
+
+    <style name="Widget.Pocket.Button.Danger" parent="Widget.Pocket.Button.Primary">
+        <item name="android:textColor">@color/pocket_on_danger</item>
+        <item name="backgroundTint">@color/pocket_danger</item>
+        <item name="iconTint">@color/pocket_on_danger</item>
+    </style>
+
+    <style name="Widget.Pocket.Card" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/pocket_surface</item>
+        <item name="cardCornerRadius">@dimen/pocket_radius_lg</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/pocket_divider</item>
+        <item name="strokeWidth">@dimen/pocket_stroke_hairline</item>
+    </style>
+
+    <style name="Widget.Pocket.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/pocket_surface</item>
+        <item name="boxStrokeColor">@color/pocket_outline</item>
+        <item name="hintTextColor">@color/pocket_text_muted</item>
+        <item name="boxCornerRadiusTopStart">@dimen/pocket_radius_md</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/pocket_radius_md</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/pocket_radius_md</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/pocket_radius_md</item>
+    </style>
+</resources>

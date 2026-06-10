@@ -7,4 +7,6 @@ public class Constants {
 
     public static final String COLLECTION_USERS = "users";
     public static final String COLLECTION_PHOTOS = "photos";
+    public static final String COLLECTION_CHATS = "chats";
+    public static final String COLLECTION_MESSAGES = "messages";
 }

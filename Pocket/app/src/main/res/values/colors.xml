@@ -2,4 +2,31 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="pocket_primary">#0F766E</color>
+    <color name="pocket_primary_dark">#115E59</color>
+    <color name="pocket_primary_container">#CCFBF1</color>
+    <color name="pocket_on_primary">#FFFFFFFF</color>
+
+    <color name="pocket_secondary">#2563EB</color>
+    <color name="pocket_secondary_container">#DBEAFE</color>
+    <color name="pocket_accent">#F59E0B</color>
+
+    <color name="pocket_success">#16A34A</color>
+    <color name="pocket_warning">#D97706</color>
+    <color name="pocket_danger">#DC2626</color>
+    <color name="pocket_on_danger">#FFFFFFFF</color>
+
+    <color name="pocket_background">#F6F8FB</color>
+    <color name="pocket_surface">#FFFFFFFF</color>
+    <color name="pocket_surface_variant">#F8FAFC</color>
+    <color name="pocket_outline">#CBD5E1</color>
+    <color name="pocket_divider">#E5E7EB</color>
+
+    <color name="pocket_text_primary">#111827</color>
+    <color name="pocket_text_secondary">#4B5563</color>
+    <color name="pocket_text_muted">#6B7280</color>
+    <color name="pocket_placeholder">#94A3B8</color>
+    <color name="pocket_shimmer_base">#E2E8F0</color>
+    <color name="pocket_shimmer_highlight">#F8FAFC</color>
 </resources>

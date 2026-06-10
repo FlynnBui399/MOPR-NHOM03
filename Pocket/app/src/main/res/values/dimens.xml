@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="pocket_space_xs">4dp</dimen>
+    <dimen name="pocket_space_sm">8dp</dimen>
+    <dimen name="pocket_space_md">12dp</dimen>
+    <dimen name="pocket_space_lg">16dp</dimen>
+    <dimen name="pocket_space_xl">24dp</dimen>
+    <dimen name="pocket_space_2xl">32dp</dimen>
+
+    <dimen name="pocket_radius_sm">4dp</dimen>
+    <dimen name="pocket_radius_md">8dp</dimen>
+    <dimen name="pocket_radius_lg">12dp</dimen>
+    <dimen name="pocket_radius_full">999dp</dimen>
+
+    <dimen name="pocket_stroke_hairline">1dp</dimen>
+    <dimen name="pocket_stroke_focus">2dp</dimen>
+
+    <dimen name="pocket_button_height">48dp</dimen>
+    <dimen name="pocket_button_icon_size">20dp</dimen>
+    <dimen name="pocket_input_height">56dp</dimen>
+    <dimen name="pocket_avatar_sm">32dp</dimen>
+    <dimen name="pocket_avatar_md">40dp</dimen>
+    <dimen name="pocket_avatar_lg">56dp</dimen>
+
+    <dimen name="pocket_text_caption">12sp</dimen>
+    <dimen name="pocket_text_body_sm">14sp</dimen>
+    <dimen name="pocket_text_body">16sp</dimen>
+    <dimen name="pocket_text_title">20sp</dimen>
+    <dimen name="pocket_text_headline">24sp</dimen>
+    <dimen name="pocket_text_display">32sp</dimen>
+</resources>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/empty_photos_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_pocket_screen"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="@dimen/pocket_space_2xl">
+
+    <ImageView
+        android:id="@+id/empty_photos_icon"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_empty_photos" />
+
+    <TextView
+        android:id="@+id/empty_photos_title"
+        style="@style/TextAppearance.Pocket.Headline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/pocket_space_lg"
+        android:gravity="center"
+        android:text="@string/empty_photos_title" />
+
+    <TextView
+        android:id="@+id/empty_photos_message"
+        style="@style/TextAppearance.Pocket.BodySmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/pocket_space_sm"
+        android:gravity="center"
+        android:text="@string/empty_photos_message" />
+
+    <com.example.pocket.ui.PocketButton
+        android:id="@+id/empty_photos_refresh_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/pocket_space_xl"
+        android:text="@string/empty_photos_action"
+        app:pocketVariant="secondary"
+        tools:visibility="visible" />
+</LinearLayout>

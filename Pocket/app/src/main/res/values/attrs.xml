@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PocketButton">
+        <attr name="pocketVariant" format="enum">
+            <enum name="primary" value="0" />
+            <enum name="secondary" value="1" />
+            <enum name="outline" value="2" />
+            <enum name="ghost" value="3" />
+            <enum name="danger" value="4" />
+        </attr>
+        <attr name="pocketLoading" format="boolean" />
+        <attr name="pocketLoadingText" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="LoadingView">
+        <attr name="loadingText" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="ErrorView">
+        <attr name="errorTitle" format="string" />
+        <attr name="errorMessage" format="string" />
+        <attr name="errorActionText" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="AvatarView">
+        <attr name="avatarText" format="string" />
+        <attr name="avatarImage" format="reference" />
+        <attr name="avatarSize" format="dimension" />
+        <attr name="avatarBackgroundColor" format="color" />
+    </declare-styleable>
+</resources>

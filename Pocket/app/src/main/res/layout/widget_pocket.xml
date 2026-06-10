@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_pocket_widget"
+    android:clipToOutline="true">
+
+    <ImageView
+        android:id="@+id/widget_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/placeholder_pocket_widget_preview" />
+
+    <LinearLayout
+        android:id="@+id/widget_text_bar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_pocket_widget_scrim"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:id="@+id/widget_sender_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:shadowColor="#CC000000"
+            android:shadowDx="0"
+            android:shadowDy="1"
+            android:shadowRadius="2"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:text="Pocket" />
+
+        <TextView
+            android:id="@+id/widget_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:shadowColor="#CC000000"
+            android:shadowDx="0"
+            android:shadowDy="1"
+            android:shadowRadius="2"
+            android:textColor="@android:color/white"
+            android:textSize="11sp"
+            tools:text="09:30" />
+    </LinearLayout>
+
+</FrameLayout>

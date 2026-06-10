@@ -1,8 +1,36 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.Pocket" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:fontFamily">sans</item>
+        <item name="fontFamily">sans</item>
+        <item name="android:windowBackground">@color/pocket_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/pocket_surface</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowSharedElementEnterTransition">@transition/photo_shared_element_transition</item>
+        <item name="android:windowSharedElementExitTransition">@transition/photo_shared_element_transition</item>
+
+        <item name="colorPrimary">@color/pocket_primary</item>
+        <item name="colorPrimaryDark">@color/pocket_primary_dark</item>
+        <item name="colorOnPrimary">@color/pocket_on_primary</item>
+        <item name="colorPrimaryContainer">@color/pocket_primary_container</item>
+        <item name="colorSecondary">@color/pocket_secondary</item>
+        <item name="colorSecondaryContainer">@color/pocket_secondary_container</item>
+        <item name="colorSurface">@color/pocket_surface</item>
+        <item name="colorOnSurface">@color/pocket_text_primary</item>
+        <item name="colorOutline">@color/pocket_outline</item>
+        <item name="android:colorAccent">@color/pocket_accent</item>
+
+        <item name="materialButtonStyle">@style/Widget.Pocket.Button.Primary</item>
+        <item name="materialCardViewStyle">@style/Widget.Pocket.Card</item>
+        <item name="textInputStyle">@style/Widget.Pocket.TextInputLayout</item>
+
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Pocket.Display</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Pocket.Headline</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Pocket.Title</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Pocket.Body</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Pocket.BodySmall</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.Pocket.Caption</item>
     </style>
 
     <style name="Theme.Pocket" parent="Base.Theme.Pocket" />
