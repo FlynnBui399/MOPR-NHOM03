@@ -15,6 +15,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Pocket">
         <activity
+            android:name=".AddFriendActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ChatActivity"
+            android:exported="false" />
+        <activity
             android:name=".CameraActivity"
             android:exported="false" />
         <activity

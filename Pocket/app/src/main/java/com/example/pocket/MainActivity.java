@@ -14,6 +14,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton feedButton;
     private ImageButton cameraButton;
     private ImageButton friendsButton;
+    private ImageButton profileButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,10 +31,12 @@ public class MainActivity extends AppCompatActivity {
         feedButton = findViewById(R.id.nav_feed_button);
         cameraButton = findViewById(R.id.nav_camera_button);
         friendsButton = findViewById(R.id.nav_friends_button);
+        profileButton = findViewById(R.id.nav_profile_button);
 
         feedButton.setOnClickListener(view -> selectTab(R.id.nav_feed));
         cameraButton.setOnClickListener(view -> startActivity(new Intent(this, CameraActivity.class)));
         friendsButton.setOnClickListener(view -> selectTab(R.id.nav_friends));
+        profileButton.setOnClickListener(view -> selectTab(R.id.nav_profile_button));
 
         if (savedInstanceState == null) {
             selectTab(R.id.nav_feed);
@@ -53,11 +56,14 @@ public class MainActivity extends AppCompatActivity {
         selectedTabId = itemId;
         feedButton.setSelected(itemId == R.id.nav_feed);
         friendsButton.setSelected(itemId == R.id.nav_friends);
+        profileButton.setSelected(itemId == R.id.nav_profile_button);
 
         if (itemId == R.id.nav_feed) {
             showFragment(new FeedFragment());
         } else if (itemId == R.id.nav_friends) {
-            showFragment(new FriendsFragment());
+            showFragment(new FriendListFragment());
+        } else if (itemId == R.id.nav_profile_button) {
+            showFragment(new ProfileFragment());
         }
     }
 

@@ -79,5 +79,22 @@
             android:src="@drawable/ic_nav_friends"
             android:stateListAnimator="@animator/scale_press"
             app:tint="@color/selector_nav_icon_tint" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/nav_profile_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/nav_profile"
+            android:padding="12dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_nav_profile"
+            android:stateListAnimator="@animator/scale_press"
+            app:tint="@color/selector_nav_icon_tint" />
     </LinearLayout>
 </FrameLayout>

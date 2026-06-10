@@ -51,6 +51,27 @@
     <string name="nav_feed">Feed</string>
     <string name="nav_camera">Camera</string>
     <string name="nav_friends">Friends</string>
+    <string name="nav_profile">Profile</string>
     <string name="feed_placeholder">Feed coming soon</string>
     <string name="friends_placeholder">Friends coming soon</string>
+    <string name="profile_change_avatar">Đổi ảnh đại diện</string>
+    <string name="profile_notifications">Thông báo</string>
+    <string name="profile_privacy">Quyền riêng tư</string>
+    <string name="profile_logout">Đăng xuất</string>
+    <string name="friends_title">Bạn bè</string>
+    <string name="friend_requests_title">Lời mời kết bạn</string>
+    <string name="friends_empty">Chưa có bạn bè. Hãy thêm bạn!</string>
+    <string name="friends_add">Thêm bạn</string>
+    <string name="friend_message">Nhắn tin</string>
+    <string name="friend_remove">Xóa</string>
+    <string name="friend_accept">Chấp nhận</string>
+    <string name="friend_decline">Từ chối</string>
+    <string name="add_friend_title">Thêm bạn</string>
+    <string name="add_friend_phone_hint">Số điện thoại bạn bè</string>
+    <string name="add_friend_search">Tìm kiếm</string>
+    <string name="add_friend_send_request">Gửi lời mời</string>
+    <string name="add_friend_sent">Đã gửi</string>
+    <string name="add_friend_not_found">Không tìm thấy người dùng</string>
+    <string name="add_friend_request_failed">Không thể gửi lời mời</string>
+    <string name="chat_back">Quay lại</string>
 </resources>

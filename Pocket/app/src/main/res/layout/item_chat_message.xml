@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -9,31 +8,31 @@
 
     <TextView
         android:id="@+id/chat_received_bubble"
-        style="@style/TextAppearance.Pocket.Body"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="start"
         android:background="@drawable/bg_chat_bubble_received_dark"
         android:maxWidth="280dp"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="10dp"
         android:textColor="#FFFFFF"
-        app:layout_constraintEnd_toStartOf="@id/chat_sent_bubble"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_default="wrap"
+        android:textSize="16sp"
         tools:text="Received message" />
 
     <TextView
         android:id="@+id/chat_sent_bubble"
-        style="@style/TextAppearance.Pocket.Body"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="end"
         android:background="@drawable/bg_chat_bubble_sent"
         android:maxWidth="280dp"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="10dp"
         android:textColor="@color/pocket_on_primary"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1"
-        app:layout_constraintStart_toEndOf="@id/chat_received_bubble"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_default="wrap"
+        android:textSize="16sp"
         tools:text="Sent message" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

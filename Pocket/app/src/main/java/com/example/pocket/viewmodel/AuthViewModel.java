@@ -190,6 +190,7 @@ public class AuthViewModel extends AndroidViewModel {
                     values.put("displayName", displayName(firebaseUser));
                     values.put("username", username(firebaseUser));
                     values.put("email", firebaseUser.getEmail());
+                    values.put("phoneNumber", firebaseUser.getPhoneNumber());
                     values.put("avatarUrl", firebaseUser.getPhotoUrl() == null
                             ? null
                             : firebaseUser.getPhotoUrl().toString());
@@ -197,6 +198,7 @@ public class AuthViewModel extends AndroidViewModel {
                     values.put("updatedAt", now);
                     if (!snapshot.exists()) {
                         values.put("friendIds", new ArrayList<String>());
+                        values.put("friends", new ArrayList<String>());
                         values.put("createdAt", now);
                     }
 

@@ -10,6 +10,7 @@ public class Message {
     private String senderId;
     private String receiverId;
     private String text;
+    private String content;
     private String photoId;
     private String photoUrl;
     private String type;
@@ -66,11 +67,25 @@ public class Message {
     }
 
     public String getText() {
+        if ((text == null || text.isEmpty()) && content != null) {
+            return content;
+        }
         return text;
     }
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getContent() {
+        if ((content == null || content.isEmpty()) && text != null) {
+            return text;
+        }
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public String getPhotoId() {

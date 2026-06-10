@@ -12,14 +12,17 @@ public class User {
     private String displayName;
     private String username;
     private String email;
+    private String phoneNumber;
     private String avatarUrl;
     private String fcmToken;
     private List<String> friendIds;
+    private List<String> friends;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
     public User() {
         friendIds = new ArrayList<>();
+        friends = new ArrayList<>();
     }
 
     public User(String id, String displayName, String username, String email, String avatarUrl,
@@ -31,6 +34,7 @@ public class User {
         this.avatarUrl = avatarUrl;
         this.fcmToken = fcmToken;
         this.friendIds = friendIds == null ? new ArrayList<>() : new ArrayList<>(friendIds);
+        this.friends = friendIds == null ? new ArrayList<>() : new ArrayList<>(friendIds);
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -67,6 +71,14 @@ public class User {
         this.email = email;
     }
 
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     public String getAvatarUrl() {
         return avatarUrl;
     }
@@ -84,11 +96,25 @@ public class User {
     }
 
     public List<String> getFriendIds() {
+        if ((friendIds == null || friendIds.isEmpty()) && friends != null) {
+            return friends;
+        }
         return friendIds;
     }
 
     public void setFriendIds(List<String> friendIds) {
         this.friendIds = friendIds == null ? new ArrayList<>() : new ArrayList<>(friendIds);
+    }
+
+    public List<String> getFriends() {
+        if ((friends == null || friends.isEmpty()) && friendIds != null) {
+            return friendIds;
+        }
+        return friends;
+    }
+
+    public void setFriends(List<String> friends) {
+        this.friends = friends == null ? new ArrayList<>() : new ArrayList<>(friends);
     }
 
     public Timestamp getCreatedAt() {
