@@ -48,4 +48,9 @@
     <string name="otp_sent">Verification code sent.</string>
     <string name="otp_invalid_phone">Enter a valid phone number.</string>
     <string name="otp_invalid_code">Enter the 6-digit OTP.</string>
+    <string name="nav_feed">Feed</string>
+    <string name="nav_camera">Camera</string>
+    <string name="nav_friends">Friends</string>
+    <string name="feed_placeholder">Feed coming soon</string>
+    <string name="friends_placeholder">Friends coming soon</string>
 </resources>
