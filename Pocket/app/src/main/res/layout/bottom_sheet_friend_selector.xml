@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/pocket_surface"
+    android:background="#0A0A0A"
     android:orientation="vertical"
     android:padding="@dimen/pocket_space_lg">
 
@@ -13,6 +13,7 @@
         style="@style/TextAppearance.Pocket.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
         android:text="@string/camera_select_friends_title" />
 
     <TextView
@@ -22,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/pocket_space_lg"
         android:text="@string/camera_select_friends_empty"
+        android:textColor="#99FFFFFF"
         android:visibility="gone"
         tools:visibility="visible" />
 
@@ -39,6 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/pocket_button_height"
         android:layout_marginTop="@dimen/pocket_space_lg"
+        android:stateListAnimator="@animator/scale_press"
         android:text="@string/camera_send"
         app:pocketVariant="primary" />
 </LinearLayout>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0F0F0F"
+    android:background="#0A0A0A"
     android:clipChildren="false"
     android:clipToPadding="false"
     tools:context=".MainActivity">
@@ -18,15 +18,15 @@
     <LinearLayout
         android:id="@+id/main_bottom_nav_pill"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="68dp"
         android:layout_gravity="bottom"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/bg_bottom_nav_pill"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:elevation="4dp"
+        android:elevation="8dp"
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingStart="18dp"
@@ -40,7 +40,8 @@
             android:contentDescription="@string/nav_feed"
             android:padding="12dp"
             android:scaleType="center"
-            android:src="@drawable/ic_baseline_home_24"
+            android:src="@drawable/ic_nav_feed"
+            android:stateListAnimator="@animator/scale_press"
             app:tint="@color/selector_nav_icon_tint" />
 
         <Space
@@ -50,15 +51,16 @@
 
         <ImageButton
             android:id="@+id/nav_camera_button"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:background="@drawable/bg_camera_fab"
             android:contentDescription="@string/nav_camera"
-            android:elevation="6dp"
-            android:padding="16dp"
+            android:elevation="4dp"
+            android:padding="17dp"
             android:scaleType="center"
-            android:src="@drawable/ic_baseline_camera_alt_24"
-            android:translationY="-10dp"
+            android:src="@drawable/ic_nav_camera"
+            android:stateListAnimator="@animator/scale_press"
+            android:translationY="-8dp"
             app:tint="#FFFFFF" />
 
         <Space
@@ -74,7 +76,8 @@
             android:contentDescription="@string/nav_friends"
             android:padding="12dp"
             android:scaleType="center"
-            android:src="@drawable/ic_baseline_people_24"
+            android:src="@drawable/ic_nav_friends"
+            android:stateListAnimator="@animator/scale_press"
             app:tint="@color/selector_nav_icon_tint" />
     </LinearLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>

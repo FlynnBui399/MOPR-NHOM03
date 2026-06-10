@@ -5,6 +5,7 @@
     style="@style/TextAppearance.Pocket.Body"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_pocket_card"
+    android:background="@drawable/bg_glass_card"
     android:padding="@dimen/pocket_space_lg"
+    android:textColor="#FFFFFF"
     tools:text="Mot ngay that vui" />

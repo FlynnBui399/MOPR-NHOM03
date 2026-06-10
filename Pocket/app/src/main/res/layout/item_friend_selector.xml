@@ -5,7 +5,7 @@
     android:id="@+id/friend_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_pocket_card"
+    android:background="@drawable/bg_glass_card"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:padding="@dimen/pocket_space_md">
@@ -25,6 +25,7 @@
         android:layout_weight="1"
         android:ellipsize="end"
         android:maxLines="1"
+        android:textColor="#FFFFFF"
         tools:text="Pocket User" />
 
     <CheckBox

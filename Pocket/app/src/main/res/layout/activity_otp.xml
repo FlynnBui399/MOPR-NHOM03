@@ -5,86 +5,140 @@
     android:id="@+id/otp_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_pocket_screen"
-    android:padding="@dimen/pocket_space_xl"
+    android:background="#0A0A0A"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
     tools:context=".OtpActivity">
+
+    <ImageButton
+        android:id="@+id/otp_back_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="24dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/nav_feed"
+        android:padding="8dp"
+        android:src="@drawable/ic_arrow_back"
+        android:stateListAnimator="@animator/scale_press"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#FFFFFF" />
+
+    <ImageView
+        android:id="@+id/otp_phone_icon"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="80dp"
+        android:src="@drawable/ic_phone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/pocket_primary" />
 
     <LinearLayout
         android:id="@+id/otp_content"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/otp_phone_icon">
 
         <TextView
             android:id="@+id/otp_title"
-            style="@style/TextAppearance.Pocket.Headline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/otp_title" />
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:text="@string/otp_title"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/otp_subtitle"
-            style="@style/TextAppearance.Pocket.BodySmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/pocket_space_sm"
-            android:text="@string/otp_subtitle" />
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/otp_subtitle"
+            android:textColor="#99FFFFFF"
+            android:textSize="14sp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/phone_input_layout"
-            style="@style/Widget.Pocket.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/pocket_space_xl"
-            android:hint="@string/otp_phone_hint">
+            android:layout_marginTop="32dp"
+            android:hint="@string/otp_phone_hint"
+            app:boxBackgroundColor="#00000000"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxStrokeColor="#333333"
+            app:hintTextColor="#666666">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/phone_input"
-                style="@style/TextAppearance.Pocket.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:imeOptions="actionSend"
                 android:inputType="phone"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#666666"
+                android:textSize="16sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.example.pocket.ui.PocketButton
             android:id="@+id/send_otp_button"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/pocket_button_height"
-            android:layout_marginTop="@dimen/pocket_space_md"
+            android:layout_height="56dp"
+            android:layout_marginTop="16dp"
+            android:stateListAnimator="@animator/scale_press"
             android:text="@string/otp_send"
+            app:cornerRadius="28dp"
             app:pocketVariant="primary" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/otp_input_layout"
-            style="@style/Widget.Pocket.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/pocket_space_xl"
-            android:hint="@string/otp_code_hint">
+            android:layout_marginTop="32dp"
+            android:hint="@string/otp_code_hint"
+            app:boxBackgroundColor="#00000000"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxStrokeColor="#333333"
+            app:hintTextColor="#666666">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/otp_input"
-                style="@style/TextAppearance.Pocket.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:imeOptions="actionDone"
                 android:inputType="number"
                 android:maxLength="6"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#666666"
+                android:textSize="16sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.example.pocket.ui.PocketButton
             android:id="@+id/verify_otp_button"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/pocket_button_height"
-            android:layout_marginTop="@dimen/pocket_space_md"
+            android:layout_height="56dp"
+            android:layout_marginTop="16dp"
+            android:stateListAnimator="@animator/scale_press"
             android:text="@string/otp_verify"
-            app:pocketVariant="secondary" />
+            app:cornerRadius="28dp"
+            app:pocketVariant="primary" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

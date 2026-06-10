@@ -5,15 +5,16 @@
     android:id="@+id/chat_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_pocket_screen"
+    android:background="#0A0A0A"
     tools:context=".ChatActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/chat_toolbar"
         android:layout_width="0dp"
         android:layout_height="64dp"
-        android:background="@color/pocket_surface"
-        android:elevation="0dp"
+        android:background="#99000000"
+        android:backgroundTint="#99000000"
+        android:elevation="6dp"
         android:minHeight="64dp"
         android:paddingStart="@dimen/pocket_space_lg"
         android:paddingEnd="@dimen/pocket_space_lg"
@@ -38,6 +39,7 @@
             android:layout_marginStart="@dimen/pocket_space_md"
             android:ellipsize="end"
             android:maxLines="1"
+            android:textColor="#FFFFFF"
             tools:text="Pocket User" />
     </com.google.android.material.appbar.MaterialToolbar>
 
@@ -45,7 +47,7 @@
         android:id="@+id/chat_toolbar_divider"
         android:layout_width="0dp"
         android:layout_height="@dimen/pocket_stroke_hairline"
-        android:background="@drawable/divider_pocket"
+        android:background="#2C2C2E"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chat_toolbar" />
@@ -70,7 +72,8 @@
         android:id="@+id/chat_composer_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_chat_composer"
+        android:background="#99000000"
+        android:backgroundTint="#99000000"
         android:orientation="vertical"
         android:paddingStart="@dimen/pocket_space_lg"
         android:paddingTop="@dimen/pocket_space_sm"
@@ -100,6 +103,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:gravity="center"
+                    android:textColor="#FFFFFF"
                     android:text="&#128522;" />
 
                 <TextView
@@ -108,6 +112,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:gravity="center"
+                    android:textColor="#FFFFFF"
                     android:text="&#128514;" />
 
                 <TextView
@@ -116,6 +121,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:gravity="center"
+                    android:textColor="#FFFFFF"
                     android:text="&#128077;" />
 
                 <TextView
@@ -124,6 +130,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:gravity="center"
+                    android:textColor="#FFFFFF"
                     android:text="&#10084;&#65039;" />
 
                 <TextView
@@ -132,6 +139,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:gravity="center"
+                    android:textColor="#FFFFFF"
                     android:text="&#128558;" />
             </LinearLayout>
         </HorizontalScrollView>
@@ -148,7 +156,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/bg_pocket_input"
+                android:background="@drawable/bg_glass_input"
                 android:hint="@string/chat_message_hint"
                 android:imeOptions="actionSend"
                 android:inputType="textCapSentences|textMultiLine"
@@ -157,8 +165,8 @@
                 android:minLines="1"
                 android:paddingStart="@dimen/pocket_space_lg"
                 android:paddingEnd="@dimen/pocket_space_lg"
-                android:textColor="@color/pocket_text_primary"
-                android:textColorHint="@color/pocket_placeholder"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#88FFFFFF"
                 android:textSize="@dimen/pocket_text_body" />
 
             <com.example.pocket.ui.PocketButton
@@ -166,6 +174,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/pocket_input_height"
                 android:layout_marginStart="@dimen/pocket_space_sm"
+                android:stateListAnimator="@animator/scale_press"
                 android:text="@string/chat_send"
                 app:pocketVariant="primary" />
         </LinearLayout>
