@@ -11,11 +11,12 @@
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/chat_toolbar"
         android:layout_width="0dp"
-        android:layout_height="64dp"
+        android:layout_height="wrap_content"
         android:background="#99000000"
         android:backgroundTint="#99000000"
         android:elevation="6dp"
         android:minHeight="64dp"
+        android:paddingTop="0dp"
         android:paddingStart="@dimen/pocket_space_lg"
         android:paddingEnd="@dimen/pocket_space_lg"
         app:layout_constraintEnd_toEndOf="parent"

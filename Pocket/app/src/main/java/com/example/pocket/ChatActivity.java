@@ -1,5 +1,6 @@
 package com.example.pocket;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,12 +8,15 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +26,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.pocket.data.model.Message;
 import com.example.pocket.data.repository.UserRepository;
 import com.example.pocket.viewmodel.ChatViewModel;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -43,6 +48,40 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindow().setDecorFitsSystemWindows(false);
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            );
+        }
+
+        View chatRoot = findViewById(R.id.chat_root);
+        MaterialToolbar toolbar = findViewById(R.id.chat_toolbar);
+        LinearLayout composerContainer = findViewById(R.id.chat_composer_container);
+
+        ViewCompat.setOnApplyWindowInsetsListener(chatRoot, (v, insets) -> {
+            int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+            int navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+
+            toolbar.setPadding(
+                    toolbar.getPaddingLeft(),
+                    statusBarHeight,
+                    toolbar.getPaddingRight(),
+                    toolbar.getPaddingBottom()
+            );
+
+            int basePaddingBottom = (int) (16 * v.getResources().getDisplayMetrics().density);
+            composerContainer.setPadding(
+                    composerContainer.getPaddingLeft(),
+                    composerContainer.getPaddingTop(),
+                    composerContainer.getPaddingRight(),
+                    basePaddingBottom + navBarHeight
+            );
+
+            return insets;
+        });
 
         String friendUid = getIntent().getStringExtra(EXTRA_FRIEND_UID);
         String friendName = getIntent().getStringExtra(EXTRA_FRIEND_NAME);
@@ -99,8 +138,8 @@ public class ChatActivity extends AppCompatActivity {
                 R.id.quick_reply_smile,
                 R.id.quick_reply_laugh,
                 R.id.quick_reply_thumb,
-                R.id.quick_reply_surprise,
-                R.id.quick_reply_heart
+                R.id.quick_reply_heart,
+                R.id.quick_reply_surprise
         };
         for (int emojiId : emojiIds) {
             TextView emoji = findViewById(emojiId);
