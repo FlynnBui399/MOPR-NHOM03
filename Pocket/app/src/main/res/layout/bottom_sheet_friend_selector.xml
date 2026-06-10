@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/pocket_surface"
+    android:orientation="vertical"
+    android:padding="@dimen/pocket_space_lg">
+
+    <TextView
+        android:id="@+id/friend_selector_title"
+        style="@style/TextAppearance.Pocket.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/camera_select_friends_title" />
+
+    <TextView
+        android:id="@+id/friend_selector_empty"
+        style="@style/TextAppearance.Pocket.BodySmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/pocket_space_lg"
+        android:text="@string/camera_select_friends_empty"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/friend_selector_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/pocket_space_md"
+        android:clipToPadding="false"
+        tools:itemCount="3"
+        tools:listitem="@layout/item_friend_selector" />
+
+    <com.example.pocket.ui.PocketButton
+        android:id="@+id/friend_selector_send_button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/pocket_button_height"
+        android:layout_marginTop="@dimen/pocket_space_lg"
+        android:text="@string/camera_send"
+        app:pocketVariant="primary" />
+</LinearLayout>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/camera_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_pocket_screen"
+    tools:context=".CameraActivity">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/camera_preview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@string/camera_preview"
+        app:layout_constraintBottom_toTopOf="@id/camera_bottom_panel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/captured_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/pocket_background"
+        android:contentDescription="@string/camera_photo_preview"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/camera_preview"
+        app:layout_constraintEnd_toEndOf="@id/camera_preview"
+        app:layout_constraintStart_toStartOf="@id/camera_preview"
+        app:layout_constraintTop_toTopOf="@id/camera_preview"
+        tools:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/camera_top_controls"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal"
+        android:padding="@dimen/pocket_space_lg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/flash_button"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/pocket_button_height"
+            android:text="@string/camera_flash"
+            app:pocketVariant="secondary" />
+
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/flip_button"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/pocket_button_height"
+            android:layout_marginStart="@dimen/pocket_space_sm"
+            android:text="@string/camera_flip"
+            app:pocketVariant="secondary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/camera_bottom_panel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/pocket_surface"
+        android:orientation="vertical"
+        android:padding="@dimen/pocket_space_lg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/caption_input_layout"
+            style="@style/Widget.Pocket.TextInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/camera_caption_hint"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/caption_input"
+                style="@style/TextAppearance.Pocket.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences|textMultiLine"
+                android:maxLines="3" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:id="@+id/camera_action_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/pocket_space_md"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.example.pocket.ui.PocketButton
+                android:id="@+id/retake_button"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/pocket_button_height"
+                android:text="@string/camera_retake"
+                android:visibility="gone"
+                app:pocketVariant="outline"
+                tools:visibility="visible" />
+
+            <com.example.pocket.ui.PocketButton
+                android:id="@+id/capture_button"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/pocket_button_height"
+                android:layout_marginStart="@dimen/pocket_space_sm"
+                android:text="@string/camera_capture"
+                app:pocketVariant="primary" />
+
+            <com.example.pocket.ui.PocketButton
+                android:id="@+id/suggest_caption_button"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/pocket_button_height"
+                android:layout_marginStart="@dimen/pocket_space_sm"
+                android:text="@string/camera_suggest_caption"
+                android:visibility="gone"
+                app:pocketVariant="secondary"
+                tools:visibility="visible" />
+
+            <com.example.pocket.ui.PocketButton
+                android:id="@+id/send_photo_button"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/pocket_button_height"
+                android:layout_marginStart="@dimen/pocket_space_sm"
+                android:text="@string/camera_send"
+                android:visibility="gone"
+                app:pocketVariant="primary"
+                tools:visibility="visible" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

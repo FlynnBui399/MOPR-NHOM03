@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_pocket_screen"
+    android:padding="@dimen/pocket_space_xl"
+    tools:context=".LoginActivity">
+
+    <LinearLayout
+        android:id="@+id/login_content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/login_logo"
+            android:layout_width="@dimen/pocket_avatar_lg"
+            android:layout_height="@dimen/pocket_avatar_lg"
+            android:contentDescription="@string/login_logo_description"
+            android:src="@mipmap/ic_launcher_round" />
+
+        <TextView
+            android:id="@+id/login_title"
+            style="@style/TextAppearance.Pocket.Display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/pocket_space_lg"
+            android:text="@string/login_title" />
+
+        <TextView
+            android:id="@+id/login_subtitle"
+            style="@style/TextAppearance.Pocket.BodySmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/pocket_space_sm"
+            android:gravity="center"
+            android:text="@string/login_subtitle" />
+
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/google_sign_in_button"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/pocket_button_height"
+            android:layout_marginTop="@dimen/pocket_space_2xl"
+            android:text="@string/login_google"
+            app:pocketVariant="primary" />
+
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/phone_sign_in_button"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/pocket_button_height"
+            android:layout_marginTop="@dimen/pocket_space_md"
+            android:text="@string/login_phone"
+            app:pocketVariant="secondary" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
