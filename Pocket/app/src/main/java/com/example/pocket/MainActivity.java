@@ -2,15 +2,18 @@ package com.example.pocket;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
     private int selectedTabId = R.id.nav_feed;
+    private ImageButton feedButton;
+    private ImageButton cameraButton;
+    private ImageButton friendsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,35 +27,19 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_camera) {
-                startActivity(new Intent(this, CameraActivity.class));
-                return false;
-            }
-            if (itemId == selectedTabId) {
-                return true;
-            }
+        feedButton = findViewById(R.id.nav_feed_button);
+        cameraButton = findViewById(R.id.nav_camera_button);
+        friendsButton = findViewById(R.id.nav_friends_button);
 
-            selectedTabId = itemId;
-            if (itemId == R.id.nav_feed) {
-                showFragment(new FeedFragment());
-                return true;
-            }
-            if (itemId == R.id.nav_friends) {
-                showFragment(new FriendsFragment());
-                return true;
-            }
-            return false;
-        });
+        feedButton.setOnClickListener(view -> selectTab(R.id.nav_feed));
+        cameraButton.setOnClickListener(view -> startActivity(new Intent(this, CameraActivity.class)));
+        friendsButton.setOnClickListener(view -> selectTab(R.id.nav_friends));
 
         if (savedInstanceState == null) {
-            bottomNavigationView.setSelectedItemId(R.id.nav_feed);
-            showFragment(new FeedFragment());
+            selectTab(R.id.nav_feed);
         } else {
             selectedTabId = savedInstanceState.getInt("selectedTabId", R.id.nav_feed);
-            bottomNavigationView.setSelectedItemId(selectedTabId);
+            selectTab(selectedTabId);
         }
     }
 
@@ -60,6 +47,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("selectedTabId", selectedTabId);
+    }
+
+    private void selectTab(int itemId) {
+        selectedTabId = itemId;
+        feedButton.setSelected(itemId == R.id.nav_feed);
+        friendsButton.setSelected(itemId == R.id.nav_friends);
+
+        if (itemId == R.id.nav_feed) {
+            showFragment(new FeedFragment());
+        } else if (itemId == R.id.nav_friends) {
+            showFragment(new FriendsFragment());
+        }
     }
 
     private void showFragment(Fragment fragment) {
