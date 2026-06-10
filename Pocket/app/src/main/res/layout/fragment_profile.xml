@@ -41,6 +41,41 @@
             tools:text="+84901234567" />
 
         <com.example.pocket.ui.PocketButton
+            android:id="@+id/profile_edit_name_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:stateListAnimator="@animator/scale_press"
+            android:text="Đổi tên hiển thị"
+            app:cornerRadius="24dp"
+            app:pocketVariant="secondary" />
+
+        <EditText
+            android:id="@+id/profile_name_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_settings_card"
+            android:hint="Nhập tên mới..."
+            android:inputType="textPersonName"
+            android:padding="12dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#99FFFFFF"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/profile_save_name_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:stateListAnimator="@animator/scale_press"
+            android:text="Lưu"
+            android:visibility="gone"
+            app:cornerRadius="24dp"
+            app:pocketVariant="primary" />
+
+        <com.example.pocket.ui.PocketButton
             android:id="@+id/profile_change_avatar_button"
             android:layout_width="wrap_content"
             android:layout_height="48dp"

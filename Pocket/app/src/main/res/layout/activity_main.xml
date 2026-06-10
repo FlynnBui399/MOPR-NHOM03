@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -8,21 +8,77 @@
     android:background="#0A0A0A"
     android:clipChildren="false"
     android:clipToPadding="false"
+    android:fitsSystemWindows="false"
     tools:context=".MainActivity">
+
+    <LinearLayout
+        android:id="@+id/top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="#00000000"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="0dp"
+        android:paddingEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/top_bar_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/avatar_placeholder" />
+
+        <LinearLayout
+            android:id="@+id/top_bar_filter_pill"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_filter_pill"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/top_bar_filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:text="Tất cả bạn bè"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/top_bar_chat_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_icon_circle_dark"
+            android:padding="9dp"
+            android:src="@drawable/ic_nav_friends"
+            app:tint="#FFFFFF" />
+    </LinearLayout>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/main_bottom_nav_pill"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_bar" />
 
     <LinearLayout
         android:id="@+id/main_bottom_nav_pill"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="68dp"
-        android:layout_gravity="bottom"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="0dp"
         android:background="@drawable/bg_bottom_nav_pill"
         android:clipChildren="false"
         android:clipToPadding="false"
@@ -30,7 +86,11 @@
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingStart="18dp"
-        android:paddingEnd="18dp">
+        android:paddingBottom="16dp"
+        android:paddingEnd="18dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <ImageButton
             android:id="@+id/nav_feed_button"
@@ -79,22 +139,5 @@
             android:src="@drawable/ic_nav_friends"
             android:stateListAnimator="@animator/scale_press"
             app:tint="@color/selector_nav_icon_tint" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:id="@+id/nav_profile_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/nav_profile"
-            android:padding="12dp"
-            android:scaleType="center"
-            android:src="@drawable/ic_nav_profile"
-            android:stateListAnimator="@animator/scale_press"
-            app:tint="@color/selector_nav_icon_tint" />
     </LinearLayout>
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
