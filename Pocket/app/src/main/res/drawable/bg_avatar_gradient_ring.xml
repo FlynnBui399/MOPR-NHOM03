@@ -3,6 +3,6 @@
     android:shape="oval">
     <gradient
         android:angle="135"
-        android:endColor="@color/pocket_camera_fab_end"
+        android:endColor="@color/pocket_secondary"
         android:startColor="@color/pocket_primary" />
 </shape>

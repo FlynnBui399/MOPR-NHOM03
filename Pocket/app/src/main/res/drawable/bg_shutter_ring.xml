@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
-    <solid android:color="#00000000" />
+    <solid android:color="@color/pocket_transparent" />
     <stroke
         android:width="3dp"
-        android:color="#FFFFFF" />
+        android:color="@color/pocket_white_alpha_30" />
 </shape>

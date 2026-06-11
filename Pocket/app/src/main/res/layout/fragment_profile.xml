@@ -4,22 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A0A0A"
+    android:background="@color/pocket_background"
     android:clipToPadding="false"
-    android:padding="24dp">
+    android:padding="@dimen/pocket_space_xl">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingBottom="110dp">
+        android:paddingBottom="120dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_avatar"
-            android:layout_width="104dp"
-            android:layout_height="104dp"
-            android:background="@drawable/bg_avatar_border"
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:background="@drawable/bg_avatar_gradient_ring"
             android:padding="3dp"
             android:src="@drawable/avatar_placeholder" />
 
@@ -27,128 +27,201 @@
             android:id="@+id/profile_display_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/pocket_space_lg"
             android:fontFamily="sans-serif-medium"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/pocket_text_primary"
             android:textSize="20sp"
+            android:textStyle="bold"
             tools:text="Pocket User" />
 
         <TextView
             android:id="@+id/profile_phone_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="#99FFFFFF"
-            android:textSize="14sp"
+            android:layout_marginTop="@dimen/pocket_space_xs"
+            android:textColor="@color/pocket_text_secondary"
+            android:textSize="@dimen/pocket_text_body"
             tools:text="+84901234567" />
+
+        <LinearLayout
+            android:id="@+id/profile_stats_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/pocket_space_xl"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="78dp"
+                android:layout_marginEnd="@dimen/pocket_space_sm"
+                android:layout_weight="1"
+                android:background="@drawable/bg_profile_stat_card"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/pocket_text_primary"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    style="@style/TextAppearance.Pocket.Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/pocket_space_xs"
+                    android:text="Photos sent"
+                    android:textColor="@color/pocket_nav_icon_unselected" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="78dp"
+                android:layout_marginStart="@dimen/pocket_space_sm"
+                android:layout_weight="1"
+                android:background="@drawable/bg_profile_stat_card"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/pocket_text_primary"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    style="@style/TextAppearance.Pocket.Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/pocket_space_xs"
+                    android:text="Friends"
+                    android:textColor="@color/pocket_nav_icon_unselected" />
+            </LinearLayout>
+        </LinearLayout>
 
         <com.example.pocket.ui.PocketButton
             android:id="@+id/profile_edit_name_button"
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginTop="12dp"
+            android:layout_height="@dimen/pocket_button_height"
+            android:layout_marginTop="@dimen/pocket_space_lg"
             android:stateListAnimator="@animator/scale_press"
-            android:text="Đổi tên hiển thị"
-            app:cornerRadius="24dp"
+            android:text="Äá»•i tÃªn hiá»ƒn thá»‹"
+            app:cornerRadius="@dimen/pocket_radius_md"
             app:pocketVariant="secondary" />
 
         <EditText
             android:id="@+id/profile_name_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_settings_card"
-            android:hint="Nhập tên mới..."
+            android:layout_marginTop="@dimen/pocket_space_sm"
+            android:background="@drawable/bg_pocket_input"
+            android:hint="Nháº­p tÃªn má»›i..."
             android:inputType="textPersonName"
-            android:padding="12dp"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#99FFFFFF"
+            android:padding="@dimen/pocket_space_md"
+            android:textColor="@color/pocket_text_primary"
+            android:textColorHint="@color/pocket_text_secondary"
             android:textSize="16sp"
             android:visibility="gone" />
 
         <com.example.pocket.ui.PocketButton
             android:id="@+id/profile_save_name_button"
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="@dimen/pocket_button_height"
+            android:layout_marginTop="@dimen/pocket_space_sm"
             android:stateListAnimator="@animator/scale_press"
-            android:text="Lưu"
+            android:text="LÆ°u"
             android:visibility="gone"
-            app:cornerRadius="24dp"
+            app:cornerRadius="@dimen/pocket_radius_md"
             app:pocketVariant="primary" />
 
         <com.example.pocket.ui.PocketButton
             android:id="@+id/profile_change_avatar_button"
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginTop="18dp"
+            android:layout_height="@dimen/pocket_button_height"
+            android:layout_marginTop="@dimen/pocket_space_md"
             android:stateListAnimator="@animator/scale_press"
             android:text="@string/profile_change_avatar"
-            app:cornerRadius="24dp"
+            app:cornerRadius="@dimen/pocket_radius_md"
             app:pocketVariant="secondary" />
 
         <LinearLayout
-            android:id="@+id/profile_notification_row"
+            android:id="@+id/profile_settings_group"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="8dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/pocket_space_2xl"
             android:background="@drawable/bg_settings_card"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/profile_notifications"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
-
-            <Switch
-                android:id="@+id/profile_notification_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/profile_privacy_row"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_settings_card"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
-
-            <TextView
+            <LinearLayout
+                android:id="@+id/profile_notification_row"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/profile_privacy"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
-        </LinearLayout>
+                android:layout_height="56dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/pocket_space_lg"
+                android:paddingEnd="@dimen/pocket_space_lg">
 
-        <LinearLayout
-            android:id="@+id/profile_logout_row"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_settings_card"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/profile_notifications"
+                    android:textColor="@color/pocket_text_primary"
+                    android:textSize="16sp" />
 
-            <TextView
+                <Switch
+                    android:id="@+id/profile_notification_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/profile_logout"
-                android:textColor="#FF4444"
-                android:textSize="16sp" />
+                android:layout_height="@dimen/pocket_stroke_hairline"
+                android:background="@drawable/divider_pocket" />
+
+            <LinearLayout
+                android:id="@+id/profile_privacy_row"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/pocket_space_lg"
+                android:paddingEnd="@dimen/pocket_space_lg">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_privacy"
+                    android:textColor="@color/pocket_text_primary"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/pocket_stroke_hairline"
+                android:background="@drawable/divider_pocket" />
+
+            <LinearLayout
+                android:id="@+id/profile_logout_row"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/pocket_space_lg"
+                android:paddingEnd="@dimen/pocket_space_lg">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_logout"
+                    android:textColor="@color/pocket_danger"
+                    android:textSize="16sp" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

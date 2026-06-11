@@ -5,7 +5,7 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
-        android:fillColor="#00000000"
+        android:fillColor="@color/pocket_transparent"
         android:pathData="M8,3h8c0.55,0 1,0.45 1,1v16c0,0.55 -0.45,1 -1,1H8c-0.55,0 -1,-0.45 -1,-1V4c0,-0.55 0.45,-1 1,-1zM10,18h4"
         android:strokeColor="@color/pocket_primary"
         android:strokeLineCap="round"

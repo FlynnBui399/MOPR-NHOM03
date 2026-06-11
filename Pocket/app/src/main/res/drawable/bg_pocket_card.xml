@@ -3,6 +3,6 @@
     <solid android:color="@color/pocket_surface" />
     <stroke
         android:width="@dimen/pocket_stroke_hairline"
-        android:color="@color/pocket_divider" />
+        android:color="@color/pocket_outline" />
     <corners android:radius="@dimen/pocket_radius_lg" />
 </shape>

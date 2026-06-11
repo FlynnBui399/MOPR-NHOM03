@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A0A0A">
+    android:background="@color/pocket_background">
 
     <TextView
         android:id="@+id/friends_placeholder_text"
@@ -10,6 +10,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/friends_placeholder"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/pocket_text_primary"
         android:textSize="16sp" />
 </FrameLayout>

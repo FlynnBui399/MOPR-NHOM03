@@ -7,5 +7,5 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_glass_card"
     android:padding="@dimen/pocket_space_lg"
-    android:textColor="#FFFFFF"
+    android:textColor="@color/pocket_text_primary"
     tools:text="Mot ngay that vui" />

@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/pocket_text_primary"
             android:textSize="16sp"
             tools:text="Pocket User" />
 
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:textColor="#99FFFFFF"
+            android:textColor="@color/pocket_text_secondary"
             android:textSize="12sp"
             tools:text="+84901234567" />
     </LinearLayout>

@@ -5,15 +5,15 @@
     android:id="@+id/chat_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A0A0A"
+    android:background="@color/pocket_background"
     tools:context=".ChatActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/chat_toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#99000000"
-        android:backgroundTint="#99000000"
+        android:background="@color/pocket_chat_overlay"
+        android:backgroundTint="@color/pocket_chat_overlay"
         android:elevation="6dp"
         android:minHeight="64dp"
         android:paddingTop="0dp"
@@ -31,7 +31,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
             android:src="@drawable/ic_arrow_back"
-            app:tint="#FFFFFF" />
+            app:tint="@color/pocket_text_primary" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/chat_other_avatar"
@@ -51,7 +51,7 @@
             android:layout_marginStart="@dimen/pocket_space_md"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/pocket_text_primary"
             tools:text="Pocket User" />
     </com.google.android.material.appbar.MaterialToolbar>
 
@@ -59,7 +59,7 @@
         android:id="@+id/chat_toolbar_divider"
         android:layout_width="0dp"
         android:layout_height="@dimen/pocket_stroke_hairline"
-        android:background="#2C2C2E"
+        android:background="@color/pocket_outline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/chat_toolbar" />
@@ -84,8 +84,8 @@
         android:id="@+id/chat_composer_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#99000000"
-        android:backgroundTint="#99000000"
+        android:background="@color/pocket_chat_overlay"
+        android:backgroundTint="@color/pocket_chat_overlay"
         android:orientation="vertical"
         android:paddingStart="@dimen/pocket_space_lg"
         android:paddingTop="@dimen/pocket_space_sm"
@@ -115,7 +115,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:gravity="center"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/pocket_text_primary"
                     android:text="😍" />
 
                 <TextView
@@ -124,7 +124,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:gravity="center"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/pocket_text_primary"
                     android:text="😂" />
 
                 <TextView
@@ -133,7 +133,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:gravity="center"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/pocket_text_primary"
                     android:text="🔥" />
 
                 <TextView
@@ -142,7 +142,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:gravity="center"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/pocket_text_primary"
                     android:text="😭" />
 
                 <TextView
@@ -151,7 +151,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:gravity="center"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/pocket_text_primary"
                     android:text="❤️" />
             </LinearLayout>
         </HorizontalScrollView>
@@ -170,9 +170,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/bg_glass_input"
                 android:hint="@string/chat_message_hint"
-                app:boxBackgroundColor="#00000000"
+                app:boxBackgroundColor="@color/pocket_transparent"
                 app:boxBackgroundMode="none"
-                app:hintTextColor="#88FFFFFF">
+                app:hintTextColor="@color/pocket_text_secondary">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/chat_message_input"
@@ -185,8 +185,8 @@
                     android:minLines="1"
                     android:paddingStart="@dimen/pocket_space_lg"
                     android:paddingEnd="@dimen/pocket_space_lg"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#88FFFFFF"
+                    android:textColor="@color/pocket_text_primary"
+                    android:textColorHint="@color/pocket_text_secondary"
                     android:textSize="@dimen/pocket_text_body" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -199,7 +199,7 @@
                 android:padding="16dp"
                 android:stateListAnimator="@animator/scale_press"
                 android:src="@drawable/ic_send"
-                app:tint="#FFFFFF" />
+                app:tint="@color/pocket_text_primary" />
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

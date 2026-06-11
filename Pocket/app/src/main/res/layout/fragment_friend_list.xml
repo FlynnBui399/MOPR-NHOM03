@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A0A0A">
+    android:background="@color/pocket_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:text="@string/friends_title"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/pocket_text_primary"
             android:textSize="24sp" />
 
         <TextView
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="@string/friend_requests_title"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/pocket_text_primary"
             android:textSize="16sp"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -71,7 +71,7 @@
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:src="@drawable/ic_nav_friends"
-            app:tint="#555555" />
+            app:tint="@color/pocket_text_muted" />
 
         <TextView
             android:layout_width="match_parent"
@@ -79,7 +79,7 @@
             android:layout_marginTop="18dp"
             android:gravity="center"
             android:text="@string/friends_empty"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/pocket_text_primary"
             android:textSize="16sp" />
 
         <com.example.pocket.ui.PocketButton
@@ -103,5 +103,5 @@
         android:contentDescription="@string/friends_add"
         android:src="@drawable/ic_add"
         app:backgroundTint="@color/pocket_primary"
-        app:tint="#FFFFFF" />
+        app:tint="@color/pocket_text_primary" />
 </FrameLayout>

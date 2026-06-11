@@ -1,30 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="pocket_primary">#14B8A6</color>
-    <color name="pocket_primary_dark">#0F766E</color>
-    <color name="pocket_primary_container">#134E4A</color>
+    <color name="pocket_primary">#FF6B6B</color>
+    <color name="pocket_primary_dark">#FF8E53</color>
+    <color name="pocket_primary_container">#2A1414</color>
     <color name="pocket_on_primary">#FFFFFF</color>
 
-    <color name="pocket_secondary">#3B82F6</color>
-    <color name="pocket_secondary_container">#1E3A5F</color>
-    <color name="pocket_accent">#FBBF24</color>
+    <color name="pocket_secondary">#FFB347</color>
+    <color name="pocket_secondary_container">#3A2410</color>
+    <color name="pocket_accent">#FFB347</color>
 
     <color name="pocket_success">#4ADE80</color>
-    <color name="pocket_warning">#FBBF24</color>
-    <color name="pocket_danger">#F87171</color>
-    <color name="pocket_on_danger">#450A0A</color>
+    <color name="pocket_warning">#FFB347</color>
+    <color name="pocket_danger">#FF4444</color>
+    <color name="pocket_on_danger">#FFFFFF</color>
 
-    <color name="pocket_background">#0F172A</color>
-    <color name="pocket_surface">#1E293B</color>
-    <color name="pocket_surface_variant">#1E293B</color>
+    <color name="pocket_background">#0D0D0D</color>
+    <color name="pocket_background_deep">#0D0D0D</color>
+    <color name="pocket_surface">#1A1A1A</color>
+    <color name="pocket_surface_1">#1A1A1A</color>
+    <color name="pocket_surface_variant">#242424</color>
+    <color name="pocket_surface_2">#242424</color>
     <color name="pocket_widget_background">#1A1A1A</color>
-    <color name="pocket_outline">#334155</color>
-    <color name="pocket_divider">#334155</color>
+    <color name="pocket_outline">#2E2E2E</color>
+    <color name="pocket_divider">#2E2E2E</color>
+    <color name="pocket_border_subtle">#2E2E2E</color>
 
-    <color name="pocket_text_primary">#F1F5F9</color>
-    <color name="pocket_text_secondary">#94A3B8</color>
-    <color name="pocket_text_muted">#64748B</color>
-    <color name="pocket_placeholder">#64748B</color>
-    <color name="pocket_shimmer_base">#1E293B</color>
-    <color name="pocket_shimmer_highlight">#334155</color>
+    <color name="pocket_text_primary">#FFFFFF</color>
+    <color name="pocket_text_secondary">#A0A0A0</color>
+    <color name="pocket_text_muted">#5A5A5A</color>
+    <color name="pocket_text_tertiary">#5A5A5A</color>
+    <color name="pocket_placeholder">#5A5A5A</color>
+    <color name="pocket_shimmer_base">#1A1A1A</color>
+    <color name="pocket_shimmer_highlight">#242424</color>
+
+    <color name="pocket_accent_primary">#FF6B6B</color>
+    <color name="pocket_accent_secondary">#FFB347</color>
+    <color name="pocket_camera_fab_end">#FF8E53</color>
+    <color name="pocket_fab_shadow">#40FF6B6B</color>
+    <color name="pocket_nav_surface">#EB1C1C1C</color>
+    <color name="pocket_filter_surface">#1E1E1E</color>
+    <color name="pocket_nav_icon_selected">#FFFFFF</color>
+    <color name="pocket_nav_icon_unselected">#808080</color>
+    <color name="pocket_google_button_text">#111827</color>
+    <color name="pocket_login_gradient_center">#1A0A0A</color>
+    <color name="pocket_login_gradient_edge">#0D0D0D</color>
+    <color name="pocket_transparent">#00000000</color>
+    <color name="pocket_white_alpha_18">#18FFFFFF</color>
+    <color name="pocket_white_alpha_20">#20FFFFFF</color>
+    <color name="pocket_white_alpha_30">#30FFFFFF</color>
+    <color name="pocket_overlay_black_38">#60000000</color>
+    <color name="pocket_overlay_black_50">#80000000</color>
+    <color name="pocket_overlay_black_60">#99000000</color>
+    <color name="pocket_overlay_black_80">#CC000000</color>
+    <color name="pocket_white_12">#18FFFFFF</color>
+    <color name="pocket_white_15">#26FFFFFF</color>
+    <color name="pocket_white_18">#2EFFFFFF</color>
+    <color name="pocket_white_20">#33FFFFFF</color>
+    <color name="pocket_white_27">#44FFFFFF</color>
+    <color name="pocket_white_40">#66FFFFFF</color>
+    <color name="pocket_white_60">#99FFFFFF</color>
+    <color name="pocket_glass_base">#F01A1A1A</color>
+    <color name="pocket_chat_overlay">#99000000</color>
+    <color name="pocket_primary_ripple">#30FF6B6B</color>
 </resources>

@@ -1,11 +1,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.Pocket" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:fontFamily">sans</item>
-        <item name="fontFamily">sans</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:windowBackground">@color/pocket_background</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@color/pocket_surface</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:navigationBarColor">@color/pocket_background</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
         <item name="android:windowContentTransitions">true</item>
         <item name="android:windowSharedElementEnterTransition">@transition/photo_shared_element_transition</item>
         <item name="android:windowSharedElementExitTransition">@transition/photo_shared_element_transition</item>
@@ -30,7 +30,7 @@
         <item name="textAppearanceTitleMedium">@style/TextAppearance.Pocket.Title</item>
         <item name="textAppearanceBodyLarge">@style/TextAppearance.Pocket.Body</item>
         <item name="textAppearanceBodyMedium">@style/TextAppearance.Pocket.BodySmall</item>
-        <item name="textAppearanceLabelMedium">@style/TextAppearance.Pocket.Caption</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.Pocket.Label</item>
     </style>
 
     <style name="Theme.Pocket" parent="Base.Theme.Pocket" />

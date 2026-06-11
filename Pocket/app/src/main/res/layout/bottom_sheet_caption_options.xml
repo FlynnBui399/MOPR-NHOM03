@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#0A0A0A"
+    android:background="@color/pocket_background"
     android:orientation="vertical"
     android:padding="@dimen/pocket_space_lg">
 
@@ -12,7 +12,7 @@
         style="@style/TextAppearance.Pocket.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/pocket_text_primary"
         android:text="@string/camera_captions_title" />
 
     <androidx.recyclerview.widget.RecyclerView

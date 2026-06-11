@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A0A0A"
+    android:background="@color/pocket_background"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:fitsSystemWindows="false"
@@ -15,14 +15,16 @@
         android:id="@+id/top_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#00000000"
+        android:background="@color/pocket_transparent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:gravity="center_vertical"
         android:minHeight="64dp"
         android:orientation="horizontal"
-        android:paddingStart="16dp"
+        android:paddingStart="@dimen/pocket_space_lg"
         android:paddingTop="0dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="8dp"
+        android:paddingEnd="@dimen/pocket_space_lg"
+        android:paddingBottom="@dimen/pocket_space_sm"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -53,18 +55,37 @@
                 android:fontFamily="sans-serif-medium"
                 android:gravity="center"
                 android:text="Tất cả bạn bè"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
+                android:textColor="@color/pocket_text_primary"
+                android:textSize="14sp" />
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/top_bar_chat_button"
+        <FrameLayout
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/bg_icon_circle_dark"
-            android:padding="9dp"
-            android:src="@drawable/ic_nav_friends"
-            app:tint="#FFFFFF" />
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <ImageButton
+                android:id="@+id/top_bar_chat_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_icon_circle_dark"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:padding="9dp"
+                android:src="@drawable/ic_message"
+                android:stateListAnimator="@animator/scale_press"
+                app:tint="@color/pocket_text_primary" />
+
+            <View
+                android:id="@+id/top_bar_chat_badge"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="3dp"
+                android:layout_marginEnd="3dp"
+                android:background="@drawable/bg_unread_badge"
+                android:visibility="gone" />
+        </FrameLayout>
     </LinearLayout>
 
     <androidx.fragment.app.FragmentContainerView
@@ -82,18 +103,19 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="20dp"
         android:background="@drawable/bg_bottom_nav_pill"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:elevation="8dp"
         android:gravity="center"
-        android:minHeight="68dp"
+        android:minHeight="84dp"
         android:orientation="horizontal"
-        android:paddingStart="18dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="18dp"
-        android:paddingBottom="12dp"
+        android:paddingStart="24dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="10dp"
+        android:translationY="-20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -101,14 +123,15 @@
 
         <ImageButton
             android:id="@+id/nav_feed_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_nav_side_button"
             android:contentDescription="@string/nav_feed"
-            android:padding="12dp"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:padding="10dp"
             android:scaleType="center"
             android:src="@drawable/ic_nav_feed"
-            android:stateListAnimator="@animator/scale_press"
+            android:stateListAnimator="@animator/scale_nav_press"
             app:tint="@color/selector_nav_icon_tint" />
 
         <Space
@@ -118,17 +141,19 @@
 
         <ImageButton
             android:id="@+id/nav_camera_button"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:background="@drawable/bg_camera_fab"
             android:contentDescription="@string/nav_camera"
-            android:elevation="4dp"
-            android:padding="17dp"
+            android:elevation="12dp"
+            android:outlineAmbientShadowColor="@color/pocket_fab_shadow"
+            android:outlineSpotShadowColor="@color/pocket_fab_shadow"
+            android:padding="18dp"
             android:scaleType="center"
             android:src="@drawable/ic_nav_camera"
-            android:stateListAnimator="@animator/scale_press"
-            android:translationY="-8dp"
-            app:tint="#FFFFFF" />
+            android:stateListAnimator="@animator/scale_nav_press"
+            android:translationY="-14dp"
+            app:tint="@color/pocket_text_primary" />
 
         <Space
             android:layout_width="0dp"
@@ -137,14 +162,15 @@
 
         <ImageButton
             android:id="@+id/nav_friends_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_nav_side_button"
             android:contentDescription="@string/nav_friends"
-            android:padding="12dp"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:padding="10dp"
             android:scaleType="center"
             android:src="@drawable/ic_nav_friends"
-            android:stateListAnimator="@animator/scale_press"
+            android:stateListAnimator="@animator/scale_nav_press"
             app:tint="@color/selector_nav_icon_tint" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
