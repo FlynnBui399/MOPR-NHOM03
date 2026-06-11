@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,13 +50,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            getWindow().setDecorFitsSystemWindows(false);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            );
-        }
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
         View chatRoot = findViewById(R.id.chat_root);
         MaterialToolbar toolbar = findViewById(R.id.chat_toolbar);
@@ -64,6 +59,7 @@ public class ChatActivity extends AppCompatActivity {
         ViewCompat.setOnApplyWindowInsetsListener(chatRoot, (v, insets) -> {
             int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
             int navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+            int imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
 
             toolbar.setPadding(
                     toolbar.getPaddingLeft(),
@@ -73,11 +69,12 @@ public class ChatActivity extends AppCompatActivity {
             );
 
             int basePaddingBottom = (int) (16 * v.getResources().getDisplayMetrics().density);
+            int bottomPadding = Math.max(navBarHeight, imeHeight);
             composerContainer.setPadding(
                     composerContainer.getPaddingLeft(),
                     composerContainer.getPaddingTop(),
                     composerContainer.getPaddingRight(),
-                    basePaddingBottom + navBarHeight
+                    basePaddingBottom + bottomPadding
             );
 
             return insets;

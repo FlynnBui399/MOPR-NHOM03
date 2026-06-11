@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
@@ -32,13 +33,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            getWindow().setDecorFitsSystemWindows(false);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            );
-        }
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             startActivity(new Intent(this, LoginActivity.class));
@@ -86,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         friendsButton = findViewById(R.id.nav_friends_button);
 
         topBarAvatar.setOnClickListener(view -> selectTab(R.id.top_bar_avatar));
-        topBarChatButton.setOnClickListener(view -> selectTab(R.id.nav_friends));
+        topBarChatButton.setOnClickListener(view -> selectTab(R.id.top_bar_chat_button));
         findViewById(R.id.top_bar_filter_pill).setOnClickListener(view ->
                 Toast.makeText(this, "Sắp ra mắt", Toast.LENGTH_SHORT).show());
         feedButton.setOnClickListener(view -> selectTab(R.id.nav_feed));
@@ -138,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
             showFragment(new FriendListFragment());
         } else if (itemId == R.id.top_bar_avatar) {
             showFragment(new ProfileFragment());
+        } else if (itemId == R.id.top_bar_chat_button) {
+            showFragment(new ChatListFragment());
         }
     }
 

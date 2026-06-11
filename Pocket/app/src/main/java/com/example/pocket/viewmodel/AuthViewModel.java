@@ -198,20 +198,39 @@ public class AuthViewModel extends AndroidViewModel {
                 .addOnSuccessListener(snapshot -> {
                     Timestamp now = Timestamp.now();
                     Map<String, Object> values = new HashMap<>();
-                    values.put("displayName", displayName(firebaseUser));
-                    values.put("username", username(firebaseUser));
-                    values.put("email", firebaseUser.getEmail());
-                    values.put("phoneNumber", firebaseUser.getPhoneNumber());
-                    values.put("avatarUrl", firebaseUser.getPhotoUrl() == null
-                            ? null
-                            : firebaseUser.getPhotoUrl().toString());
-                    values.put("fcmToken", fcmToken);
-                    values.put("updatedAt", now);
-                    if (!snapshot.exists()) {
+
+                    if (snapshot.exists()) {
+                        String existingName = snapshot.getString("displayName");
+                        String existingAvatar = snapshot.getString("avatarUrl");
+
+                        if (existingName != null && !existingName.trim().isEmpty()) {
+                            values.put("displayName", existingName);
+                        } else {
+                            values.put("displayName", displayName(firebaseUser));
+                        }
+
+                        if (existingAvatar != null && !existingAvatar.trim().isEmpty()) {
+                            values.put("avatarUrl", existingAvatar);
+                        } else {
+                            values.put("avatarUrl", firebaseUser.getPhotoUrl() == null
+                                    ? null
+                                    : firebaseUser.getPhotoUrl().toString());
+                        }
+                    } else {
+                        values.put("displayName", displayName(firebaseUser));
+                        values.put("avatarUrl", firebaseUser.getPhotoUrl() == null
+                                ? null
+                                : firebaseUser.getPhotoUrl().toString());
                         values.put("friendIds", new ArrayList<String>());
                         values.put("friends", new ArrayList<String>());
                         values.put("createdAt", now);
                     }
+
+                    values.put("username", username(firebaseUser));
+                    values.put("email", firebaseUser.getEmail());
+                    values.put("phoneNumber", firebaseUser.getPhoneNumber());
+                    values.put("fcmToken", fcmToken);
+                    values.put("updatedAt", now);
 
                     userRef.set(values, SetOptions.merge())
                             .addOnSuccessListener(unused -> userRef.get()

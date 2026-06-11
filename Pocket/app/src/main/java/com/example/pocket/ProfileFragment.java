@@ -230,6 +230,13 @@ public class ProfileFragment extends Fragment {
                     nameEditText.setVisibility(View.GONE);
                     saveNameButton.setVisibility(View.GONE);
                     showSnackbar("Đã cập nhật tên");
+
+                    com.example.pocket.data.model.User currentUserModel = viewModel.currentUser.getValue();
+                    if (currentUserModel != null) {
+                        currentUserModel.setDisplayName(newName);
+                        viewModel.currentUser.setValue(currentUserModel);
+                        SharedPrefManager.getInstance(requireContext()).saveUser(currentUserModel);
+                    }
                 })
                 .addOnFailureListener(error ->
                         showSnackbar(error.getMessage() == null ? "Không thể cập nhật tên" : error.getMessage()));

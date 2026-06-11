@@ -60,6 +60,8 @@
     <string name="nav_camera">Camera</string>
     <string name="nav_friends">Friends</string>
     <string name="nav_profile">Profile</string>
+    <string name="nav_chat">Messages</string>
+    <string name="chat_list_empty">No conversations yet.</string>
     <string name="feed_placeholder">Feed coming soon</string>
     <string name="friends_placeholder">Friends coming soon</string>
     <string name="top_bar_filter_all_friends">All friends</string>

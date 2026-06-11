@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/otp_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/pocket_background"
-    android:paddingStart="24dp"
-    android:paddingEnd="24dp"
-    tools:context=".OtpActivity">
+    android:fillViewport="true"
+    android:background="@color/pocket_background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/otp_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        tools:context=".OtpActivity">
 
     <ImageButton
         android:id="@+id/otp_back_button"
@@ -141,4 +146,5 @@
             app:cornerRadius="@dimen/pocket_radius_md"
             app:pocketVariant="primary" />
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
