@@ -187,6 +187,82 @@
                 android:background="@drawable/divider_pocket" />
 
             <LinearLayout
+                android:id="@+id/profile_theme_row"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/pocket_space_lg"
+                android:paddingEnd="@dimen/pocket_space_lg">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/profile_theme"
+                    android:textColor="@color/pocket_text_primary"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/profile_theme_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/pocket_space_md"
+                    android:textColor="@color/pocket_text_secondary"
+                    android:textSize="16sp"
+                    tools:text="Light" />
+
+                <Switch
+                    android:id="@+id/profile_theme_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/pocket_stroke_hairline"
+                android:background="@drawable/divider_pocket" />
+
+            <LinearLayout
+                android:id="@+id/profile_language_row"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/pocket_space_lg"
+                android:paddingEnd="@dimen/pocket_space_lg">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/profile_language"
+                    android:textColor="@color/pocket_text_primary"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/profile_language_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/pocket_text_secondary"
+                    android:textSize="16sp"
+                    tools:text="English" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/pocket_stroke_hairline"
+                android:background="@drawable/divider_pocket" />
+
+            <LinearLayout
                 android:id="@+id/profile_privacy_row"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"

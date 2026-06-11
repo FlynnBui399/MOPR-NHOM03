@@ -68,6 +68,12 @@
 
     <string name="profile_change_avatar">Đổi ảnh đại diện</string>
     <string name="profile_notifications">Thông báo</string>
+    <string name="profile_theme">Giao diện</string>
+    <string name="profile_theme_dark">Tối</string>
+    <string name="profile_theme_light">Sáng</string>
+    <string name="profile_language">Ngôn ngữ</string>
+    <string name="profile_language_en">Tiếng Anh</string>
+    <string name="profile_language_vi">Tiếng Việt</string>
     <string name="profile_privacy">Quyền riêng tư</string>
     <string name="profile_logout">Đăng xuất</string>
     <string name="profile_edit_name">Đổi tên hiển thị</string>

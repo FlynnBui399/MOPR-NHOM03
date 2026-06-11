@@ -12,8 +12,12 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.os.LocaleListCompat;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -72,12 +76,65 @@ public class ProfileFragment extends Fragment {
         saveNameButton = view.findViewById(R.id.profile_save_name_button);
         LinearLayout privacyRow = view.findViewById(R.id.profile_privacy_row);
         LinearLayout logoutRow = view.findViewById(R.id.profile_logout_row);
+        LinearLayout themeRow = view.findViewById(R.id.profile_theme_row);
+        TextView themeStatusText = view.findViewById(R.id.profile_theme_status);
+        Switch themeSwitch = view.findViewById(R.id.profile_theme_switch);
+        LinearLayout languageRow = view.findViewById(R.id.profile_language_row);
+        TextView languageStatusText = view.findViewById(R.id.profile_language_status);
 
         changeAvatarButton.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
         editNameButton.setOnClickListener(v -> showNameEditor());
         saveNameButton.setOnClickListener(v -> saveDisplayName());
         privacyRow.setOnClickListener(v -> Toast.makeText(requireContext(), "Sắp ra mắt", Toast.LENGTH_SHORT).show());
         logoutRow.setOnClickListener(v -> signOut());
+
+        // Theme Toggle Setup
+        int currentMode = SharedPrefManager.getInstance(requireContext()).getThemeMode();
+        boolean isDark = currentMode == AppCompatDelegate.MODE_NIGHT_YES;
+        themeSwitch.setChecked(isDark);
+        themeStatusText.setText(isDark ? R.string.profile_theme_dark : R.string.profile_theme_light);
+
+        themeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            int newMode = isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+            SharedPrefManager.getInstance(requireContext()).setThemeMode(newMode);
+            AppCompatDelegate.setDefaultNightMode(newMode);
+        });
+        themeRow.setOnClickListener(v -> themeSwitch.toggle());
+
+        // Language Toggle Setup
+        String currentLang = "en";
+        String savedLanguage = SharedPrefManager.getInstance(requireContext()).getLanguageLocale();
+        if (savedLanguage != null) {
+            currentLang = savedLanguage;
+        } else {
+            LocaleListCompat currentLocales = AppCompatDelegate.getApplicationLocales();
+            if (!currentLocales.isEmpty()) {
+                currentLang = currentLocales.get(0).getLanguage();
+            } else {
+                currentLang = java.util.Locale.getDefault().getLanguage();
+            }
+        }
+        boolean isVi = "vi".equalsIgnoreCase(currentLang);
+        languageStatusText.setText(isVi ? R.string.profile_language_vi : R.string.profile_language_en);
+
+        languageRow.setOnClickListener(v -> {
+            String currLang = "en";
+            String savedLang = SharedPrefManager.getInstance(requireContext()).getLanguageLocale();
+            if (savedLang != null) {
+                currLang = savedLang;
+            } else {
+                LocaleListCompat currentLocales = AppCompatDelegate.getApplicationLocales();
+                if (!currentLocales.isEmpty()) {
+                    currLang = currentLocales.get(0).getLanguage();
+                } else {
+                    currLang = java.util.Locale.getDefault().getLanguage();
+                }
+            }
+            String newLang = "vi".equalsIgnoreCase(currLang) ? "en" : "vi";
+            SharedPrefManager.getInstance(requireContext()).setLanguageLocale(newLang);
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(newLang));
+            languageStatusText.setText("vi".equalsIgnoreCase(newLang) ? R.string.profile_language_vi : R.string.profile_language_en);
+        });
 
         viewModel.currentUser.observe(getViewLifecycleOwner(), user -> {
             if (user == null) {

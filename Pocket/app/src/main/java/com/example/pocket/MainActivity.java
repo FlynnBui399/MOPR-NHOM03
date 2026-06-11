@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         cameraButton = findViewById(R.id.nav_camera_button);
         friendsButton = findViewById(R.id.nav_friends_button);
 
-        topBarAvatar.setOnClickListener(view -> showFragment(new ProfileFragment()));
+        topBarAvatar.setOnClickListener(view -> selectTab(R.id.top_bar_avatar));
         topBarChatButton.setOnClickListener(view ->
                 Toast.makeText(this, "Sắp ra mắt", Toast.LENGTH_SHORT).show());
         findViewById(R.id.top_bar_filter_pill).setOnClickListener(view ->
@@ -125,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
             showFragment(new FeedFragment());
         } else if (itemId == R.id.nav_friends) {
             showFragment(new FriendListFragment());
+        } else if (itemId == R.id.top_bar_avatar) {
+            showFragment(new ProfileFragment());
         }
     }
 

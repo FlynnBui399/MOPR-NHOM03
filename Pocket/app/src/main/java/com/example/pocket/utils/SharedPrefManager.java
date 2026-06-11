@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.example.pocket.data.model.User;
 
@@ -14,6 +15,8 @@ public class SharedPrefManager {
     private static final String KEY_DISPLAY_NAME = "displayName";
     private static final String KEY_PHONE_NUMBER = "phoneNumber";
     private static final String KEY_AVATAR_URL = "avatarUrl";
+    private static final String KEY_THEME_MODE = "theme_mode";
+    private static final String KEY_LANGUAGE_LOCALE = "language_locale";
 
     private static SharedPrefManager instance;
     private final SharedPreferences preferences;
@@ -47,6 +50,23 @@ public class SharedPrefManager {
     @Nullable
     public String getAvatarUrl() {
         return preferences.getString(KEY_AVATAR_URL, null);
+    }
+
+    public void setThemeMode(int mode) {
+        preferences.edit().putInt(KEY_THEME_MODE, mode).apply();
+    }
+
+    public int getThemeMode() {
+        return preferences.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_NO);
+    }
+
+    public void setLanguageLocale(@NonNull String localeTag) {
+        preferences.edit().putString(KEY_LANGUAGE_LOCALE, localeTag).apply();
+    }
+
+    @Nullable
+    public String getLanguageLocale() {
+        return preferences.getString(KEY_LANGUAGE_LOCALE, null);
     }
 
     public void clear() {
