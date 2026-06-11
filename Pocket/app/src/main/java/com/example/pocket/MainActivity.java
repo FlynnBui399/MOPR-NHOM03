@@ -15,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.example.pocket.utils.SharedPrefManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -85,21 +86,21 @@ public class MainActivity extends AppCompatActivity {
         friendsButton = findViewById(R.id.nav_friends_button);
 
         topBarAvatar.setOnClickListener(view -> selectTab(R.id.top_bar_avatar));
-        topBarChatButton.setOnClickListener(view ->
-                Toast.makeText(this, "Sắp ra mắt", Toast.LENGTH_SHORT).show());
+        topBarChatButton.setOnClickListener(view -> selectTab(R.id.nav_friends));
         findViewById(R.id.top_bar_filter_pill).setOnClickListener(view ->
                 Toast.makeText(this, "Sắp ra mắt", Toast.LENGTH_SHORT).show());
         feedButton.setOnClickListener(view -> selectTab(R.id.nav_feed));
         cameraButton.setOnClickListener(view -> startActivity(new Intent(this, CameraActivity.class)));
         friendsButton.setOnClickListener(view -> selectTab(R.id.nav_friends));
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null && user.getPhotoUrl() != null) {
-            Glide.with(this)
-                    .load(user.getPhotoUrl())
-                    .circleCrop()
-                    .placeholder(R.drawable.avatar_placeholder)
-                    .into(topBarAvatar);
+        String cachedAvatar = SharedPrefManager.getInstance(this).getAvatarUrl();
+        if (cachedAvatar != null) {
+            updateTopBarAvatar(cachedAvatar);
+        } else {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null && user.getPhotoUrl() != null) {
+                updateTopBarAvatar(user.getPhotoUrl().toString());
+            }
         }
 
         if (savedInstanceState == null) {
@@ -114,6 +115,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("selectedTabId", selectedTabId);
+    }
+
+    public void updateTopBarAvatar(String url) {
+        if (topBarAvatar != null && url != null) {
+            Glide.with(this)
+                    .load(url)
+                    .circleCrop()
+                    .placeholder(R.drawable.avatar_placeholder)
+                    .into(topBarAvatar);
+        }
     }
 
     private void selectTab(int itemId) {

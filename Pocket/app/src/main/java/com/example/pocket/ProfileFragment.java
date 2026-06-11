@@ -148,6 +148,10 @@ public class ProfileFragment extends Fragment {
                     .placeholder(R.drawable.avatar_placeholder)
                     .error(R.drawable.avatar_placeholder)
                     .into(avatarImage);
+
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).updateTopBarAvatar(user.getAvatarUrl());
+            }
         });
         viewModel.errorMessage.observe(getViewLifecycleOwner(), message -> {
             if (message != null && !message.trim().isEmpty()) {
