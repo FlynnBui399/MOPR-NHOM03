@@ -60,9 +60,10 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/profile_photos_sent_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0"
+                    android:text="@string/profile_stat_zero"
                     android:textColor="@color/pocket_text_primary"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -72,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/pocket_space_xs"
-                    android:text="Photos sent"
+                    android:text="@string/profile_stats_photos_sent"
                     android:textColor="@color/pocket_nav_icon_unselected" />
             </LinearLayout>
 
@@ -86,9 +87,10 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/profile_friends_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0"
+                    android:text="@string/profile_stat_zero"
                     android:textColor="@color/pocket_text_primary"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -98,7 +100,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/pocket_space_xs"
-                    android:text="Friends"
+                    android:text="@string/profile_stats_friends"
                     android:textColor="@color/pocket_nav_icon_unselected" />
             </LinearLayout>
         </LinearLayout>
@@ -109,7 +111,7 @@
             android:layout_height="@dimen/pocket_button_height"
             android:layout_marginTop="@dimen/pocket_space_lg"
             android:stateListAnimator="@animator/scale_press"
-            android:text="Äá»•i tÃªn hiá»ƒn thá»‹"
+            android:text="@string/profile_edit_name"
             app:cornerRadius="@dimen/pocket_radius_md"
             app:pocketVariant="secondary" />
 
@@ -119,7 +121,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/pocket_space_sm"
             android:background="@drawable/bg_pocket_input"
-            android:hint="Nháº­p tÃªn má»›i..."
+            android:hint="@string/profile_name_hint"
             android:inputType="textPersonName"
             android:padding="@dimen/pocket_space_md"
             android:textColor="@color/pocket_text_primary"
@@ -133,7 +135,7 @@
             android:layout_height="@dimen/pocket_button_height"
             android:layout_marginTop="@dimen/pocket_space_sm"
             android:stateListAnimator="@animator/scale_press"
-            android:text="LÆ°u"
+            android:text="@string/profile_save_name"
             android:visibility="gone"
             app:cornerRadius="@dimen/pocket_radius_md"
             app:pocketVariant="primary" />

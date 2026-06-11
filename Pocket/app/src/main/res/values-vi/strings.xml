@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pocket</string>
+    <string name="pocket_loading">Đang tải...</string>
+    <string name="pocket_error_title">Đã xảy ra lỗi</string>
+    <string name="pocket_error_message">Vui lòng thử lại.</string>
+    <string name="pocket_error_action">Thử lại</string>
+
+    <string name="chat_avatar_description">Ảnh đại diện người trò chuyện</string>
+    <string name="chat_message_hint">Tin nhắn</string>
+    <string name="chat_send">Gửi</string>
+    <string name="chat_back">Quay lại</string>
+
+    <string name="empty_photos_title">Chưa có ảnh nào</string>
+    <string name="empty_photos_message">Ảnh bạn bè gửi cho bạn sẽ xuất hiện ở đây.</string>
+    <string name="empty_photos_action">Làm mới</string>
+    <string name="transition_photo_detail_image">photo_detail_image</string>
+
+    <string name="camera_title">Camera</string>
+    <string name="camera_permission_required">Cần quyền camera để chụp ảnh.</string>
+    <string name="camera_capture">Chụp</string>
+    <string name="camera_retake">Chụp lại</string>
+    <string name="camera_flip">Đổi camera</string>
+    <string name="camera_flash">Đèn flash</string>
+    <string name="camera_flash_on">Bật flash</string>
+    <string name="camera_flash_off">Tắt flash</string>
+    <string name="camera_send">Gửi</string>
+    <string name="camera_suggest_caption">Gợi ý caption</string>
+    <string name="camera_caption_hint">Caption</string>
+    <string name="camera_photo_preview">Xem trước ảnh đã chụp</string>
+    <string name="camera_preview">Xem trước camera</string>
+    <string name="camera_select_friends_title">Gửi cho bạn bè</string>
+    <string name="camera_select_friends_empty">Chưa có bạn bè.</string>
+    <string name="camera_captions_title">Caption gợi ý</string>
+    <string name="camera_upload_success">Đã gửi ảnh</string>
+    <string name="camera_upload_error">Không thể gửi ảnh</string>
+    <string name="camera_default_user">Người dùng Pocket</string>
+    <string name="photo_send_no_friend">Chọn ít nhất một người bạn.</string>
+
+    <string name="login_title">Pocket</string>
+    <string name="login_subtitle">Chia sẻ khoảnh khắc nhỏ với bạn thân.</string>
+    <string name="login_google">Tiếp tục với Google</string>
+    <string name="login_phone">Dùng số điện thoại</string>
+    <string name="login_logo_description">Logo ứng dụng Pocket</string>
+    <string name="auth_google_failed">Đăng nhập Google thất bại.</string>
+    <string name="auth_google_client_missing">Thiếu web client ID cho Google Sign-In.</string>
+    <string name="auth_phone_failed">Đăng nhập bằng số điện thoại thất bại.</string>
+    <string name="auth_user_save_failed">Không thể lưu hồ sơ người dùng.</string>
+
+    <string name="otp_title">Xác nhận số điện thoại</string>
+    <string name="otp_subtitle">Nhập số điện thoại để nhận mã xác minh.</string>
+    <string name="otp_phone_hint">Số điện thoại</string>
+    <string name="otp_code_hint">Mã 6 chữ số</string>
+    <string name="otp_send">Gửi mã OTP</string>
+    <string name="otp_verify">Xác nhận</string>
+    <string name="otp_sent">Đã gửi mã xác minh.</string>
+    <string name="otp_invalid_phone">Nhập số điện thoại hợp lệ.</string>
+    <string name="otp_invalid_code">Nhập mã OTP gồm 6 chữ số.</string>
+
+    <string name="nav_feed">Bảng tin</string>
+    <string name="nav_camera">Camera</string>
+    <string name="nav_friends">Bạn bè</string>
+    <string name="nav_profile">Hồ sơ</string>
+    <string name="feed_placeholder">Bảng tin sắp ra mắt</string>
+    <string name="friends_placeholder">Bạn bè sắp ra mắt</string>
+    <string name="top_bar_filter_all_friends">Tất cả bạn bè</string>
+    <string name="common_coming_soon">Sắp ra mắt</string>
+
+    <string name="profile_change_avatar">Đổi ảnh đại diện</string>
+    <string name="profile_notifications">Thông báo</string>
+    <string name="profile_privacy">Quyền riêng tư</string>
+    <string name="profile_logout">Đăng xuất</string>
+    <string name="profile_edit_name">Đổi tên hiển thị</string>
+    <string name="profile_name_hint">Nhập tên mới...</string>
+    <string name="profile_save_name">Lưu</string>
+    <string name="profile_stat_zero">0</string>
+    <string name="profile_stats_photos_sent">Ảnh đã gửi</string>
+    <string name="profile_stats_friends">Bạn bè</string>
+    <string name="profile_name_empty">Tên không được để trống.</string>
+    <string name="profile_not_signed_in">Bạn chưa đăng nhập.</string>
+    <string name="profile_name_updated">Đã cập nhật tên.</string>
+    <string name="profile_name_update_failed">Không thể cập nhật tên.</string>
+
+    <string name="friends_title">Bạn bè</string>
+    <string name="friend_requests_title">Lời mời kết bạn</string>
+    <string name="friends_empty">Chưa có bạn bè. Hãy thêm bạn!</string>
+    <string name="friends_add">Thêm bạn</string>
+    <string name="friend_message">Nhắn tin</string>
+    <string name="friend_remove">Xóa</string>
+    <string name="friend_accept">Chấp nhận</string>
+    <string name="friend_decline">Từ chối</string>
+    <string name="add_friend_title">Thêm bạn</string>
+    <string name="add_friend_phone_hint">Số điện thoại bạn bè</string>
+    <string name="add_friend_search">Tìm kiếm</string>
+    <string name="add_friend_send_request">Gửi lời mời</string>
+    <string name="add_friend_sent">Đã gửi</string>
+    <string name="add_friend_not_found">Không tìm thấy người dùng.</string>
+    <string name="add_friend_request_failed">Không thể gửi lời mời.</string>
+</resources>

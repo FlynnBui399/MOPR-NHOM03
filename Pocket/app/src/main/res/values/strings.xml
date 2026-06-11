@@ -4,13 +4,17 @@
     <string name="pocket_error_title">Something went wrong</string>
     <string name="pocket_error_message">Please try again.</string>
     <string name="pocket_error_action">Retry</string>
+
     <string name="chat_avatar_description">Chat participant avatar</string>
     <string name="chat_message_hint">Message</string>
     <string name="chat_send">Send</string>
+    <string name="chat_back">Back</string>
+
     <string name="empty_photos_title">No photos yet</string>
     <string name="empty_photos_message">Photos shared with you will appear here.</string>
     <string name="empty_photos_action">Refresh</string>
     <string name="transition_photo_detail_image">photo_detail_image</string>
+
     <string name="camera_title">Camera</string>
     <string name="camera_permission_required">Camera permission is required to take photos.</string>
     <string name="camera_capture">Capture</string>
@@ -20,7 +24,7 @@
     <string name="camera_flash_on">Flash on</string>
     <string name="camera_flash_off">Flash off</string>
     <string name="camera_send">Send</string>
-    <string name="camera_suggest_caption">Suggest Caption</string>
+    <string name="camera_suggest_caption">Suggest caption</string>
     <string name="camera_caption_hint">Caption</string>
     <string name="camera_photo_preview">Captured photo preview</string>
     <string name="camera_preview">Camera preview</string>
@@ -30,48 +34,65 @@
     <string name="camera_upload_success">Photo sent</string>
     <string name="camera_upload_error">Unable to send photo</string>
     <string name="camera_default_user">Pocket User</string>
+    <string name="photo_send_no_friend">Choose at least one friend.</string>
+
     <string name="login_title">Pocket</string>
     <string name="login_subtitle">Share small moments with close friends.</string>
-    <string name="login_google">Tiếp tục với Google</string>
-    <string name="login_phone">Dùng số điện thoại</string>
+    <string name="login_google">Continue with Google</string>
+    <string name="login_phone">Use phone number</string>
     <string name="login_logo_description">Pocket app logo</string>
     <string name="auth_google_failed">Google sign-in failed.</string>
     <string name="auth_google_client_missing">Google Sign-In is missing a web client ID.</string>
     <string name="auth_phone_failed">Phone sign-in failed.</string>
     <string name="auth_user_save_failed">Unable to save user profile.</string>
-    <string name="otp_title">Xác nhận số điện thoại</string>
+
+    <string name="otp_title">Verify your phone number</string>
     <string name="otp_subtitle">Enter your phone number to receive a verification code.</string>
     <string name="otp_phone_hint">Phone number</string>
     <string name="otp_code_hint">6-digit code</string>
-    <string name="otp_send">Gửi mã OTP</string>
-    <string name="otp_verify">Xác nhận</string>
+    <string name="otp_send">Send OTP</string>
+    <string name="otp_verify">Verify</string>
     <string name="otp_sent">Verification code sent.</string>
     <string name="otp_invalid_phone">Enter a valid phone number.</string>
     <string name="otp_invalid_code">Enter the 6-digit OTP.</string>
+
     <string name="nav_feed">Feed</string>
     <string name="nav_camera">Camera</string>
     <string name="nav_friends">Friends</string>
     <string name="nav_profile">Profile</string>
     <string name="feed_placeholder">Feed coming soon</string>
     <string name="friends_placeholder">Friends coming soon</string>
-    <string name="profile_change_avatar">Đổi ảnh đại diện</string>
-    <string name="profile_notifications">Thông báo</string>
-    <string name="profile_privacy">Quyền riêng tư</string>
-    <string name="profile_logout">Đăng xuất</string>
-    <string name="friends_title">Bạn bè</string>
-    <string name="friend_requests_title">Lời mời kết bạn</string>
-    <string name="friends_empty">Chưa có bạn bè. Hãy thêm bạn!</string>
-    <string name="friends_add">Thêm bạn</string>
-    <string name="friend_message">Nhắn tin</string>
-    <string name="friend_remove">Xóa</string>
-    <string name="friend_accept">Chấp nhận</string>
-    <string name="friend_decline">Từ chối</string>
-    <string name="add_friend_title">Thêm bạn</string>
-    <string name="add_friend_phone_hint">Số điện thoại bạn bè</string>
-    <string name="add_friend_search">Tìm kiếm</string>
-    <string name="add_friend_send_request">Gửi lời mời</string>
-    <string name="add_friend_sent">Đã gửi</string>
-    <string name="add_friend_not_found">Không tìm thấy người dùng</string>
-    <string name="add_friend_request_failed">Không thể gửi lời mời</string>
-    <string name="chat_back">Quay lại</string>
+    <string name="top_bar_filter_all_friends">All friends</string>
+    <string name="common_coming_soon">Coming soon</string>
+
+    <string name="profile_change_avatar">Change avatar</string>
+    <string name="profile_notifications">Notifications</string>
+    <string name="profile_privacy">Privacy</string>
+    <string name="profile_logout">Log out</string>
+    <string name="profile_edit_name">Edit display name</string>
+    <string name="profile_name_hint">Enter a new name...</string>
+    <string name="profile_save_name">Save</string>
+    <string name="profile_stat_zero">0</string>
+    <string name="profile_stats_photos_sent">Photos sent</string>
+    <string name="profile_stats_friends">Friends</string>
+    <string name="profile_name_empty">Name cannot be empty.</string>
+    <string name="profile_not_signed_in">You are not signed in.</string>
+    <string name="profile_name_updated">Name updated.</string>
+    <string name="profile_name_update_failed">Unable to update name.</string>
+
+    <string name="friends_title">Friends</string>
+    <string name="friend_requests_title">Friend requests</string>
+    <string name="friends_empty">No friends yet. Add someone!</string>
+    <string name="friends_add">Add friend</string>
+    <string name="friend_message">Message</string>
+    <string name="friend_remove">Remove</string>
+    <string name="friend_accept">Accept</string>
+    <string name="friend_decline">Decline</string>
+    <string name="add_friend_title">Add friend</string>
+    <string name="add_friend_phone_hint">Friend phone number</string>
+    <string name="add_friend_search">Search</string>
+    <string name="add_friend_send_request">Send request</string>
+    <string name="add_friend_sent">Sent</string>
+    <string name="add_friend_not_found">User not found.</string>
+    <string name="add_friend_request_failed">Unable to send request.</string>
 </resources>

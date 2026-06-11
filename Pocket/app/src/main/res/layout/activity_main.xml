@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
                 android:gravity="center"
-                android:text="Tất cả bạn bè"
+                android:text="@string/top_bar_filter_all_friends"
                 android:textColor="@color/pocket_text_primary"
                 android:textSize="14sp" />
         </LinearLayout>
