@@ -93,7 +93,7 @@ public class CameraViewModel extends ViewModel {
         }
 
         public static UploadStatus error(String message) {
-            return new UploadStatus(State.ERROR, message == null ? "Unable to send photo" : message, null);
+            return new UploadStatus(State.ERROR, message, null);
         }
 
         public State getState() {

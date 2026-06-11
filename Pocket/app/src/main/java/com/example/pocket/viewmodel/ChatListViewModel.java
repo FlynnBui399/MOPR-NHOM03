@@ -5,14 +5,15 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.pocket.R;
 import com.example.pocket.data.model.Conversation;
 import com.example.pocket.data.model.Message;
 import com.example.pocket.data.model.User;
 import com.example.pocket.data.repository.ChatRepository;
 import com.example.pocket.data.repository.UserRepository;
+import com.example.pocket.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -52,7 +53,7 @@ public class ChatListViewModel extends AndroidViewModel {
                 ? null
                 : FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (currentUid == null) {
-            errorMessage.setValue("Bạn chưa đăng nhập");
+            errorMessage.setValue(getApplication().getString(R.string.profile_not_signed_in));
             return;
         }
 
@@ -107,9 +108,9 @@ public class ChatListViewModel extends AndroidViewModel {
         for (User friend : friends) {
             String chatId = chatRepository.getChatId(currentUid, friend.getId());
             if (!chatListeners.containsKey(chatId)) {
-                ListenerRegistration reg = firestore.collection("chats")
+                ListenerRegistration reg = firestore.collection(Constants.COLLECTION_CHATS)
                         .document(chatId)
-                        .collection("messages")
+                        .collection(Constants.COLLECTION_MESSAGES)
                         .orderBy("createdAt", Query.Direction.DESCENDING)
                         .limit(1)
                         .addSnapshotListener((snapshot, error) -> {

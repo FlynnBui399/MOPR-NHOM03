@@ -58,7 +58,7 @@ public class PhotoRepository {
                                  @NonNull String caption) {
         List<String> recipients = new ArrayList<>(recipientIds);
         if (recipients.isEmpty()) {
-            return Tasks.forException(new IllegalArgumentException("Choose at least one friend"));
+            return Tasks.forException(new IllegalArgumentException());
         }
 
         return cloudinaryService.uploadUnsigned(jpegBytes).continueWithTask(uploadTask -> {

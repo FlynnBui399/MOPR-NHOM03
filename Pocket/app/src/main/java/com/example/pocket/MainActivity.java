@@ -1,7 +1,6 @@
 package com.example.pocket;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton cameraButton;
     private ImageButton friendsButton;
     private CircleImageView topBarAvatar;
-    private ImageButton topBarChatButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         topBarAvatar = findViewById(R.id.top_bar_avatar);
-        topBarChatButton = findViewById(R.id.top_bar_chat_button);
+        ImageButton topBarChatButton = findViewById(R.id.top_bar_chat_button);
         feedButton = findViewById(R.id.nav_feed_button);
         cameraButton = findViewById(R.id.nav_camera_button);
         friendsButton = findViewById(R.id.nav_friends_button);
@@ -83,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         topBarAvatar.setOnClickListener(view -> selectTab(R.id.top_bar_avatar));
         topBarChatButton.setOnClickListener(view -> selectTab(R.id.top_bar_chat_button));
         findViewById(R.id.top_bar_filter_pill).setOnClickListener(view ->
-                Toast.makeText(this, "Sắp ra mắt", Toast.LENGTH_SHORT).show());
+                Toast.makeText(this, R.string.common_coming_soon, Toast.LENGTH_SHORT).show());
         feedButton.setOnClickListener(view -> selectTab(R.id.nav_feed));
         cameraButton.setOnClickListener(view -> startActivity(new Intent(this, CameraActivity.class)));
         friendsButton.setOnClickListener(view -> selectTab(R.id.nav_friends));

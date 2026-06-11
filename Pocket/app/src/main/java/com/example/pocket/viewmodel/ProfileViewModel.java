@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.pocket.R;
 import com.example.pocket.data.model.User;
 import com.example.pocket.utils.Constants;
 import com.example.pocket.utils.SharedPrefManager;
@@ -37,7 +38,7 @@ public class ProfileViewModel extends AndroidViewModel {
     public void loadCurrentUser() {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser == null) {
-            errorMessage.setValue("Bạn chưa đăng nhập");
+            errorMessage.setValue(getApplication().getString(R.string.profile_not_signed_in));
             return;
         }
 
@@ -61,7 +62,7 @@ public class ProfileViewModel extends AndroidViewModel {
     public void updateAvatar(@NonNull String newAvatarUrl) {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser == null) {
-            errorMessage.setValue("Bạn chưa đăng nhập");
+            errorMessage.setValue(getApplication().getString(R.string.profile_not_signed_in));
             return;
         }
 

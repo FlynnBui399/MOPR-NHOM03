@@ -1,7 +1,7 @@
 package com.example.pocket;
 
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,13 +16,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.os.LocaleListCompat;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.os.LocaleListCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -30,6 +29,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.pocket.data.remote.CloudinaryService;
 import com.example.pocket.ui.PocketButton;
+import com.example.pocket.utils.Constants;
 import com.example.pocket.utils.ImageUtils;
 import com.example.pocket.utils.SharedPrefManager;
 import com.example.pocket.viewmodel.ProfileViewModel;
@@ -47,6 +47,8 @@ public class ProfileFragment extends Fragment {
     private CircleImageView avatarImage;
     private TextView displayNameText;
     private TextView phoneNumberText;
+    private TextView photosSentCountText;
+    private TextView friendsCountText;
     private PocketButton changeAvatarButton;
     private PocketButton editNameButton;
     private EditText nameEditText;
@@ -70,6 +72,8 @@ public class ProfileFragment extends Fragment {
         avatarImage = view.findViewById(R.id.profile_avatar);
         displayNameText = view.findViewById(R.id.profile_display_name);
         phoneNumberText = view.findViewById(R.id.profile_phone_number);
+        photosSentCountText = view.findViewById(R.id.profile_photos_sent_count);
+        friendsCountText = view.findViewById(R.id.profile_friends_count);
         changeAvatarButton = view.findViewById(R.id.profile_change_avatar_button);
         editNameButton = view.findViewById(R.id.profile_edit_name_button);
         nameEditText = view.findViewById(R.id.profile_name_edit_text);
@@ -85,10 +89,10 @@ public class ProfileFragment extends Fragment {
         changeAvatarButton.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
         editNameButton.setOnClickListener(v -> showNameEditor());
         saveNameButton.setOnClickListener(v -> saveDisplayName());
-        privacyRow.setOnClickListener(v -> Toast.makeText(requireContext(), "Sắp ra mắt", Toast.LENGTH_SHORT).show());
+        privacyRow.setOnClickListener(v ->
+                Toast.makeText(requireContext(), R.string.common_coming_soon, Toast.LENGTH_SHORT).show());
         logoutRow.setOnClickListener(v -> signOut());
 
-        // Theme Toggle Setup
         int currentMode = SharedPrefManager.getInstance(requireContext()).getThemeMode();
         boolean isDark = currentMode == AppCompatDelegate.MODE_NIGHT_YES;
         themeSwitch.setChecked(isDark);
@@ -101,47 +105,30 @@ public class ProfileFragment extends Fragment {
         });
         themeRow.setOnClickListener(v -> themeSwitch.toggle());
 
-        // Language Toggle Setup
-        String currentLang = "en";
-        String savedLanguage = SharedPrefManager.getInstance(requireContext()).getLanguageLocale();
-        if (savedLanguage != null) {
-            currentLang = savedLanguage;
-        } else {
-            LocaleListCompat currentLocales = AppCompatDelegate.getApplicationLocales();
-            if (!currentLocales.isEmpty()) {
-                currentLang = currentLocales.get(0).getLanguage();
-            } else {
-                currentLang = java.util.Locale.getDefault().getLanguage();
-            }
-        }
+        String currentLang = currentLanguage();
         boolean isVi = "vi".equalsIgnoreCase(currentLang);
         languageStatusText.setText(isVi ? R.string.profile_language_vi : R.string.profile_language_en);
 
         languageRow.setOnClickListener(v -> {
-            String currLang = "en";
-            String savedLang = SharedPrefManager.getInstance(requireContext()).getLanguageLocale();
-            if (savedLang != null) {
-                currLang = savedLang;
-            } else {
-                LocaleListCompat currentLocales = AppCompatDelegate.getApplicationLocales();
-                if (!currentLocales.isEmpty()) {
-                    currLang = currentLocales.get(0).getLanguage();
-                } else {
-                    currLang = java.util.Locale.getDefault().getLanguage();
-                }
-            }
-            String newLang = "vi".equalsIgnoreCase(currLang) ? "en" : "vi";
+            String newLang = "vi".equalsIgnoreCase(currentLanguage()) ? "en" : "vi";
             SharedPrefManager.getInstance(requireContext()).setLanguageLocale(newLang);
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(newLang));
-            languageStatusText.setText("vi".equalsIgnoreCase(newLang) ? R.string.profile_language_vi : R.string.profile_language_en);
+            languageStatusText.setText("vi".equalsIgnoreCase(newLang)
+                    ? R.string.profile_language_vi
+                    : R.string.profile_language_en);
         });
 
         viewModel.currentUser.observe(getViewLifecycleOwner(), user -> {
             if (user == null) {
                 return;
             }
-            displayNameText.setText(nonEmpty(user.getDisplayName(), "Pocket User"));
+            displayNameText.setText(nonEmpty(user.getDisplayName(), getString(R.string.camera_default_user)));
             phoneNumberText.setText(nonEmpty(user.getPhoneNumber(), nonEmpty(user.getEmail(), "")));
+
+            int friendCount = user.getFriendIds() == null ? 0 : user.getFriendIds().size();
+            friendsCountText.setText(String.valueOf(friendCount));
+            loadPhotosSentCount(user.getId());
+
             Glide.with(this)
                     .load(user.getAvatarUrl())
                     .apply(RequestOptions.circleCropTransform())
@@ -211,25 +198,25 @@ public class ProfileFragment extends Fragment {
     private void saveDisplayName() {
         String newName = nameEditText.getText() == null ? "" : nameEditText.getText().toString().trim();
         if (newName.isEmpty()) {
-            showSnackbar("Tên không được để trống");
+            showSnackbar(getString(R.string.profile_name_empty));
             return;
         }
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
-            showSnackbar("Bạn chưa đăng nhập");
+            showSnackbar(getString(R.string.profile_not_signed_in));
             return;
         }
 
         FirebaseFirestore.getInstance()
-                .collection("users")
+                .collection(Constants.COLLECTION_USERS)
                 .document(user.getUid())
                 .update("displayName", newName)
                 .addOnSuccessListener(unused -> {
                     displayNameText.setText(newName);
                     nameEditText.setVisibility(View.GONE);
                     saveNameButton.setVisibility(View.GONE);
-                    showSnackbar("Đã cập nhật tên");
+                    showSnackbar(getString(R.string.profile_name_updated));
 
                     com.example.pocket.data.model.User currentUserModel = viewModel.currentUser.getValue();
                     if (currentUserModel != null) {
@@ -239,7 +226,35 @@ public class ProfileFragment extends Fragment {
                     }
                 })
                 .addOnFailureListener(error ->
-                        showSnackbar(error.getMessage() == null ? "Không thể cập nhật tên" : error.getMessage()));
+                        showSnackbar(error.getMessage() == null
+                                ? getString(R.string.profile_name_update_failed)
+                                : error.getMessage()));
+    }
+
+    private void loadPhotosSentCount(@Nullable String userId) {
+        if (userId == null || userId.trim().isEmpty()) {
+            photosSentCountText.setText(R.string.profile_stat_zero);
+            return;
+        }
+
+        FirebaseFirestore.getInstance()
+                .collection(Constants.COLLECTION_PHOTOS)
+                .whereEqualTo("senderId", userId)
+                .get()
+                .addOnSuccessListener(snapshot -> photosSentCountText.setText(String.valueOf(snapshot.size())))
+                .addOnFailureListener(error -> photosSentCountText.setText(R.string.profile_stat_zero));
+    }
+
+    private String currentLanguage() {
+        String savedLanguage = SharedPrefManager.getInstance(requireContext()).getLanguageLocale();
+        if (savedLanguage != null) {
+            return savedLanguage;
+        }
+        LocaleListCompat currentLocales = AppCompatDelegate.getApplicationLocales();
+        if (!currentLocales.isEmpty()) {
+            return currentLocales.get(0).getLanguage();
+        }
+        return java.util.Locale.getDefault().getLanguage();
     }
 
     private void showSnackbar(@NonNull String message) {

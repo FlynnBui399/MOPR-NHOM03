@@ -153,7 +153,7 @@
             android:src="@drawable/ic_nav_camera"
             android:stateListAnimator="@animator/scale_nav_press"
             android:translationY="-14dp"
-            app:tint="@color/pocket_text_primary" />
+            app:tint="@color/pocket_on_primary" />
 
         <Space
             android:layout_width="0dp"

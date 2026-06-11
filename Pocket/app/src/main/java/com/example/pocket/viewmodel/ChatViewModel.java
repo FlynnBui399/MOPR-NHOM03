@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.pocket.R;
 import com.example.pocket.data.model.Message;
 import com.example.pocket.data.repository.ChatRepository;
 import com.example.pocket.data.repository.UserRepository;
@@ -32,7 +33,7 @@ public class ChatViewModel extends AndroidViewModel {
                 ? null
                 : FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (currentUid == null) {
-            errorMessage.setValue("Bạn chưa đăng nhập");
+            errorMessage.setValue(getApplication().getString(R.string.profile_not_signed_in));
             return;
         }
         chatId = repository.getChatId(currentUid, friendUid);
