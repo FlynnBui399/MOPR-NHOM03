@@ -104,4 +104,6 @@
     <string name="add_friend_sent">Đã gửi</string>
     <string name="add_friend_not_found">Không tìm thấy người dùng.</string>
     <string name="add_friend_request_failed">Không thể gửi lời mời.</string>
+    <string name="notification_channel_messages">Tin nhắn</string>
+    <string name="notification_channel_messages_description">Tin nhắn Pocket mới</string>
 </resources>

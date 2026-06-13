@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
@@ -80,8 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         topBarAvatar.setOnClickListener(view -> selectTab(R.id.top_bar_avatar));
         topBarChatButton.setOnClickListener(view -> selectTab(R.id.top_bar_chat_button));
-        findViewById(R.id.top_bar_filter_pill).setOnClickListener(view ->
-                Toast.makeText(this, R.string.common_coming_soon, Toast.LENGTH_SHORT).show());
+        findViewById(R.id.top_bar_filter_pill).setOnClickListener(view -> selectTab(R.id.nav_friends));
         feedButton.setOnClickListener(view -> selectTab(R.id.nav_feed));
         cameraButton.setOnClickListener(view -> startActivity(new Intent(this, CameraActivity.class)));
         friendsButton.setOnClickListener(view -> selectTab(R.id.nav_friends));
@@ -102,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
             selectedTabId = savedInstanceState.getInt("selectedTabId", R.id.nav_feed);
             selectTab(selectedTabId);
         }
+
+        PocketMessagingService.refreshTokenForCurrentUser();
     }
 
     @Override

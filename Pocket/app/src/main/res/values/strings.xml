@@ -103,4 +103,6 @@
     <string name="add_friend_sent">Sent</string>
     <string name="add_friend_not_found">User not found.</string>
     <string name="add_friend_request_failed">Unable to send request.</string>
+    <string name="notification_channel_messages">Messages</string>
+    <string name="notification_channel_messages_description">New Pocket chat messages</string>
 </resources>

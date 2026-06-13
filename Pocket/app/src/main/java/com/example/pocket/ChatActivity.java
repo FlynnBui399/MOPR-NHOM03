@@ -26,12 +26,16 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.pocket.data.model.Message;
 import com.example.pocket.data.repository.UserRepository;
+import com.example.pocket.utils.FcmHelper;
 import com.example.pocket.viewmodel.ChatViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -44,6 +48,8 @@ public class ChatActivity extends AppCompatActivity {
     private MessageAdapter adapter;
     private EditText messageInput;
     private RecyclerView messagesRecycler;
+    private ExecutorService notificationExecutor;
+    private String friendUid;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,7 +86,8 @@ public class ChatActivity extends AppCompatActivity {
             return insets;
         });
 
-        String friendUid = getIntent().getStringExtra(EXTRA_FRIEND_UID);
+        notificationExecutor = Executors.newSingleThreadExecutor();
+        friendUid = getIntent().getStringExtra(EXTRA_FRIEND_UID);
         String friendName = getIntent().getStringExtra(EXTRA_FRIEND_NAME);
         String friendAvatar = getIntent().getStringExtra(EXTRA_FRIEND_AVATAR);
         if (friendUid == null || friendUid.trim().isEmpty()) {
@@ -140,7 +147,7 @@ public class ChatActivity extends AppCompatActivity {
         };
         for (int emojiId : emojiIds) {
             TextView emoji = findViewById(emojiId);
-            emoji.setOnClickListener(v -> viewModel.sendEmoji(((TextView) v).getText().toString()));
+            emoji.setOnClickListener(v -> sendEmoji(((TextView) v).getText().toString()));
         }
 
         UserRepository.getInstance().getUserById(friendUid, new UserRepository.Callback<com.example.pocket.data.model.User>() {
@@ -168,9 +175,27 @@ public class ChatActivity extends AppCompatActivity {
     private void sendText() {
         String content = messageInput.getText() == null ? "" : messageInput.getText().toString().trim();
         if (!content.isEmpty()) {
-            viewModel.sendMessage(content);
+            viewModel.sendMessage(content, () -> sendFcmNotification(content));
             messageInput.setText(null);
         }
+    }
+
+    private void sendEmoji(@NonNull String emoji) {
+        if (!emoji.trim().isEmpty()) {
+            viewModel.sendEmoji(emoji, () -> sendFcmNotification(emoji));
+        }
+    }
+
+    private void sendFcmNotification(@NonNull String content) {
+        if (notificationExecutor == null
+                || notificationExecutor.isShutdown()
+                || friendUid == null
+                || friendUid.trim().isEmpty()) {
+            return;
+        }
+        String senderName = currentSenderName();
+        notificationExecutor.execute(() ->
+                FcmHelper.sendMessageNotification(friendUid, senderName, content));
     }
 
     @NonNull
@@ -178,6 +203,23 @@ public class ChatActivity extends AppCompatActivity {
         return FirebaseAuth.getInstance().getCurrentUser() == null
                 ? ""
                 : FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+    @NonNull
+    private String currentSenderName() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && user.getDisplayName() != null && !user.getDisplayName().trim().isEmpty()) {
+            return user.getDisplayName();
+        }
+        return getString(R.string.camera_default_user);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (notificationExecutor != null) {
+            notificationExecutor.shutdown();
+        }
     }
 
     private static class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Holder> {

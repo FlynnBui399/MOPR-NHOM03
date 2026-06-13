@@ -40,6 +40,7 @@
             android:layout_marginTop="2dp"
             android:textColor="@color/pocket_text_secondary"
             android:textSize="12sp"
+            android:visibility="gone"
             tools:text="+84901234567" />
     </LinearLayout>
 

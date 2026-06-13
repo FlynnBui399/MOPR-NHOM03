@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.pocket.ui.PocketButton;
 import com.example.pocket.viewmodel.AuthViewModel;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
     private AuthViewModel authViewModel;
@@ -26,6 +27,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            navigateToMain();
+            return;
+        }
+
         setContentView(R.layout.activity_login);
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
@@ -54,6 +60,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void navigateToMain() {
+        PocketMessagingService.refreshTokenForCurrentUser();
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

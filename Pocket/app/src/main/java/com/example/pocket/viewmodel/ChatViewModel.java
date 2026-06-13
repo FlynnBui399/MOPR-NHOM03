@@ -3,6 +3,7 @@ package com.example.pocket.viewmodel;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -41,20 +42,31 @@ public class ChatViewModel extends AndroidViewModel {
     }
 
     public void sendMessage(@NonNull String content) {
-        send(content, "text");
+        send(content, "text", null);
+    }
+
+    public void sendMessage(@NonNull String content, @Nullable SendCallback callback) {
+        send(content, "text", callback);
     }
 
     public void sendEmoji(@NonNull String emoji) {
-        send(emoji, "emoji");
+        send(emoji, "emoji", null);
     }
 
-    private void send(@NonNull String content, @NonNull String type) {
+    public void sendEmoji(@NonNull String emoji, @Nullable SendCallback callback) {
+        send(emoji, "emoji", callback);
+    }
+
+    private void send(@NonNull String content, @NonNull String type, @Nullable SendCallback callback) {
         if (chatId == null || chatId.trim().isEmpty() || content.trim().isEmpty()) {
             return;
         }
         repository.sendMessage(chatId, content.trim(), type, new UserRepository.Callback<Void>() {
             @Override
             public void onSuccess(Void result) {
+                if (callback != null) {
+                    callback.onSuccess();
+                }
             }
 
             @Override
@@ -62,5 +74,9 @@ public class ChatViewModel extends AndroidViewModel {
                 errorMessage.setValue(error.getMessage());
             }
         });
+    }
+
+    public interface SendCallback {
+        void onSuccess();
     }
 }

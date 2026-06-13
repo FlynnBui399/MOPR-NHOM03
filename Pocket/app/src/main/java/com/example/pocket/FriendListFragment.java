@@ -118,9 +118,6 @@ public class FriendListFragment extends Fragment {
         if (user.getDisplayName() != null && !user.getDisplayName().trim().isEmpty()) {
             return user.getDisplayName();
         }
-        if (user.getPhoneNumber() != null && !user.getPhoneNumber().trim().isEmpty()) {
-            return user.getPhoneNumber();
-        }
         return "Pocket User";
     }
 
@@ -165,6 +162,7 @@ public class FriendListFragment extends Fragment {
             User user = users.get(position);
             holder.name.setText(displayName(user));
             holder.phone.setText(user.getPhoneNumber() == null ? "" : user.getPhoneNumber());
+            holder.phone.setVisibility(View.GONE);
             Glide.with(holder.avatar)
                     .load(user.getAvatarUrl())
                     .apply(RequestOptions.circleCropTransform())

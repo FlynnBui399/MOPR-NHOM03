@@ -69,7 +69,7 @@ public class AddFriendActivity extends AppCompatActivity {
                 resultUser = result;
                 resultCard.setVisibility(View.VISIBLE);
                 resultName.setText(displayName(result));
-                resultPhone.setText(result.getPhoneNumber() == null ? "" : result.getPhoneNumber());
+                resultPhone.setVisibility(View.GONE);
                 sendRequestButton.setEnabled(true);
                 sendRequestButton.setText(R.string.add_friend_send_request);
                 Glide.with(AddFriendActivity.this)
