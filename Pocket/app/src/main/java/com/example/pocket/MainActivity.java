@@ -4,28 +4,39 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.bumptech.glide.Glide;
 import com.example.pocket.utils.SharedPrefManager;
+import com.example.pocket.viewmodel.ChatUnreadViewModel;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
-    private int selectedTabId = R.id.nav_feed;
-    private ImageButton feedButton;
-    private ImageButton cameraButton;
-    private ImageButton friendsButton;
-    private CircleImageView topBarAvatar;
+    public static final String EXTRA_OPEN_HISTORY = "open_history";
+
+    private static final String STATE_SELECTED_TAB = "selected_tab";
+    private static final String TAG_MEMORIES = "main_memories";
+    private static final String TAG_HOME = "main_home";
+    private static final String TAG_CHAT = "main_chat";
+    private static final String TAG_PROFILE = "main_profile";
+    private static final String TAG_FRIENDS = "main_friends";
+
+    private int selectedTabId = R.id.nav_home_tab;
+    private LinearLayout memoriesTab;
+    private LinearLayout homeTab;
+    private LinearLayout chatTab;
+    private TextView chatUnreadBadge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,107 +50,148 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_main);
+        bindViews();
+        applyWindowInsets();
 
-        View rootView = findViewById(R.id.main);
-        LinearLayout topBar = findViewById(R.id.top_bar);
-        LinearLayout bottomNavPill = findViewById(R.id.main_bottom_nav_pill);
+        memoriesTab.setOnClickListener(view -> selectTab(R.id.nav_memories_tab));
+        homeTab.setOnClickListener(view -> selectTab(R.id.nav_home_tab));
+        chatTab.setOnClickListener(view -> selectTab(R.id.nav_chat_tab));
 
-        ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-            int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
-            int navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
-
-            topBar.setPadding(
-                    topBar.getPaddingLeft(),
-                    statusBarHeight,
-                    topBar.getPaddingRight(),
-                    topBar.getPaddingBottom()
-            );
-
-            int basePaddingBottom = (int) (16 * v.getResources().getDisplayMetrics().density);
-            bottomNavPill.setPadding(
-                    bottomNavPill.getPaddingLeft(),
-                    bottomNavPill.getPaddingTop(),
-                    bottomNavPill.getPaddingRight(),
-                    basePaddingBottom + navBarHeight
-            );
-
-            ViewGroup.MarginLayoutParams params =
-                    (ViewGroup.MarginLayoutParams) bottomNavPill.getLayoutParams();
-            params.bottomMargin = 0;
-            bottomNavPill.setLayoutParams(params);
-
-            return insets;
-        });
-
-        topBarAvatar = findViewById(R.id.top_bar_avatar);
-        ImageButton topBarChatButton = findViewById(R.id.top_bar_chat_button);
-        feedButton = findViewById(R.id.nav_feed_button);
-        cameraButton = findViewById(R.id.nav_camera_button);
-        friendsButton = findViewById(R.id.nav_friends_button);
-
-        topBarAvatar.setOnClickListener(view -> selectTab(R.id.top_bar_avatar));
-        topBarChatButton.setOnClickListener(view -> selectTab(R.id.top_bar_chat_button));
-        findViewById(R.id.top_bar_filter_pill).setOnClickListener(view -> selectTab(R.id.nav_friends));
-        feedButton.setOnClickListener(view -> selectTab(R.id.nav_feed));
-        cameraButton.setOnClickListener(view -> startActivity(new Intent(this, CameraActivity.class)));
-        friendsButton.setOnClickListener(view -> selectTab(R.id.nav_friends));
-
-        String cachedAvatar = SharedPrefManager.getInstance(this).getAvatarUrl();
-        if (cachedAvatar != null) {
-            updateTopBarAvatar(cachedAvatar);
-        } else {
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user != null && user.getPhotoUrl() != null) {
-                updateTopBarAvatar(user.getPhotoUrl().toString());
-            }
-        }
+        new ViewModelProvider(this).get(ChatUnreadViewModel.class)
+                .getUnreadCount().observe(this, this::showUnreadBadge);
 
         if (savedInstanceState == null) {
-            selectTab(R.id.nav_feed);
+            selectTab(R.id.nav_home_tab);
         } else {
-            selectedTabId = savedInstanceState.getInt("selectedTabId", R.id.nav_feed);
-            selectTab(selectedTabId);
+            selectTab(savedInstanceState.getInt(STATE_SELECTED_TAB, R.id.nav_home_tab));
         }
 
         PocketMessagingService.refreshTokenForCurrentUser();
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt("selectedTabId", selectedTabId);
+    private void bindViews() {
+        memoriesTab = findViewById(R.id.nav_memories_tab);
+        homeTab = findViewById(R.id.nav_home_tab);
+        chatTab = findViewById(R.id.nav_chat_tab);
+        chatUnreadBadge = findViewById(R.id.chat_unread_badge);
     }
 
-    public void updateTopBarAvatar(String url) {
-        if (topBarAvatar != null && url != null) {
-            Glide.with(this)
-                    .load(url)
-                    .circleCrop()
-                    .placeholder(R.drawable.avatar_placeholder)
-                    .into(topBarAvatar);
-        }
+    private void showUnreadBadge(Integer countValue) {
+        int count = countValue == null ? 0 : countValue;
+        chatUnreadBadge.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
+        chatUnreadBadge.setText(count > 99 ? "99+" : String.valueOf(count));
+    }
+
+    private void applyWindowInsets() {
+        View root = findViewById(R.id.main);
+        View content = findViewById(R.id.main_fragment_container);
+        View bottomNavigation = findViewById(R.id.main_bottom_navigation);
+
+        ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
+            int statusBar = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+            int navigationBar = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+
+            content.setPadding(0, statusBar, 0, 0);
+
+            ViewGroup.MarginLayoutParams params =
+                    (ViewGroup.MarginLayoutParams) bottomNavigation.getLayoutParams();
+            params.bottomMargin = navigationBar + dp(14);
+            bottomNavigation.setLayoutParams(params);
+
+            return insets;
+        });
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private void selectTab(int itemId) {
         selectedTabId = itemId;
-        feedButton.setSelected(itemId == R.id.nav_feed);
-        friendsButton.setSelected(itemId == R.id.nav_friends);
 
-        if (itemId == R.id.nav_feed) {
-            showFragment(new FeedFragment());
-        } else if (itemId == R.id.nav_friends) {
-            showFragment(new FriendListFragment());
-        } else if (itemId == R.id.top_bar_avatar) {
-            showFragment(new ProfileFragment());
-        } else if (itemId == R.id.top_bar_chat_button) {
-            showFragment(new ChatListFragment());
+        memoriesTab.setSelected(itemId == R.id.nav_memories_tab);
+        homeTab.setSelected(itemId == R.id.nav_home_tab);
+        chatTab.setSelected(itemId == R.id.nav_chat_tab);
+
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment fragment;
+        String tag;
+
+        if (itemId == R.id.nav_memories_tab) {
+            tag = TAG_MEMORIES;
+            fragment = manager.findFragmentByTag(tag);
+            if (fragment == null) {
+                fragment = new MemoriesFragment();
+            }
+        } else if (itemId == R.id.nav_chat_tab) {
+            tag = TAG_CHAT;
+            fragment = manager.findFragmentByTag(tag);
+            if (fragment == null) {
+                fragment = new ChatListFragment();
+            }
+        } else {
+            tag = TAG_HOME;
+            fragment = manager.findFragmentByTag(tag);
+            if (fragment == null) {
+                fragment = new HomeFragment();
+            }
         }
+
+        showFragment(fragment, tag);
     }
 
-    private void showFragment(Fragment fragment) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.main_fragment_container, fragment)
-                .commit();
+    public void openProfile() {
+        memoriesTab.setSelected(false);
+        homeTab.setSelected(false);
+        chatTab.setSelected(false);
+
+        Fragment profile = getSupportFragmentManager().findFragmentByTag(TAG_PROFILE);
+        showFragment(profile == null ? new ProfileFragment() : profile, TAG_PROFILE);
+    }
+
+    public void openHome() {
+        selectTab(R.id.nav_home_tab);
+    }
+
+    public void openFriends() {
+        memoriesTab.setSelected(false);
+        homeTab.setSelected(false);
+        chatTab.setSelected(false);
+
+        Fragment friends = getSupportFragmentManager().findFragmentByTag(TAG_FRIENDS);
+        showFragment(friends == null ? new FriendListFragment() : friends, TAG_FRIENDS);
+    }
+
+    public void updateTopBarAvatar(String url) {
+        SharedPrefManager.getInstance(this).updateAvatarUrl(url);
+    }
+
+    private void showFragment(@NonNull Fragment fragment, @NonNull String tag) {
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction().setReorderingAllowed(true);
+
+        for (Fragment existing : manager.getFragments()) {
+            if (existing.getId() == R.id.main_fragment_container && existing != fragment) {
+                transaction.hide(existing);
+                transaction.setMaxLifecycle(existing, Lifecycle.State.CREATED);
+            }
+        }
+
+        if (fragment.isAdded()) {
+            transaction.show(fragment);
+        } else {
+            transaction.add(R.id.main_fragment_container, fragment, tag);
+        }
+
+        transaction.setMaxLifecycle(fragment, Lifecycle.State.RESUMED);
+        transaction.setPrimaryNavigationFragment(fragment);
+        transaction.commit();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(STATE_SELECTED_TAB, selectedTabId);
     }
 }
+

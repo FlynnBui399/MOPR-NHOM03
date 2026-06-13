@@ -2,9 +2,12 @@ package com.example.pocket.data.model;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.Exclude;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Photo {
     @DocumentId
@@ -15,16 +18,20 @@ public class Photo {
     private String thumbnailUrl;
     private String cloudinaryPublicId;
     private String caption;
-    private List<String> recipientIds;
+    private List<String> receiverIds;
+    private Map<String, String> reactions;
+    private List<String> seenBy;
     private Timestamp createdAt;
 
     public Photo() {
-        recipientIds = new ArrayList<>();
+        receiverIds = new ArrayList<>();
+        reactions = new HashMap<>();
+        seenBy = new ArrayList<>();
     }
 
     public Photo(String id, String senderId, String senderName, String imageUrl, String thumbnailUrl,
-                 String cloudinaryPublicId, String caption, List<String> recipientIds,
-                 Timestamp createdAt) {
+                 String cloudinaryPublicId, String caption, List<String> receiverIds,
+                 Map<String, String> reactions, List<String> seenBy, Timestamp createdAt) {
         this.id = id;
         this.senderId = senderId;
         this.senderName = senderName;
@@ -32,7 +39,9 @@ public class Photo {
         this.thumbnailUrl = thumbnailUrl;
         this.cloudinaryPublicId = cloudinaryPublicId;
         this.caption = caption;
-        this.recipientIds = recipientIds == null ? new ArrayList<>() : new ArrayList<>(recipientIds);
+        this.receiverIds = receiverIds == null ? new ArrayList<>() : new ArrayList<>(receiverIds);
+        this.reactions = reactions == null ? new HashMap<>() : new HashMap<>(reactions);
+        this.seenBy = seenBy == null ? new ArrayList<>() : new ArrayList<>(seenBy);
         this.createdAt = createdAt;
     }
 
@@ -92,12 +101,38 @@ public class Photo {
         this.caption = caption;
     }
 
-    public List<String> getRecipientIds() {
-        return recipientIds;
+    public List<String> getReceiverIds() {
+        return receiverIds;
     }
 
+    public void setReceiverIds(List<String> receiverIds) {
+        this.receiverIds = receiverIds == null ? new ArrayList<>() : new ArrayList<>(receiverIds);
+    }
+
+    public Map<String, String> getReactions() {
+        return reactions;
+    }
+
+    public void setReactions(Map<String, String> reactions) {
+        this.reactions = reactions == null ? new HashMap<>() : new HashMap<>(reactions);
+    }
+
+    public List<String> getSeenBy() {
+        return seenBy;
+    }
+
+    public void setSeenBy(List<String> seenBy) {
+        this.seenBy = seenBy == null ? new ArrayList<>() : new ArrayList<>(seenBy);
+    }
+
+    @Exclude
+    public List<String> getRecipientIds() {
+        return getReceiverIds();
+    }
+
+    @Exclude
     public void setRecipientIds(List<String> recipientIds) {
-        this.recipientIds = recipientIds == null ? new ArrayList<>() : new ArrayList<>(recipientIds);
+        setReceiverIds(recipientIds);
     }
 
     public Timestamp getCreatedAt() {

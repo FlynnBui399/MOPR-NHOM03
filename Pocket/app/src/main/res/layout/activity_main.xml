@@ -6,171 +6,147 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/pocket_background"
-    android:clipChildren="false"
-    android:clipToPadding="false"
     android:fitsSystemWindows="false"
     tools:context=".MainActivity">
-
-    <LinearLayout
-        android:id="@+id/top_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/pocket_transparent"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:gravity="center_vertical"
-        android:minHeight="64dp"
-        android:orientation="horizontal"
-        android:paddingStart="@dimen/pocket_space_lg"
-        android:paddingTop="0dp"
-        android:paddingEnd="@dimen/pocket_space_lg"
-        android:paddingBottom="@dimen/pocket_space_sm"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/top_bar_avatar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/bg_avatar_border"
-            android:padding="2dp"
-            android:src="@drawable/avatar_placeholder" />
-
-        <LinearLayout
-            android:id="@+id/top_bar_filter_pill"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_filter_pill"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/top_bar_filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:gravity="center"
-                android:text="@string/top_bar_filter_all_friends"
-                android:textColor="@color/pocket_text_primary"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-        <FrameLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:clipChildren="false"
-            android:clipToPadding="false">
-
-            <ImageButton
-                android:id="@+id/top_bar_chat_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/bg_icon_circle_dark"
-                android:foreground="?attr/selectableItemBackgroundBorderless"
-                android:padding="9dp"
-                android:src="@drawable/ic_message"
-                android:stateListAnimator="@animator/scale_press"
-                app:tint="@color/pocket_text_primary" />
-
-            <View
-                android:id="@+id/top_bar_chat_badge"
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:layout_gravity="top|end"
-                android:layout_marginTop="3dp"
-                android:layout_marginEnd="3dp"
-                android:background="@drawable/bg_unread_badge"
-                android:visibility="gone" />
-        </FrameLayout>
-    </LinearLayout>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_fragment_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/main_bottom_nav_pill"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_bar" />
-
-    <LinearLayout
-        android:id="@+id/main_bottom_nav_pill"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="20dp"
-        android:background="@drawable/bg_bottom_nav_pill"
-        android:clipChildren="false"
         android:clipToPadding="false"
-        android:elevation="8dp"
-        android:gravity="center"
-        android:minHeight="84dp"
-        android:orientation="horizontal"
-        android:paddingStart="24dp"
-        android:paddingTop="10dp"
-        android:paddingEnd="24dp"
-        android:paddingBottom="10dp"
-        android:translationY="-20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/main_bottom_navigation"
+        android:layout_width="292dp"
+        android:layout_height="76dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_bottom_nav_pill"
+        android:baselineAligned="false"
+        android:elevation="12dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingTop="7dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="7dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <ImageButton
-            android:id="@+id/nav_feed_button"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/bg_nav_side_button"
-            android:contentDescription="@string/nav_feed"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:padding="10dp"
-            android:scaleType="center"
-            android:src="@drawable/ic_nav_feed"
-            android:stateListAnimator="@animator/scale_nav_press"
-            app:tint="@color/selector_nav_icon_tint" />
-
-        <Space
+        <LinearLayout
+            android:id="@+id/nav_memories_tab"
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_bottom_tab"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/nav_camera_button"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="@drawable/bg_camera_fab"
-            android:contentDescription="@string/nav_camera"
-            android:elevation="12dp"
-            android:outlineAmbientShadowColor="@color/pocket_fab_shadow"
-            android:outlineSpotShadowColor="@color/pocket_fab_shadow"
-            android:padding="18dp"
-            android:scaleType="center"
-            android:src="@drawable/ic_nav_camera"
-            android:stateListAnimator="@animator/scale_nav_press"
-            android:translationY="-14dp"
-            app:tint="@color/pocket_on_primary" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@null"
+                android:duplicateParentState="true"
+                android:src="@drawable/ic_nav_feed"
+                app:tint="@color/selector_nav_icon_tint" />
 
-        <Space
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:duplicateParentState="true"
+                android:text="@string/nav_memories"
+                android:textColor="@color/selector_nav_icon_tint"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_home_tab"
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
+            android:layout_height="60dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_bottom_tab"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/nav_friends_button"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/bg_nav_side_button"
-            android:contentDescription="@string/nav_friends"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:padding="10dp"
-            android:scaleType="center"
-            android:src="@drawable/ic_nav_friends"
-            android:stateListAnimator="@animator/scale_nav_press"
-            app:tint="@color/selector_nav_icon_tint" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@null"
+                android:duplicateParentState="true"
+                android:src="@drawable/ic_nav_camera"
+                app:tint="@color/selector_nav_icon_tint" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:duplicateParentState="true"
+                android:text="@string/nav_home"
+                android:textColor="@color/selector_nav_icon_tint"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_chat_tab"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_bottom_tab"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="40dp"
+                android:layout_height="29dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:contentDescription="@null"
+                    android:duplicateParentState="true"
+                    android:src="@drawable/ic_message"
+                    app:tint="@color/selector_nav_icon_tint" />
+
+                <TextView
+                    android:id="@+id/chat_unread_badge"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="top|end"
+                    android:background="@drawable/bg_unread_badge"
+                    android:gravity="center"
+                    android:textColor="@color/pocket_on_primary"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    tools:text="3"
+                    tools:visibility="visible" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:duplicateParentState="true"
+                android:text="@string/nav_chat_short"
+                android:textColor="@color/selector_nav_icon_tint"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -87,9 +87,11 @@ public class ChatActivity extends AppCompatActivity {
         });
 
         notificationExecutor = Executors.newSingleThreadExecutor();
+
         friendUid = getIntent().getStringExtra(EXTRA_FRIEND_UID);
         String friendName = getIntent().getStringExtra(EXTRA_FRIEND_NAME);
         String friendAvatar = getIntent().getStringExtra(EXTRA_FRIEND_AVATAR);
+
         if (friendUid == null || friendUid.trim().isEmpty()) {
             finish();
             return;
@@ -103,7 +105,11 @@ public class ChatActivity extends AppCompatActivity {
         messagesRecycler = findViewById(R.id.chat_messages_recycler);
 
         backButton.setOnClickListener(v -> finish());
-        name.setText(friendName == null || friendName.trim().isEmpty() ? getString(R.string.camera_default_user) : friendName);
+
+        name.setText(friendName == null || friendName.trim().isEmpty()
+                ? getString(R.string.camera_default_user)
+                : friendName);
+
         Glide.with(this)
                 .load(friendAvatar)
                 .apply(RequestOptions.circleCropTransform())
@@ -117,12 +123,14 @@ public class ChatActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(ChatViewModel.class);
         viewModel.initialize(friendUid);
+
         viewModel.messages.observe(this, messages -> {
             adapter.submit(messages);
             if (messages != null && !messages.isEmpty()) {
                 messagesRecycler.scrollToPosition(messages.size() - 1);
             }
         });
+
         viewModel.errorMessage.observe(this, message -> {
             if (message != null && !message.trim().isEmpty()) {
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show();
@@ -130,6 +138,7 @@ public class ChatActivity extends AppCompatActivity {
         });
 
         sendButton.setOnClickListener(v -> sendText());
+
         messageInput.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 sendText();
@@ -145,6 +154,7 @@ public class ChatActivity extends AppCompatActivity {
                 R.id.quick_reply_heart,
                 R.id.quick_reply_surprise
         };
+
         for (int emojiId : emojiIds) {
             TextView emoji = findViewById(emojiId);
             emoji.setOnClickListener(v -> sendEmoji(((TextView) v).getText().toString()));
@@ -156,7 +166,9 @@ public class ChatActivity extends AppCompatActivity {
                 if (result == null) {
                     return;
                 }
+
                 name.setText(result.getDisplayName() == null ? name.getText() : result.getDisplayName());
+
                 Glide.with(ChatActivity.this)
                         .load(result.getAvatarUrl())
                         .apply(RequestOptions.circleCropTransform())
@@ -193,9 +205,18 @@ public class ChatActivity extends AppCompatActivity {
                 || friendUid.trim().isEmpty()) {
             return;
         }
+
         String senderName = currentSenderName();
         notificationExecutor.execute(() ->
                 FcmHelper.sendMessageNotification(friendUid, senderName, content));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (viewModel != null) {
+            viewModel.markMessagesRead();
+        }
     }
 
     @NonNull
@@ -250,6 +271,7 @@ public class ChatActivity extends AppCompatActivity {
             Message message = messages.get(position);
             boolean sent = currentUid.equals(message.getSenderId());
             String content = message.getContent() == null ? "" : message.getContent();
+
             holder.sentBubble.setVisibility(sent ? View.VISIBLE : View.GONE);
             holder.receivedBubble.setVisibility(sent ? View.GONE : View.VISIBLE);
             holder.sentBubble.setText(content);
@@ -273,3 +295,4 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 }
+

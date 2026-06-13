@@ -36,6 +36,45 @@
     <string name="camera_upload_error">Không thể gửi ảnh</string>
     <string name="camera_default_user">Người dùng Pocket</string>
     <string name="photo_send_no_friend">Chọn ít nhất một người bạn.</string>
+    <string name="camera_friends">Bạn bè</string>
+    <string name="camera_capture_first">Hãy chụp ảnh trước khi chọn người nhận.</string>
+    <string name="camera_gallery">Chọn ảnh từ thư viện</string>
+    <string name="camera_save_photo">Lưu ảnh</string>
+    <string name="camera_saved_to_gallery">Đã lưu ảnh vào thư viện</string>
+    <string name="camera_save_failed">Không thể lưu ảnh</string>
+    <plurals name="camera_selected_friends">
+        <item quantity="other">%d người bạn</item>
+    </plurals>
+
+    <string name="history_title">Lịch sử</string>
+    <string name="history_empty_title">Lịch sử của bạn bắt đầu tại đây</string>
+    <string name="history_empty_message">Ảnh bạn gửi và nhận sẽ xuất hiện tại đây.</string>
+    <string name="history_sender_you">Bạn</string>
+    <string name="history_time_now">Vừa xong</string>
+    <string name="history_reply">Trả lời</string>
+    <string name="history_photo_description">Ảnh được chia sẻ</string>
+    <string name="history_recent">Khoảnh khắc gần đây</string>
+    <string name="history_reply_hint">Gửi phản hồi nhanh...</string>
+    <string name="history_reply_own_photo">Không thể trả lời ảnh của chính bạn</string>
+    <string name="history_reply_sent">Đã gửi phản hồi</string>
+    <string name="history_reply_failed">Không thể gửi phản hồi</string>
+    <string name="history_zero_photos">0 ảnh</string>
+    <string name="history_expand">⌄</string>
+    <string name="history_count_zero">0</string>
+    <string name="history_filter_everyone">Mọi người</string>
+    <string name="history_filter_title">Hiển thị bài đăng từ</string>
+    <string name="reaction_hotdog">🌭</string>
+    <string name="reaction_heart_eyes">😍</string>
+    <string name="reaction_hearts">💕</string>
+    <string name="reaction_heart">❤</string>
+    <string name="reaction_smile">😊</string>
+    <string name="reaction_fire">🔥</string>
+    <plurals name="history_reaction_count">
+        <item quantity="other">%d cảm xúc</item>
+    </plurals>
+    <plurals name="history_photo_count">
+        <item quantity="other">%d ảnh</item>
+    </plurals>
 
     <string name="login_title">Pocket</string>
     <string name="login_subtitle">Chia sẻ khoảnh khắc nhỏ với bạn thân.</string>
@@ -62,6 +101,14 @@
     <string name="nav_friends">Bạn bè</string>
     <string name="nav_profile">Hồ sơ</string>
     <string name="nav_chat">Tin nhắn</string>
+    <string name="nav_memories">Kỷ niệm</string>
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_chat_short">Chat</string>
+    <string name="memories_empty_title">Chưa có kỷ niệm</string>
+    <string name="memories_empty_message">Ảnh bạn gửi và nhận sẽ tạo nên thư viện này.</string>
+    <string name="memories_close">Đóng kỷ niệm</string>
+    <string name="memories_share">Chia sẻ kỷ niệm</string>
+    <string name="memories_viewer_date">%1$s %2$d%3$s</string>
     <string name="chat_list_empty">Chưa có cuộc trò chuyện nào.</string>
     <string name="feed_placeholder">Bảng tin sắp ra mắt</string>
     <string name="friends_placeholder">Bạn bè sắp ra mắt</string>

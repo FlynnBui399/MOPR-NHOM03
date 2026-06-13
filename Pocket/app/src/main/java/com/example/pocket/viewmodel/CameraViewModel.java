@@ -41,10 +41,10 @@ public class CameraViewModel extends ViewModel {
     public void sendPhoto(@NonNull byte[] jpegBytes,
                           @NonNull String senderId,
                           @NonNull String senderName,
-                          @NonNull List<String> recipientIds,
+                          @NonNull List<String> receiverIds,
                           @NonNull String caption) {
         uploadStatus.setValue(UploadStatus.loading());
-        photoRepository.sendPhoto(jpegBytes, senderId, senderName, recipientIds, caption)
+        photoRepository.sendPhoto(jpegBytes, senderId, senderName, receiverIds, caption)
                 .addOnSuccessListener(photo -> uploadStatus.setValue(UploadStatus.success(photo)))
                 .addOnFailureListener(error -> uploadStatus.setValue(UploadStatus.error(error.getMessage())));
     }

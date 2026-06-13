@@ -35,6 +35,48 @@
     <string name="camera_upload_error">Unable to send photo</string>
     <string name="camera_default_user">Pocket User</string>
     <string name="photo_send_no_friend">Choose at least one friend.</string>
+    <string name="camera_friends">Friends</string>
+    <string name="camera_capture_first">Capture a photo before choosing recipients.</string>
+    <string name="camera_gallery">Choose from gallery</string>
+    <string name="camera_save_photo">Save photo</string>
+    <string name="camera_saved_to_gallery">Photo saved to gallery</string>
+    <string name="camera_save_failed">Unable to save photo</string>
+    <plurals name="camera_selected_friends">
+        <item quantity="one">%d friend</item>
+        <item quantity="other">%d friends</item>
+    </plurals>
+
+    <string name="history_title">History</string>
+    <string name="history_empty_title">Your history starts here</string>
+    <string name="history_empty_message">Photos you send and receive will appear here.</string>
+    <string name="history_sender_you">You</string>
+    <string name="history_time_now">Just now</string>
+    <string name="history_reply">Reply</string>
+    <string name="history_photo_description">Shared photo</string>
+    <string name="history_recent">Recent moments</string>
+    <string name="history_reply_hint">Send a quick reply...</string>
+    <string name="history_reply_own_photo">Replies are unavailable on your own photo</string>
+    <string name="history_reply_sent">Reply sent</string>
+    <string name="history_reply_failed">Could not send reply</string>
+    <string name="history_zero_photos">0 photos</string>
+    <string name="history_expand">⌄</string>
+    <string name="history_count_zero">0</string>
+    <string name="history_filter_everyone">Everyone</string>
+    <string name="history_filter_title">Show posts from</string>
+    <string name="reaction_hotdog">🌭</string>
+    <string name="reaction_heart_eyes">😍</string>
+    <string name="reaction_hearts">💕</string>
+    <string name="reaction_heart">❤</string>
+    <string name="reaction_smile">😊</string>
+    <string name="reaction_fire">🔥</string>
+    <plurals name="history_reaction_count">
+        <item quantity="one">%d reaction</item>
+        <item quantity="other">%d reactions</item>
+    </plurals>
+    <plurals name="history_photo_count">
+        <item quantity="one">%d photo</item>
+        <item quantity="other">%d photos</item>
+    </plurals>
 
     <string name="login_title">Pocket</string>
     <string name="login_subtitle">Share small moments with close friends.</string>
@@ -61,6 +103,14 @@
     <string name="nav_friends">Friends</string>
     <string name="nav_profile">Profile</string>
     <string name="nav_chat">Messages</string>
+    <string name="nav_memories">Memories</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_chat_short">Chat</string>
+    <string name="memories_empty_title">No memories yet</string>
+    <string name="memories_empty_message">Photos you send and receive will build your gallery.</string>
+    <string name="memories_close">Close memories</string>
+    <string name="memories_share">Share memory</string>
+    <string name="memories_viewer_date">%1$s %2$d%3$s</string>
     <string name="chat_list_empty">No conversations yet.</string>
     <string name="feed_placeholder">Feed coming soon</string>
     <string name="friends_placeholder">Friends coming soon</string>

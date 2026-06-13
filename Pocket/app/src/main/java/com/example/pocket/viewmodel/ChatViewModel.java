@@ -39,6 +39,13 @@ public class ChatViewModel extends AndroidViewModel {
         }
         chatId = repository.getChatId(currentUid, friendUid);
         messages = repository.getMessages(chatId);
+        repository.markMessagesRead(chatId);
+    }
+
+    public void markMessagesRead() {
+        if (chatId != null && !chatId.trim().isEmpty()) {
+            repository.markMessagesRead(chatId);
+        }
     }
 
     public void sendMessage(@NonNull String content) {

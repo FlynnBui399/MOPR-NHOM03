@@ -92,4 +92,26 @@ public class ChatRepository {
                 });
         return liveData;
     }
+
+    public void markMessagesRead(@NonNull String chatId) {
+        String currentUserId = auth.getCurrentUser() == null
+                ? null : auth.getCurrentUser().getUid();
+        if (currentUserId == null) {
+            return;
+        }
+        firestore.collection(Constants.COLLECTION_CHATS)
+                .document(chatId)
+                .collection(Constants.COLLECTION_MESSAGES)
+                .whereEqualTo("read", false)
+                .get()
+                .addOnSuccessListener(snapshot -> firestore.runBatch(batch -> {
+                    snapshot.getDocuments().forEach(document -> {
+                        String senderId = document.getString("senderId");
+                        if (senderId != null && !currentUserId.equals(senderId)) {
+                            batch.update(document.getReference(), "read", true);
+                        }
+                    });
+                }))
+                .addOnFailureListener(error -> Log.e(TAG, "Failed to mark messages read", error));
+    }
 }

@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/pocket_background"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingTop="14dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="108dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/flash_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:contentDescription="@string/camera_flash"
+            android:minHeight="0dp"
+            android:padding="11dp"
+            android:text=""
+            app:cornerRadius="25dp"
+            app:icon="@drawable/ic_flash_auto"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:pocketVariant="secondary" />
+
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/recipient_pill"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:minHeight="0dp"
+            android:minWidth="132dp"
+            android:paddingStart="22dp"
+            android:paddingEnd="22dp"
+            android:text="@string/camera_friends"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:pocketVariant="secondary" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/camera_profile_avatar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:contentDescription="@string/nav_profile"
+            android:src="@drawable/avatar_placeholder"
+            app:civ_border_color="@color/pocket_primary"
+            app:civ_border_width="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/camera_preview_card"
+        android:layout_width="match_parent"
+        android:layout_height="360dp"
+        android:layout_marginTop="28dp"
+        app:cardBackgroundColor="@color/black"
+        app:cardCornerRadius="34dp"
+        app:cardElevation="4dp"
+        app:strokeColor="@color/pocket_outline"
+        app:strokeWidth="1dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.camera.view.PreviewView
+                android:id="@+id/camera_preview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/camera_preview"
+                app:scaleType="fillCenter" />
+
+            <ImageView
+                android:id="@+id/captured_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/camera_photo_preview"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <com.example.pocket.ui.PocketButton
+                android:id="@+id/save_photo_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="14dp"
+                android:contentDescription="@string/camera_save_photo"
+                android:minHeight="0dp"
+                android:padding="13dp"
+                android:text=""
+                android:visibility="gone"
+                app:cornerRadius="25dp"
+                app:icon="@drawable/ic_download"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="24dp"
+                app:pocketVariant="secondary" />
+
+            <LinearLayout
+                android:id="@+id/caption_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@drawable/bg_camera_caption_panel"
+                android:gravity="end"
+                android:orientation="vertical"
+                android:paddingStart="18dp"
+                android:paddingTop="30dp"
+                android:paddingEnd="18dp"
+                android:paddingBottom="16dp"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/caption_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/camera_caption_hint"
+                    app:boxBackgroundMode="none"
+                    app:hintTextColor="@color/white">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/caption_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/pocket_transparent"
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:maxLines="3"
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/pocket_white_60"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.example.pocket.ui.PocketButton
+                    android:id="@+id/suggest_caption_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:minHeight="0dp"
+                    android:text="@string/camera_suggest_caption"
+                    android:textSize="13sp"
+                    android:visibility="gone"
+                    app:cornerRadius="19dp"
+                    app:pocketVariant="secondary"
+                    tools:visibility="visible" />
+            </LinearLayout>
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="116dp"
+        android:layout_marginTop="10dp">
+
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/gallery_button"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:contentDescription="@string/camera_gallery"
+            android:minHeight="0dp"
+            android:padding="16dp"
+            android:text=""
+            app:cornerRadius="32dp"
+            app:icon="@drawable/ic_gallery"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="30dp"
+            app:layout_constraintBottom_toBottomOf="@id/capture_cluster"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/capture_cluster"
+            app:pocketVariant="ghost" />
+
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/retake_button"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:contentDescription="@string/camera_retake"
+            android:minHeight="0dp"
+            android:padding="16dp"
+            android:text=""
+            android:visibility="gone"
+            app:cornerRadius="32dp"
+            app:icon="@drawable/ic_retake"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="30dp"
+            app:layout_constraintBottom_toBottomOf="@id/capture_cluster"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/capture_cluster"
+            app:pocketVariant="ghost" />
+
+        <FrameLayout
+            android:id="@+id/capture_cluster"
+            android:layout_width="94dp"
+            android:layout_height="94dp"
+            android:background="@drawable/bg_shutter_ring_light"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <View
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_shutter_button" />
+
+            <com.example.pocket.ui.PocketButton
+                android:id="@+id/capture_button"
+                android:layout_width="94dp"
+                android:layout_height="94dp"
+                android:background="@color/pocket_transparent"
+                android:contentDescription="@string/camera_capture"
+                android:minHeight="0dp"
+                android:padding="0dp"
+                android:text=""
+                app:pocketVariant="ghost" />
+        </FrameLayout>
+
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/flip_button"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:contentDescription="@string/camera_flip"
+            android:minHeight="0dp"
+            android:padding="16dp"
+            android:text=""
+            app:cornerRadius="32dp"
+            app:icon="@drawable/ic_flip_camera"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="30dp"
+            app:layout_constraintBottom_toBottomOf="@id/capture_cluster"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/capture_cluster"
+            app:pocketVariant="ghost" />
+
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/send_photo_button"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/bg_camera_fab"
+            android:contentDescription="@string/camera_send"
+            android:minHeight="0dp"
+            android:padding="18dp"
+            android:text=""
+            android:visibility="gone"
+            app:icon="@drawable/ic_send"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="26dp"
+            app:layout_constraintBottom_toBottomOf="@id/capture_cluster"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/capture_cluster"
+            app:pocketVariant="primary" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/history_header"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
+
+        <TextView
+            android:id="@+id/history_count"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_history_count_badge"
+            android:gravity="center"
+            android:text="@string/history_count_zero"
+            android:textColor="@color/pocket_on_primary"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/history_title"
+            android:textColor="@color/pocket_text_primary"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/history_expand"
+            android:textColor="@color/pocket_text_secondary"
+            android:textSize="20sp" />
+    </LinearLayout>
+</LinearLayout>
