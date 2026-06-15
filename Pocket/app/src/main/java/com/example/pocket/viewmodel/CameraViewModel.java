@@ -1,31 +1,45 @@
 package com.example.pocket.viewmodel;
 
+import android.app.Application;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.example.pocket.data.model.Photo;
 import com.example.pocket.data.remote.GeminiService;
 import com.example.pocket.data.repository.PhotoRepository;
 import com.example.pocket.utils.ImageUtils;
+import com.example.pocket.utils.CaptionCacheManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class CameraViewModel extends ViewModel {
+public class CameraViewModel extends AndroidViewModel {
+    private static final String TAG = "CameraViewModel";
+
     private final PhotoRepository photoRepository;
     private final GeminiService geminiService;
+    private final CaptionCacheManager captionCache;
+    private final ExecutorService captionExecutor = Executors.newSingleThreadExecutor();
     private final MutableLiveData<UploadStatus> uploadStatus = new MutableLiveData<>(UploadStatus.idle());
-    private final MutableLiveData<List<String>> suggestedCaptions = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<CaptionSuggestion> captionSuggestion = new MutableLiveData<>();
 
-    public CameraViewModel() {
-        this(new PhotoRepository(), new GeminiService());
+    public CameraViewModel(@NonNull Application application) {
+        this(application, new PhotoRepository(), new GeminiService());
     }
 
-    CameraViewModel(@NonNull PhotoRepository photoRepository, @NonNull GeminiService geminiService) {
+    CameraViewModel(@NonNull Application application,
+                    @NonNull PhotoRepository photoRepository,
+                    @NonNull GeminiService geminiService) {
+        super(application);
         this.photoRepository = photoRepository;
         this.geminiService = geminiService;
+        this.captionCache = new CaptionCacheManager(application);
     }
 
     @NonNull
@@ -34,8 +48,8 @@ public class CameraViewModel extends ViewModel {
     }
 
     @NonNull
-    public LiveData<List<String>> getSuggestedCaptions() {
-        return suggestedCaptions;
+    public LiveData<CaptionSuggestion> getCaptionSuggestion() {
+        return captionSuggestion;
     }
 
     public void sendPhoto(@NonNull byte[] jpegBytes,
@@ -50,16 +64,140 @@ public class CameraViewModel extends ViewModel {
     }
 
     public void generateCaption(@NonNull byte[] jpegBytes) {
-        suggestedCaptions.setValue(new ArrayList<>());
-        geminiService.generateCaptions(ImageUtils.toBase64(jpegBytes))
-                .addOnSuccessListener(suggestedCaptions::setValue)
-                .addOnFailureListener(error -> {
-                    List<String> fallback = new ArrayList<>();
-                    fallback.add("Mot khoanh khac that dep");
-                    fallback.add("Gui ban chut niem vui hom nay");
-                    fallback.add("Luu lai ngay nay nhe");
-                    suggestedCaptions.setValue(fallback);
-                });
+        byte[] sourceBytes = jpegBytes.clone();
+        captionExecutor.execute(() -> {
+            final byte[] optimizedBytes;
+            final String imageHash;
+            try {
+                optimizedBytes = ImageUtils.optimizeForCaption(sourceBytes);
+                imageHash = ImageUtils.sha256(optimizedBytes);
+            } catch (RuntimeException error) {
+                Log.w(TAG, "Unable to prepare image for Gemini caption", error);
+                publishFallback(error.getMessage());
+                return;
+            }
+
+            List<String> cached = captionCache.get(imageHash);
+            if (!cached.isEmpty()) {
+                captionSuggestion.postValue(new CaptionSuggestion(
+                        ensureFourCaptions(cached), CaptionSource.CACHE));
+                return;
+            }
+
+            geminiService.generateCaptions(optimizedBytes)
+                    .addOnSuccessListener(captions -> {
+                        List<String> completed = ensureFourCaptions(captions);
+
+                        // Count how many non-generic (image-specific) captions are in the AI list
+                        int aiNonGenericCount = 0;
+                        if (captions != null) {
+                            for (String caption : captions) {
+                                if (caption != null && !caption.trim().isEmpty() 
+                                        && !GeminiService.isGenericCaption(caption.trim())) {
+                                    aiNonGenericCount++;
+                                }
+                            }
+                        }
+
+                        // Only cache if Gemini returned at least 2 non-generic (image-specific) captions
+                        if (aiNonGenericCount >= 2) {
+                            captionCache.put(imageHash, completed);
+                            Log.i(TAG, "Cached generated AI captions. Non-generic count: " + aiNonGenericCount);
+                        } else {
+                            Log.i(TAG, "Did not cache AI captions (mostly generic). Non-generic count: " + aiNonGenericCount);
+                        }
+
+                        captionSuggestion.postValue(new CaptionSuggestion(
+                                completed, CaptionSource.AI));
+                    })
+                    .addOnFailureListener(error -> {
+                        Log.w(TAG, "Gemini caption unavailable; error: " + error.getMessage(), error);
+                        publishFallback(error.getMessage());
+                    });
+        });
+    }
+
+    private void publishFallback(String errorMessage) {
+        captionSuggestion.postValue(new CaptionSuggestion(
+                fallbackCaptions(), CaptionSource.FALLBACK, errorMessage));
+    }
+
+    @NonNull
+    private List<String> ensureFourCaptions(List<String> captions) {
+        List<String> result = new ArrayList<>();
+        if (captions != null) {
+            for (String caption : captions) {
+                if (caption != null && !caption.trim().isEmpty()
+                        && !result.contains(caption.trim())) {
+                    result.add(caption.trim());
+                }
+                if (result.size() == 4) {
+                    return result;
+                }
+            }
+        }
+        for (String fallback : fallbackCaptions()) {
+            if (!result.contains(fallback)) {
+                result.add(fallback);
+            }
+            if (result.size() == 4) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    @NonNull
+    private List<String> fallbackCaptions() {
+        List<String> fallback = new ArrayList<>();
+        fallback.add("vừa chụp nè 📸");
+        fallback.add("một chút hôm nay");
+        fallback.add("gửi bạn khoảnh khắc này");
+        fallback.add("nhìn cũng ổn áp đó");
+        fallback.add("lưu lại một ngày bình thường");
+        return fallback;
+    }
+
+    @Override
+    protected void onCleared() {
+        captionExecutor.shutdownNow();
+        super.onCleared();
+    }
+
+    public enum CaptionSource {
+        AI,
+        CACHE,
+        FALLBACK
+    }
+
+    public static class CaptionSuggestion {
+        private final List<String> captions;
+        private final CaptionSource source;
+        private final String errorMessage;
+
+        CaptionSuggestion(@NonNull List<String> captions, @NonNull CaptionSource source) {
+            this(captions, source, null);
+        }
+
+        CaptionSuggestion(@NonNull List<String> captions, @NonNull CaptionSource source, String errorMessage) {
+            this.captions = new ArrayList<>(captions);
+            this.source = source;
+            this.errorMessage = errorMessage;
+        }
+
+        @NonNull
+        public List<String> getCaptions() {
+            return new ArrayList<>(captions);
+        }
+
+        @NonNull
+        public CaptionSource getSource() {
+            return source;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
     }
 
     public static class UploadStatus {

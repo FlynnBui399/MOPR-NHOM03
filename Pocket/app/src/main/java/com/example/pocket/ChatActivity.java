@@ -139,6 +139,15 @@ public class ChatActivity extends AppCompatActivity {
 
         sendButton.setOnClickListener(v -> sendText());
 
+        messageInput.setOnFocusChangeListener((view, hasFocus) -> {
+            if (hasFocus) {
+                messageInput.setHint(null);
+            } else if (messageInput.getText() == null
+                    || messageInput.getText().toString().trim().isEmpty()) {
+                messageInput.setHint(R.string.chat_message_hint);
+            }
+        });
+
         messageInput.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 sendText();

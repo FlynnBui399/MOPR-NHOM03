@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG_PROFILE = "main_profile";
     private static final String TAG_FRIENDS = "main_friends";
 
-    private int selectedTabId = R.id.nav_home_tab;
+    private int selectedTabId = View.NO_ID;
     private LinearLayout memoriesTab;
     private LinearLayout homeTab;
     private LinearLayout chatTab;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         applyWindowInsets();
 
         memoriesTab.setOnClickListener(view -> selectTab(R.id.nav_memories_tab));
-        homeTab.setOnClickListener(view -> selectTab(R.id.nav_home_tab));
+        homeTab.setOnClickListener(view -> handleHomeTabClick());
         chatTab.setOnClickListener(view -> selectTab(R.id.nav_chat_tab));
 
         new ViewModelProvider(this).get(ChatUnreadViewModel.class)
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
             ViewGroup.MarginLayoutParams params =
                     (ViewGroup.MarginLayoutParams) bottomNavigation.getLayoutParams();
-            params.bottomMargin = navigationBar + dp(14);
+            params.bottomMargin = navigationBar + dp(8);
             bottomNavigation.setLayoutParams(params);
 
             return insets;
@@ -107,6 +108,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void selectTab(int itemId) {
+        int previousTabId = selectedTabId;
+        Fragment current = getSupportFragmentManager().getPrimaryNavigationFragment();
+        boolean returningToHome = itemId == R.id.nav_home_tab
+                && previousTabId != R.id.nav_home_tab;
+        if (previousTabId == R.id.nav_home_tab && itemId != R.id.nav_home_tab
+                && current instanceof HomeFragment) {
+            ((HomeFragment) current).onHomeTabUnselected();
+        }
         selectedTabId = itemId;
 
         memoriesTab.setSelected(itemId == R.id.nav_memories_tab);
@@ -137,10 +146,23 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        showFragment(fragment, tag);
+        Runnable onShown = returningToHome && fragment instanceof HomeFragment
+                ? ((HomeFragment) fragment)::onHomeTabSelectedFromAnotherTab
+                : null;
+        showFragment(fragment, tag, onShown);
+    }
+
+    private void handleHomeTabClick() {
+        Fragment current = getSupportFragmentManager().getPrimaryNavigationFragment();
+        if (selectedTabId == R.id.nav_home_tab && current instanceof HomeFragment) {
+            ((HomeFragment) current).returnToCameraMode();
+            return;
+        }
+        selectTab(R.id.nav_home_tab);
     }
 
     public void openProfile() {
+        notifyHomeUnselected();
         memoriesTab.setSelected(false);
         homeTab.setSelected(false);
         chatTab.setSelected(false);
@@ -154,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openFriends() {
+        notifyHomeUnselected();
         memoriesTab.setSelected(false);
         homeTab.setSelected(false);
         chatTab.setSelected(false);
@@ -162,11 +185,24 @@ public class MainActivity extends AppCompatActivity {
         showFragment(friends == null ? new FriendListFragment() : friends, TAG_FRIENDS);
     }
 
+    private void notifyHomeUnselected() {
+        Fragment current = getSupportFragmentManager().getPrimaryNavigationFragment();
+        if (current instanceof HomeFragment) {
+            ((HomeFragment) current).onHomeTabUnselected();
+        }
+    }
+
     public void updateTopBarAvatar(String url) {
         SharedPrefManager.getInstance(this).updateAvatarUrl(url);
     }
 
     private void showFragment(@NonNull Fragment fragment, @NonNull String tag) {
+        showFragment(fragment, tag, null);
+    }
+
+    private void showFragment(@NonNull Fragment fragment,
+                              @NonNull String tag,
+                              @Nullable Runnable onShown) {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction().setReorderingAllowed(true);
 
@@ -185,6 +221,9 @@ public class MainActivity extends AppCompatActivity {
 
         transaction.setMaxLifecycle(fragment, Lifecycle.State.RESUMED);
         transaction.setPrimaryNavigationFragment(fragment);
+        if (onShown != null) {
+            transaction.runOnCommit(onShown);
+        }
         transaction.commit();
     }
 
