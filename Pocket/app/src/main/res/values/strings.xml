@@ -15,6 +15,12 @@
     <string name="empty_photos_action">Refresh</string>
     <string name="transition_photo_detail_image">photo_detail_image</string>
 
+    <string name="photo_detail_image">Photo detail view</string>
+    <string name="action_back">Back</string>
+    <string name="action_save">Save to gallery</string>
+    <string name="action_reply">Reply</string>
+`    <string name="sender_avatar">Sender\'s avatar</string>
+
     <string name="camera_title">Camera</string>
     <string name="camera_permission_required">Camera permission is required to take photos.</string>
     <string name="camera_capture">Capture</string>
@@ -66,7 +72,7 @@
     <string name="reaction_hotdog">🌭</string>
     <string name="reaction_heart_eyes">😍</string>
     <string name="reaction_hearts">💕</string>
-    <string name="reaction_heart">❤</string>
+    <string name="reaction_heart">❤️</string>
     <string name="reaction_smile">😊</string>
     <string name="reaction_fire">🔥</string>
     <plurals name="history_reaction_count">

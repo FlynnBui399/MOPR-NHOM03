@@ -17,7 +17,8 @@ public class SharedPrefManager {
     private static final String KEY_AVATAR_URL = "avatarUrl";
     private static final String KEY_THEME_MODE = "theme_mode";
     private static final String KEY_LANGUAGE_LOCALE = "language_locale";
-
+    private static final String KEY_LATEST_PHOTO_URL = "latest_photo_url";
+    private static final String KEY_LATEST_SENDER_NAME = "latest_sender_name";
     private static SharedPrefManager instance;
     private final SharedPreferences preferences;
 
@@ -63,7 +64,10 @@ public class SharedPrefManager {
     public void setLanguageLocale(@NonNull String localeTag) {
         preferences.edit().putString(KEY_LANGUAGE_LOCALE, localeTag).apply();
     }
-
+    @Nullable
+    public String getUserId() {
+        return preferences.getString(KEY_UID, null);
+    }
     @Nullable
     public String getLanguageLocale() {
         return preferences.getString(KEY_LANGUAGE_LOCALE, null);
@@ -71,5 +75,23 @@ public class SharedPrefManager {
 
     public void clear() {
         preferences.edit().clear().apply();
+    }
+
+    public void setLatestPhotoUrl(@Nullable String imageUrl) {
+        preferences.edit().putString(KEY_LATEST_PHOTO_URL, imageUrl).apply();
+    }
+
+    @Nullable
+    public String getLatestPhotoUrl() {
+        return preferences.getString(KEY_LATEST_PHOTO_URL, null);
+    }
+
+    public void setLatestSenderName(@Nullable String senderName) {
+        preferences.edit().putString(KEY_LATEST_SENDER_NAME, senderName).apply();
+    }
+
+    @Nullable
+    public String getLatestSenderName() {
+        return preferences.getString(KEY_LATEST_SENDER_NAME, null);
     }
 }
