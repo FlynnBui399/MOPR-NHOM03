@@ -45,6 +45,10 @@ public class FeedViewModel extends ViewModel {
         photoRepository.reactToPhoto(photoId, userId, reaction);
     }
 
+    public void markPhotoSeen(@NonNull String photoId, @NonNull String userId) {
+        photoRepository.markPhotoSeen(photoId, userId);
+    }
+
     @Override
     protected void onCleared() {
         photoRepository.clearTimelineListeners();

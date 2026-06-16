@@ -23,7 +23,7 @@
         android:id="@+id/main_bottom_navigation"
         android:layout_width="292dp"
         android:layout_height="76dp"
-        android:layout_marginBottom="14dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/bg_bottom_nav_pill"
         android:baselineAligned="false"
         android:elevation="12dp"

@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
@@ -248,6 +249,13 @@ public class PhotoRepository {
             }
             return null;
         });
+    }
+
+    @NonNull
+    public Task<Void> markPhotoSeen(@NonNull String photoId, @NonNull String userId) {
+        return firestore.collection(Constants.COLLECTION_PHOTOS)
+                .document(photoId)
+                .update("seenBy", FieldValue.arrayUnion(userId));
     }
 
     @NonNull

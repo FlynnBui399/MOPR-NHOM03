@@ -169,15 +169,16 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@drawable/bg_glass_input"
-                android:hint="@string/chat_message_hint"
                 app:boxBackgroundColor="@color/pocket_transparent"
                 app:boxBackgroundMode="none"
-                app:hintTextColor="@color/pocket_text_secondary">
+                app:hintAnimationEnabled="false"
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/chat_message_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:hint="@string/chat_message_hint"
                     android:imeOptions="actionSend"
                     android:inputType="textCapSentences|textMultiLine"
                     android:maxLines="4"

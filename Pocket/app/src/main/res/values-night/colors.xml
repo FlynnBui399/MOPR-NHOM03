@@ -17,12 +17,12 @@
     <color name="pocket_danger">#FF4444</color>
     <color name="pocket_on_danger">#FFFFFF</color>
 
-    <color name="pocket_background">#0D0D0D</color>
-    <color name="pocket_background_deep">#0D0D0D</color>
-    <color name="pocket_surface">#1A1A1A</color>
-    <color name="pocket_surface_1">#1A1A1A</color>
-    <color name="pocket_surface_variant">#242424</color>
-    <color name="pocket_surface_2">#242424</color>
+    <color name="pocket_background">#121212</color>
+    <color name="pocket_background_deep">#101010</color>
+    <color name="pocket_surface">#1D1D1F</color>
+    <color name="pocket_surface_1">#1D1D1F</color>
+    <color name="pocket_surface_variant">#29292C</color>
+    <color name="pocket_surface_2">#29292C</color>
     <color name="pocket_widget_background">#1A1A1A</color>
     <color name="pocket_outline">#2E2E2E</color>
     <color name="pocket_divider">#2E2E2E</color>
@@ -40,8 +40,8 @@
     <color name="pocket_accent_secondary">#FFB347</color>
     <color name="pocket_camera_fab_end">#FF8E53</color>
     <color name="pocket_fab_shadow">#40FF6B6B</color>
-    <color name="pocket_nav_surface">#EB1C1C1C</color>
-    <color name="pocket_filter_surface">#1E1E1E</color>
+    <color name="pocket_nav_surface">#F0212123</color>
+    <color name="pocket_filter_surface">#242426</color>
     <color name="pocket_nav_icon_selected">#FFFFFF</color>
     <color name="pocket_nav_icon_unselected">#808080</color>
     <color name="pocket_google_button_text">#111827</color>

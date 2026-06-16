@@ -58,7 +58,7 @@ public class SharedPrefManager {
     }
 
     public int getThemeMode() {
-        return preferences.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_NO);
+        return preferences.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_YES);
     }
 
     public void setLanguageLocale(@NonNull String localeTag) {

@@ -27,11 +27,19 @@
     <string name="camera_send">Gửi</string>
     <string name="camera_suggest_caption">Gợi ý caption</string>
     <string name="camera_caption_hint">Caption</string>
+    <string name="camera_add_message">Thêm lời nhắn</string>
+    <string name="camera_send_to">Gửi đến...</string>
+    <string name="camera_all">Tất cả</string>
+    <string name="camera_discard_photo">Bỏ ảnh</string>
     <string name="camera_photo_preview">Xem trước ảnh đã chụp</string>
     <string name="camera_preview">Xem trước camera</string>
     <string name="camera_select_friends_title">Gửi cho bạn bè</string>
     <string name="camera_select_friends_empty">Chưa có bạn bè.</string>
     <string name="camera_captions_title">Caption gợi ý</string>
+    <string name="camera_caption_fallback_notice">AI hiện không khả dụng, đang hiển thị gợi ý nhanh.</string>
+    <string name="camera_caption_ai_generated">Đã tạo caption bằng AI</string>
+    <string name="camera_caption_loaded_cache">Đã tải bộ nhớ tạm caption AI</string>
+    <string name="camera_caption_fallback_toast">AI không khả dụng, đang hiển thị gợi ý</string>
     <string name="camera_upload_success">Đã gửi ảnh</string>
     <string name="camera_upload_error">Không thể gửi ảnh</string>
     <string name="camera_default_user">Người dùng Pocket</string>
@@ -63,12 +71,28 @@
     <string name="history_count_zero">0</string>
     <string name="history_filter_everyone">Mọi người</string>
     <string name="history_filter_title">Hiển thị bài đăng từ</string>
+    <string name="history_filter_everyone_hint">Tất cả bài đăng trong dòng thời gian</string>
+    <string name="history_filter_friend_hint">Chỉ bài đăng của người bạn này</string>
+    <string name="history_activity_title">Hoạt động</string>
+    <string name="history_no_activity">Chưa có hoạt động nào</string>
+    <string name="history_activity_someone">Bạn trên Pocket</string>
+    <string name="history_activity_viewed">Đã xem!</string>
+    <string name="history_activity_reacted">Đã thả %1$s</string>
+    <string name="history_activity_viewed_reacted">Đã xem! %1$s</string>
+    <plurals name="history_activity_count">
+        <item quantity="other">Hoạt động · %d người</item>
+    </plurals>
     <string name="reaction_hotdog">🌭</string>
     <string name="reaction_heart_eyes">😍</string>
     <string name="reaction_hearts">💕</string>
     <string name="reaction_heart">❤</string>
     <string name="reaction_smile">😊</string>
     <string name="reaction_fire">🔥</string>
+    <string name="reaction_bouquet">💐</string>
+    <string name="reaction_shock">😱</string>
+    <string name="reaction_more">+</string>
+    <string name="history_more_reactions">Thêm biểu cảm</string>
+    <string name="history_emoji_picker_title">Chọn biểu cảm</string>
     <plurals name="history_reaction_count">
         <item quantity="other">%d cảm xúc</item>
     </plurals>
@@ -153,4 +177,6 @@
     <string name="add_friend_request_failed">Không thể gửi lời mời.</string>
     <string name="notification_channel_messages">Tin nhắn</string>
     <string name="notification_channel_messages_description">Tin nhắn Pocket mới</string>
+    <string name="camera_start_failed">Camera tạm thời không khả dụng.</string>
+    <string name="camera_capture_failed">Không thể chụp ảnh.</string>
 </resources>

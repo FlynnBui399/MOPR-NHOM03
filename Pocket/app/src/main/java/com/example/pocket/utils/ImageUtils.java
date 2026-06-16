@@ -13,10 +13,14 @@ import androidx.annotation.NonNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public final class ImageUtils {
     public static final int DEFAULT_JPEG_QUALITY = 82;
     public static final int DEFAULT_MAX_DIMENSION = 1280;
+    public static final int CAPTION_JPEG_QUALITY = 70;
+    public static final int CAPTION_MAX_DIMENSION = 768;
 
     private ImageUtils() {
     }
@@ -61,6 +65,34 @@ public final class ImageUtils {
     @NonNull
     public static Bitmap bytesToBitmap(@NonNull byte[] bytes) {
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+    }
+
+    @NonNull
+    public static byte[] optimizeForCaption(@NonNull byte[] jpegBytes) {
+        Bitmap bitmap = bytesToBitmap(jpegBytes);
+        if (bitmap == null) {
+            throw new IllegalArgumentException("Unable to decode caption image");
+        }
+        try {
+            return compress(bitmap, CAPTION_JPEG_QUALITY, CAPTION_MAX_DIMENSION);
+        } finally {
+            bitmap.recycle();
+        }
+    }
+
+    @NonNull
+    public static String sha256(@NonNull byte[] bytes) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(bytes);
+            StringBuilder value = new StringBuilder(hash.length * 2);
+            for (byte item : hash) {
+                value.append(String.format(java.util.Locale.US, "%02x", item & 0xff));
+            }
+            return value.toString();
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable", impossible);
+        }
     }
 
     @NonNull
