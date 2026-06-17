@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.material)
     implementation("androidx.camera:camera-core:1.5.0")
+    implementation(libs.touchimageview)
     implementation("androidx.camera:camera-camera2:1.5.0")
     implementation("androidx.camera:camera-lifecycle:1.5.0")
     implementation("androidx.camera:camera-video:1.5.0")

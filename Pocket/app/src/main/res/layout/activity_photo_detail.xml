@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/photo_detail_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".PhotoDetailActivity">
+
+    <com.ortiz.touchview.TouchImageView
+        android:id="@+id/photo_detail_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@string/photo_detail_image"
+        android:scaleType="centerInside"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/photo_detail_toolbar"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:background="@color/pocket_overlay_black_80"
+        android:elevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/photo_detail_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_back"
+            android:padding="8dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@android:color/white" />
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <LinearLayout
+        android:id="@+id/photo_detail_info_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/pocket_overlay_black_80"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/photo_detail_reaction_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/photo_detail_sender_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/sender_avatar"
+            android:src="@drawable/avatar_placeholder"
+            app:civ_border_color="@color/pocket_primary"
+            app:civ_border_width="1dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/photo_detail_sender_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="John Doe" />
+
+            <TextView
+                android:id="@+id/photo_detail_timestamp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/pocket_white_60"
+                android:textSize="12sp"
+                tools:text="2 hours ago" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/photo_detail_save"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_save"
+            android:padding="6dp"
+            android:src="@drawable/ic_download"
+            app:tint="@android:color/white" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/photo_detail_caption"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/pocket_overlay_black_50"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="2"
+        android:padding="12dp"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/photo_detail_reaction_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Beautiful sunset at the beach"
+        tools:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/photo_detail_reaction_bar"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:background="@color/pocket_overlay_black_80"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/reaction_hotdog"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:text="@string/reaction_hotdog"
+                android:textSize="22sp"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/reaction_heart_eyes"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:text="@string/reaction_heart_eyes"
+                android:textSize="22sp"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/reaction_hearts"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:text="@string/reaction_hearts"
+                android:textSize="22sp"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/reaction_smile"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:text="@string/reaction_smile"
+                android:textSize="22sp"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/reaction_fire"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:text="@string/reaction_fire"
+                android:textSize="22sp"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/photo_detail_reply"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:text="@string/action_reply"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:cornerRadius="20dp"
+            app:pocketVariant="primary" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -46,6 +46,17 @@ public class PocketMessagingService extends FirebaseMessagingService {
         );
         String avatarUrl = valueOrDefault(data.get("senderAvatar"), data.get("friendAvatar"));
 
+        // Locket clone feature: Auto update widget if notification contains a photo
+        String imageUrl = valueOrDefault(data.get("imageUrl"), data.get("photoUrl"));
+        if (!imageUrl.isEmpty()) {
+            com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestPhotoUrl(imageUrl);
+            com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestSenderName(senderName);
+
+            Intent updateWidgetIntent = new Intent(this, com.example.pocket.widget.PocketWidgetProvider.class);
+            updateWidgetIntent.setAction("WIDGET_UPDATE");
+            sendBroadcast(updateWidgetIntent);
+        }
+
         showMessageNotification(senderName, body, friendUid, avatarUrl);
     }
 
