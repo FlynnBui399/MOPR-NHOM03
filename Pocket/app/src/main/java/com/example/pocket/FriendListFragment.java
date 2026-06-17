@@ -170,7 +170,30 @@ public class FriendListFragment extends Fragment {
                     .error(R.drawable.avatar_placeholder)
                     .into(holder.avatar);
             holder.messageButton.setOnClickListener(v -> listener.onMessage(user));
+            com.example.pocket.utils.ViewUtils.applyPressAnimation(holder.messageButton);
             holder.removeButton.setOnClickListener(v -> listener.onRemove(user));
+            com.example.pocket.utils.ViewUtils.applyPressAnimation(holder.removeButton);
+
+            String myUid = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null
+                    ? com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser().getUid()
+                    : "";
+            if (!myUid.isEmpty() && user.getId() != null) {
+                com.example.pocket.utils.StreakHelper.listenStreak(myUid, user.getId(), count -> {
+                    if (holder.tvStreak != null) {
+                        holder.tvStreak.setText(count + " days");
+                    }
+                    if (holder.ivFire != null) {
+                        holder.ivFire.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
+                    }
+                });
+            } else {
+                if (holder.tvStreak != null) {
+                    holder.tvStreak.setText("");
+                }
+                if (holder.ivFire != null) {
+                    holder.ivFire.setVisibility(View.GONE);
+                }
+            }
         }
 
         @Override
@@ -184,6 +207,8 @@ public class FriendListFragment extends Fragment {
             final TextView phone;
             final PocketButton messageButton;
             final View removeButton;
+            final TextView tvStreak;
+            final android.widget.ImageView ivFire;
 
             Holder(@NonNull View itemView) {
                 super(itemView);
@@ -192,6 +217,8 @@ public class FriendListFragment extends Fragment {
                 phone = itemView.findViewById(R.id.friend_item_phone);
                 messageButton = itemView.findViewById(R.id.friend_item_message_button);
                 removeButton = itemView.findViewById(R.id.friend_item_remove_button);
+                tvStreak = itemView.findViewById(R.id.tvStreak);
+                ivFire = itemView.findViewById(R.id.ivFire);
             }
         }
     }

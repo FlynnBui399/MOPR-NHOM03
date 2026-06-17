@@ -87,6 +87,42 @@ public class CloudinaryService {
     }
 
     @NonNull
+    public Task<UploadResult> uploadUnsignedVideo(@NonNull java.io.File videoFile) {
+        TaskCompletionSource<UploadResult> source = new TaskCompletionSource<>();
+
+        RequestBody fileBody = RequestBody.create(MediaType.parse("video/mp4"), videoFile);
+        MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", videoFile.getName(), fileBody);
+        RequestBody presetBody = RequestBody.create(MediaType.parse("text/plain"), "pocket_unsigned_video");
+
+        api.uploadVideo(Constants.CLOUDINARY_CLOUD_NAME, filePart, presetBody)
+                .enqueue(new Callback<CloudinaryUploadResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<CloudinaryUploadResponse> call,
+                                           @NonNull Response<CloudinaryUploadResponse> response) {
+                        CloudinaryUploadResponse body = response.body();
+                        if (!response.isSuccessful() || body == null || body.secureUrl == null) {
+                            source.setException(new IllegalStateException(
+                                    "Cloudinary video upload failed: " + response.code()));
+                            return;
+                        }
+                        source.setResult(new UploadResult(
+                                body.publicId,
+                                body.secureUrl,
+                                body.secureUrl
+                        ));
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<CloudinaryUploadResponse> call,
+                                          @NonNull Throwable throwable) {
+                        source.setException(new RuntimeException("Cloudinary video upload failed", throwable));
+                    }
+                });
+
+        return source.getTask();
+    }
+
+    @NonNull
     public String getThumbnailUrl(@NonNull String imageUrl) {
         int uploadIndex = imageUrl.indexOf("/upload/");
         if (uploadIndex < 0) return imageUrl;
@@ -100,6 +136,14 @@ public class CloudinaryService {
         @Multipart
         @POST("v1_1/{cloudName}/image/upload")
         Call<CloudinaryUploadResponse> uploadImage(
+                @Path("cloudName") String cloudName,
+                @Part MultipartBody.Part file,
+                @Part("upload_preset") RequestBody uploadPreset
+        );
+
+        @Multipart
+        @POST("v1_1/{cloudName}/video/upload")
+        Call<CloudinaryUploadResponse> uploadVideo(
                 @Path("cloudName") String cloudName,
                 @Part MultipartBody.Part file,
                 @Part("upload_preset") RequestBody uploadPreset
