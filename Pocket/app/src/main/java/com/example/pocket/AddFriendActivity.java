@@ -46,8 +46,11 @@ public class AddFriendActivity extends AppCompatActivity {
         PocketButton searchButton = findViewById(R.id.add_friend_search_button);
 
         backButton.setOnClickListener(v -> finish());
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(backButton);
         searchButton.setOnClickListener(v -> search());
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(searchButton);
         sendRequestButton.setOnClickListener(v -> sendRequest());
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(sendRequestButton);
     }
 
     private void search() {

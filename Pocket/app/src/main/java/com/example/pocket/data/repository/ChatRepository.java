@@ -65,6 +65,40 @@ public class ChatRepository {
                 });
     }
 
+    public void sendPhotoReply(@NonNull String chatId,
+                               @NonNull String replyText,
+                               @NonNull String quotedPhotoUrl,
+                               @NonNull String quotedPhotoId,
+                               @NonNull UserRepository.Callback<Void> callback) {
+        String senderId = auth.getCurrentUser() == null ? null : auth.getCurrentUser().getUid();
+        if (senderId == null) {
+            callback.onError(new IllegalStateException("User is not signed in"));
+            return;
+        }
+
+        Map<String, Object> message = new HashMap<>();
+        message.put("chatId", chatId);
+        message.put("senderId", senderId);
+        message.put("text", replyText);
+        message.put("content", replyText);
+        message.put("type", "photo_reply");
+        message.put("quotedPhotoUrl", quotedPhotoUrl);
+        message.put("quotedPhotoId", quotedPhotoId);
+        message.put("createdAt", Timestamp.now());
+        message.put("read", false);
+
+        firestore.collection(Constants.COLLECTION_CHATS)
+                .document(chatId)
+                .collection(Constants.COLLECTION_MESSAGES)
+                .document()
+                .set(message)
+                .addOnSuccessListener(unused -> callback.onSuccess(null))
+                .addOnFailureListener(error -> {
+                    Log.e(TAG, "Failed to send photo reply", error);
+                    callback.onError(error);
+                });
+    }
+
     @NonNull
     public LiveData<List<Message>> getMessages(@NonNull String chatId) {
         MutableLiveData<List<Message>> liveData = new MutableLiveData<>(new ArrayList<>());

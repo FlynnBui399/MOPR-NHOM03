@@ -9,6 +9,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +51,7 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView messagesRecycler;
     private ExecutorService notificationExecutor;
     private String friendUid;
+    private String friendName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -89,7 +91,7 @@ public class ChatActivity extends AppCompatActivity {
         notificationExecutor = Executors.newSingleThreadExecutor();
 
         friendUid = getIntent().getStringExtra(EXTRA_FRIEND_UID);
-        String friendName = getIntent().getStringExtra(EXTRA_FRIEND_NAME);
+        friendName = getIntent().getStringExtra(EXTRA_FRIEND_NAME);
         String friendAvatar = getIntent().getStringExtra(EXTRA_FRIEND_AVATAR);
 
         if (friendUid == null || friendUid.trim().isEmpty()) {
@@ -138,6 +140,7 @@ public class ChatActivity extends AppCompatActivity {
         });
 
         sendButton.setOnClickListener(v -> sendText());
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(sendButton);
 
         messageInput.setOnFocusChangeListener((view, hasFocus) -> {
             if (hasFocus) {
@@ -167,6 +170,7 @@ public class ChatActivity extends AppCompatActivity {
         for (int emojiId : emojiIds) {
             TextView emoji = findViewById(emojiId);
             emoji.setOnClickListener(v -> sendEmoji(((TextView) v).getText().toString()));
+            com.example.pocket.utils.ViewUtils.applyPressAnimation(emoji);
         }
 
         UserRepository.getInstance().getUserById(friendUid, new UserRepository.Callback<com.example.pocket.data.model.User>() {
@@ -252,7 +256,10 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    private static class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Holder> {
+    private class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Holder> {
+        private static final int VIEW_TYPE_TEXT = 1;
+        private static final int VIEW_TYPE_PHOTO_REPLY = 2;
+
         private final List<Message> messages = new ArrayList<>();
         private final String currentUid;
 
@@ -268,23 +275,163 @@ public class ChatActivity extends AppCompatActivity {
             notifyDataSetChanged();
         }
 
+        @Override
+        public int getItemViewType(int position) {
+            Message message = messages.get(position);
+            if (message.getType() != null && message.getType().equals("photo_reply")) {
+                return VIEW_TYPE_PHOTO_REPLY;
+            }
+            return VIEW_TYPE_TEXT;
+        }
+
         @NonNull
         @Override
         public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            if (viewType == VIEW_TYPE_PHOTO_REPLY) {
+                return new Holder(LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_message_photo_reply, parent, false));
+            }
             return new Holder(LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_chat_message, parent, false));
+        }
+
+        private boolean isEmojiOnly(String text) {
+            if (text == null) return false;
+            text = text.trim();
+            if (text.isEmpty()) return false;
+            
+            int count = 0;
+            for (int i = 0; i < text.length(); ) {
+                int codePoint = text.codePointAt(i);
+                if (!isEmojiCodePoint(codePoint) && !Character.isWhitespace(codePoint) && codePoint != 0xFE0F) {
+                    return false;
+                }
+                if (!Character.isWhitespace(codePoint) && codePoint != 0xFE0F) {
+                    count++;
+                }
+                i += Character.charCount(codePoint);
+            }
+            return count >= 1 && count <= 4;
+        }
+
+        private boolean isEmojiCodePoint(int codePoint) {
+            return (codePoint >= 0x1F300 && codePoint <= 0x1F9FF) || 
+                   (codePoint >= 0x2600 && codePoint <= 0x27BF) ||
+                   (codePoint >= 0x1F000 && codePoint <= 0x1F0FF) ||
+                   (codePoint >= 0x1F100 && codePoint <= 0x1F1FF) ||
+                   (codePoint >= 0x1F200 && codePoint <= 0x1F2FF) ||
+                   (codePoint >= 0x1F900 && codePoint <= 0x1F9FF) ||
+                   (codePoint >= 0x1FA00 && codePoint <= 0x1FAFF) ||
+                   (codePoint >= 0xE0000 && codePoint <= 0xE007F) ||
+                   (codePoint == 0x2705) || (codePoint == 0x270A) || (codePoint == 0x270B) ||
+                   (codePoint == 0x2728) || (codePoint == 0x274C) || (codePoint == 0x274E) ||
+                   (codePoint == 0x2753) || (codePoint == 0x2757) || (codePoint == 0x2795) ||
+                   (codePoint == 0x2796) || (codePoint == 0x2797) || (codePoint == 0x27B0) ||
+                   (codePoint == 0x27BF) || (codePoint == 0x2934) || (codePoint == 0x2935) ||
+                   (codePoint == 0x2B05) || (codePoint == 0x2B06) || (codePoint == 0x2B07) ||
+                   (codePoint == 0x2B1B) || (codePoint == 0x2B1C) || (codePoint == 0x2B50) ||
+                   (codePoint == 0x2B55) || (codePoint == 0x3030) || (codePoint == 0x303D) ||
+                   (codePoint == 0x3297) || (codePoint == 0x3299);
         }
 
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
             Message message = messages.get(position);
             boolean sent = currentUid.equals(message.getSenderId());
-            String content = message.getContent() == null ? "" : message.getContent();
 
-            holder.sentBubble.setVisibility(sent ? View.VISIBLE : View.GONE);
-            holder.receivedBubble.setVisibility(sent ? View.GONE : View.VISIBLE);
-            holder.sentBubble.setText(content);
-            holder.receivedBubble.setText(content);
+            if (getItemViewType(position) == VIEW_TYPE_PHOTO_REPLY) {
+                if (holder.quotedBox != null) {
+                    holder.quotedBox.setVisibility(View.VISIBLE);
+                }
+                
+                if (holder.ivQuotedThumb != null) {
+                    float density = getResources().getDisplayMetrics().density;
+                    Glide.with(ChatActivity.this)
+                            .load(message.getQuotedPhotoUrl())
+                            .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(250))
+                            .placeholder(new android.graphics.drawable.ColorDrawable(android.graphics.Color.parseColor("#1C1C1E")))
+                            .error(R.drawable.placeholder_pocket)
+                            .transform(new com.bumptech.glide.load.resource.bitmap.CenterCrop(), new com.bumptech.glide.load.resource.bitmap.RoundedCorners((int) (8 * density)))
+                            .into(holder.ivQuotedThumb);
+                }
+
+                String senderName = sent ? "You" : (friendName != null ? friendName : "Friend");
+                if (holder.tvQuotedLabel != null) {
+                    holder.tvQuotedLabel.setText("Pocket from " + senderName);
+                }
+
+                String replyText = message.getText() == null ? "" : message.getText();
+                boolean isEmoji = isEmojiOnly(replyText);
+
+                if (holder.tvReplyText != null) {
+                    holder.tvReplyText.setText(replyText);
+                    if (isEmoji) {
+                        holder.tvReplyText.setTextSize(36f);
+                        holder.tvReplyText.setBackground(null);
+                        holder.tvReplyText.setPadding(0, 0, 0, 0);
+                    } else {
+                        holder.tvReplyText.setTextSize(15f);
+                        float density = getResources().getDisplayMetrics().density;
+                        int horizontalPadding = (int) (12 * density);
+                        int verticalPadding = (int) (8 * density);
+                        holder.tvReplyText.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
+                        if (sent) {
+                            holder.tvReplyText.setBackgroundResource(R.drawable.bg_chat_bubble_sent);
+                            holder.tvReplyText.setTextColor(android.graphics.Color.WHITE);
+                        } else {
+                            holder.tvReplyText.setBackgroundResource(R.drawable.bg_chat_bubble_received_dark);
+                            holder.tvReplyText.setTextColor(android.graphics.Color.WHITE);
+                        }
+                    }
+                }
+
+                if (holder.replyContainer != null) {
+                    android.widget.FrameLayout.LayoutParams params =
+                            (android.widget.FrameLayout.LayoutParams) holder.replyContainer.getLayoutParams();
+                    params.gravity = sent ? android.view.Gravity.END : android.view.Gravity.START;
+                    holder.replyContainer.setLayoutParams(params);
+                }
+            } else {
+                String content = message.getContent() == null ? "" : message.getContent();
+                boolean isEmoji = isEmojiOnly(content);
+
+                if (holder.sentBubble != null) {
+                    holder.sentBubble.setVisibility(sent ? View.VISIBLE : View.GONE);
+                    if (sent) {
+                        holder.sentBubble.setText(content);
+                        if (isEmoji) {
+                            holder.sentBubble.setTextSize(36f);
+                            holder.sentBubble.setBackground(null);
+                            holder.sentBubble.setPadding(0, 0, 0, 0);
+                        } else {
+                            holder.sentBubble.setTextSize(15f);
+                            holder.sentBubble.setBackgroundResource(R.drawable.bg_chat_bubble_sent);
+                            float density = getResources().getDisplayMetrics().density;
+                            int horizontalPadding = (int) (12 * density);
+                            int verticalPadding = (int) (8 * density);
+                            holder.sentBubble.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
+                        }
+                    }
+                }
+                if (holder.receivedBubble != null) {
+                    holder.receivedBubble.setVisibility(sent ? View.GONE : View.VISIBLE);
+                    if (!sent) {
+                        holder.receivedBubble.setText(content);
+                        if (isEmoji) {
+                            holder.receivedBubble.setTextSize(36f);
+                            holder.receivedBubble.setBackground(null);
+                            holder.receivedBubble.setPadding(0, 0, 0, 0);
+                        } else {
+                            holder.receivedBubble.setTextSize(15f);
+                            holder.receivedBubble.setBackgroundResource(R.drawable.bg_chat_bubble_received_dark);
+                            float density = getResources().getDisplayMetrics().density;
+                            int horizontalPadding = (int) (12 * density);
+                            int verticalPadding = (int) (8 * density);
+                            holder.receivedBubble.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
+                        }
+                    }
+                }
+            }
         }
 
         @Override
@@ -292,14 +439,24 @@ public class ChatActivity extends AppCompatActivity {
             return messages.size();
         }
 
-        private static class Holder extends RecyclerView.ViewHolder {
+        private class Holder extends RecyclerView.ViewHolder {
             final TextView receivedBubble;
             final TextView sentBubble;
+            final View replyContainer;
+            final View quotedBox;
+            final ImageView ivQuotedThumb;
+            final TextView tvQuotedLabel;
+            final TextView tvReplyText;
 
             Holder(@NonNull View itemView) {
                 super(itemView);
                 receivedBubble = itemView.findViewById(R.id.chat_received_bubble);
                 sentBubble = itemView.findViewById(R.id.chat_sent_bubble);
+                replyContainer = itemView.findViewById(R.id.chat_reply_container);
+                quotedBox = itemView.findViewById(R.id.quotedBox);
+                ivQuotedThumb = itemView.findViewById(R.id.ivQuotedThumb);
+                tvQuotedLabel = itemView.findViewById(R.id.tvQuotedLabel);
+                tvReplyText = itemView.findViewById(R.id.tvReplyText);
             }
         }
     }

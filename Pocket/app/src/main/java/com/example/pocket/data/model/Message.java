@@ -16,6 +16,8 @@ public class Message {
     private String type;
     private Timestamp createdAt;
     private boolean read;
+    private String quotedPhotoUrl;
+    private String quotedPhotoId;
 
     public Message() {
     }
@@ -126,5 +128,21 @@ public class Message {
 
     public void setRead(boolean read) {
         this.read = read;
+    }
+
+    public String getQuotedPhotoUrl() {
+        return quotedPhotoUrl;
+    }
+
+    public void setQuotedPhotoUrl(String quotedPhotoUrl) {
+        this.quotedPhotoUrl = quotedPhotoUrl;
+    }
+
+    public String getQuotedPhotoId() {
+        return quotedPhotoId;
+    }
+
+    public void setQuotedPhotoId(String quotedPhotoId) {
+        this.quotedPhotoId = quotedPhotoId;
     }
 }

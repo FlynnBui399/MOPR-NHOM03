@@ -19,12 +19,16 @@ public class Photo {
     private String cloudinaryPublicId;
     private String caption;
     private List<String> receiverIds;
+    private List<String> recipients;
     private Map<String, String> reactions;
     private List<String> seenBy;
     private Timestamp createdAt;
+    private String type;
+    private String videoUrl;
 
     public Photo() {
         receiverIds = new ArrayList<>();
+        recipients = new ArrayList<>();
         reactions = new HashMap<>();
         seenBy = new ArrayList<>();
     }
@@ -40,6 +44,7 @@ public class Photo {
         this.cloudinaryPublicId = cloudinaryPublicId;
         this.caption = caption;
         this.receiverIds = receiverIds == null ? new ArrayList<>() : new ArrayList<>(receiverIds);
+        this.recipients = receiverIds == null ? new ArrayList<>() : new ArrayList<>(receiverIds);
         this.reactions = reactions == null ? new HashMap<>() : new HashMap<>(reactions);
         this.seenBy = seenBy == null ? new ArrayList<>() : new ArrayList<>(seenBy);
         this.createdAt = createdAt;
@@ -135,11 +140,35 @@ public class Photo {
         setReceiverIds(recipientIds);
     }
 
+    public List<String> getRecipients() {
+        return recipients;
+    }
+
+    public void setRecipients(List<String> recipients) {
+        this.recipients = recipients == null ? new ArrayList<>() : new ArrayList<>(recipients);
+    }
+
     public Timestamp getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 }

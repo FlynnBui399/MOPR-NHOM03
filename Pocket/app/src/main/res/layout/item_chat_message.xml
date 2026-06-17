@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/pocket_space_xs"
-    android:paddingBottom="@dimen/pocket_space_xs">
+    android:paddingTop="3dp"
+    android:paddingBottom="3dp">
 
     <TextView
         android:id="@+id/chat_received_bubble"
@@ -13,12 +13,14 @@
         android:layout_gravity="start"
         android:background="@drawable/bg_chat_bubble_received_dark"
         android:maxWidth="280dp"
-        android:paddingStart="16dp"
-        android:paddingTop="10dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="10dp"
+        android:paddingStart="12dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="3dp"
         android:textColor="@color/pocket_text_primary"
-        android:textSize="16sp"
+        android:textSize="15sp"
         tools:text="Received message" />
 
     <TextView
@@ -28,11 +30,13 @@
         android:layout_gravity="end"
         android:background="@drawable/bg_chat_bubble_sent"
         android:maxWidth="280dp"
-        android:paddingStart="16dp"
-        android:paddingTop="10dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="10dp"
+        android:paddingStart="12dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="3dp"
         android:textColor="@color/pocket_on_primary"
-        android:textSize="16sp"
+        android:textSize="15sp"
         tools:text="Sent message" />
 </FrameLayout>

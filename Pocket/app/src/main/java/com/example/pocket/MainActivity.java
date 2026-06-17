@@ -204,7 +204,9 @@ public class MainActivity extends AppCompatActivity {
                               @NonNull String tag,
                               @Nullable Runnable onShown) {
         FragmentManager manager = getSupportFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction().setReorderingAllowed(true);
+        FragmentTransaction transaction = manager.beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_up, R.anim.slide_out_down)
+                .setReorderingAllowed(true);
 
         for (Fragment existing : manager.getFragments()) {
             if (existing.getId() == R.id.main_fragment_container && existing != fragment) {

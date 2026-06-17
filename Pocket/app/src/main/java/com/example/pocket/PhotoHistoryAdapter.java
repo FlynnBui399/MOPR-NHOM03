@@ -1,31 +1,33 @@
 package com.example.pocket;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.text.format.DateUtils;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.pocket.data.model.Photo;
 import com.example.pocket.data.model.User;
 import com.example.pocket.data.repository.UserRepository;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -33,34 +35,21 @@ import java.util.Set;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.PhotoViewHolder> {
-    public interface ReplyResult {
-        void complete(boolean success);
-    }
-
-    public interface QuickReplyListener {
-        void onQuickReply(@NonNull Photo photo,
-                          @NonNull String content,
-                          @NonNull String type,
-                          @NonNull ReplyResult result);
-    }
 
     public interface ActivityClickListener {
         void onActivityClick(@NonNull Photo photo);
     }
 
     private final String currentUserId;
-    private final QuickReplyListener quickReplyListener;
     private final ActivityClickListener activityClickListener;
     private final UserRepository userRepository = UserRepository.getInstance();
     private final Map<String, User> senderCache = new HashMap<>();
     private final Set<String> requestedSenderIds = new HashSet<>();
 
     public PhotoHistoryAdapter(@NonNull String currentUserId,
-                               QuickReplyListener quickReplyListener,
                                ActivityClickListener activityClickListener) {
         super(DIFF_CALLBACK);
         this.currentUserId = currentUserId;
-        this.quickReplyListener = quickReplyListener;
         this.activityClickListener = activityClickListener;
     }
 
@@ -76,8 +65,14 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
         Photo photo = getItem(position);
         User sender = photo.getSenderId() == null ? null : senderCache.get(photo.getSenderId());
-        holder.bind(photo, sender, currentUserId, quickReplyListener, activityClickListener);
+        holder.bind(photo, sender, currentUserId, activityClickListener);
         requestSenderIfNeeded(photo.getSenderId());
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull PhotoViewHolder holder) {
+        super.onViewRecycled(holder);
+        holder.releasePlayer();
     }
 
     private void requestSenderIfNeeded(String senderId) {
@@ -109,29 +104,16 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
     }
 
     static class PhotoViewHolder extends RecyclerView.ViewHolder {
-        private static final String[] PICKER_EMOJIS = {
-                "\uD83D\uDC95", "\uD83D\uDE31", "\uD83D\uDD25", "\uD83D\uDE02",
-                "\uD83E\uDD23", "\uD83D\uDE0D", "\uD83E\uDD79", "\uD83D\uDE2D",
-                "\uD83E\uDEF6", "\uD83D\uDC40", "\uD83D\uDC80", "\uD83D\uDE0E",
-                "\uD83D\uDC4D", "\uD83D\uDC4E", "\uD83C\uDF89", "\uD83D\uDC90",
-                "\u2728", "\uD83D\uDE2E\u200D\uD83D\uDCA8", "\uD83E\uDD21", "\uD83D\uDE0B",
-                "\u2764\uFE0F\u200D\uD83D\uDD25", "\uD83D\uDE24", "\uD83D\uDE43", "\uD83E\uDD70",
-                "\uD83E\uDD1D", "\uD83E\uDD29", "\uD83D\uDE4C", "\uD83E\uDD73"
-        };
-
         private final CircleImageView senderAvatar;
         private final View photoCard;
         private final TextView senderName;
         private final TextView timestamp;
         private final ImageView photoImage;
-        private final TextView caption;
+        private final PlayerView videoPlayer;
+        private final TextView tvCaption;
         private final TextView activityButton;
-        private final View replyRow;
-        private final EditText replyInput;
-        private final TextView heartsReply;
-        private final TextView shockReply;
-        private final TextView fireReply;
-        private final TextView moreReply;
+        
+        private ExoPlayer exoPlayer;
         private String boundPhotoId;
 
         PhotoViewHolder(@NonNull View itemView) {
@@ -141,25 +123,14 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
             senderName = itemView.findViewById(R.id.history_sender_name);
             timestamp = itemView.findViewById(R.id.history_timestamp);
             photoImage = itemView.findViewById(R.id.history_photo_image);
-            caption = itemView.findViewById(R.id.history_caption);
+            videoPlayer = itemView.findViewById(R.id.history_video_player);
+            tvCaption = itemView.findViewById(R.id.tvCaption);
             activityButton = itemView.findViewById(R.id.history_activity_button);
-            replyRow = itemView.findViewById(R.id.history_reply_row);
-            replyInput = itemView.findViewById(R.id.history_reply_input);
-            heartsReply = itemView.findViewById(R.id.history_reaction_hearts);
-            shockReply = itemView.findViewById(R.id.history_reaction_shock);
-            fireReply = itemView.findViewById(R.id.history_reaction_fire);
-            moreReply = itemView.findViewById(R.id.history_reaction_more);
-            photoCard.post(() -> {
-                ViewGroup.LayoutParams params = photoCard.getLayoutParams();
-                params.height = photoCard.getWidth();
-                photoCard.setLayoutParams(params);
-            });
         }
 
         void bind(@NonNull Photo photo,
                   User sender,
                   @NonNull String currentUserId,
-                  QuickReplyListener listener,
                   ActivityClickListener activityListener) {
             boundPhotoId = photo.getId();
             String displayName = sender == null ? null : sender.getDisplayName();
@@ -175,13 +146,21 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
             senderName.setText(currentUserId.equals(photo.getSenderId())
                     ? itemView.getContext().getString(R.string.history_sender_you)
                     : displayName);
-            String avatarUrl = sender == null ? null : sender.getAvatarUrl();
-            Glide.with(senderAvatar)
-                    .load(avatarUrl)
-                    .circleCrop()
-                    .placeholder(R.drawable.avatar_placeholder)
-                    .error(R.drawable.avatar_placeholder)
-                    .into(senderAvatar);
+
+            String avatarUrl = (sender != null && sender.getAvatarUrl() != null && !sender.getAvatarUrl().trim().isEmpty())
+                    ? sender.getAvatarUrl() : null;
+
+            if (avatarUrl != null) {
+                Glide.with(senderAvatar.getContext())
+                        .load(avatarUrl)
+                        .transition(DrawableTransitionOptions.withCrossFade(250))
+                        .placeholder(R.drawable.avatar_placeholder)
+                        .error(R.drawable.avatar_placeholder)
+                        .circleCrop()
+                        .into(senderAvatar);
+            } else {
+                senderAvatar.setImageResource(R.drawable.avatar_placeholder);
+            }
 
             if (photo.getCreatedAt() == null) {
                 timestamp.setText(R.string.history_time_now);
@@ -192,57 +171,33 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
                         DateUtils.MINUTE_IN_MILLIS));
             }
 
-            String imageUrl = photo.getImageUrl();
-            if (imageUrl == null || imageUrl.trim().isEmpty()) {
-                imageUrl = photo.getThumbnailUrl();
+            // Video rendering vs Photo image rendering (Task 9)
+            if ("video".equals(photo.getType()) && photo.getVideoUrl() != null) {
+                photoImage.setVisibility(View.GONE);
+                videoPlayer.setVisibility(View.VISIBLE);
+                initializePlayer(photo.getVideoUrl());
+            } else {
+                videoPlayer.setVisibility(View.GONE);
+                photoImage.setVisibility(View.VISIBLE);
+                releasePlayer();
+
+                String imageUrl = photo.getImageUrl();
+                if (imageUrl == null || imageUrl.trim().isEmpty()) {
+                    imageUrl = photo.getThumbnailUrl();
+                }
+                Glide.with(photoImage.getContext())
+                        .load(imageUrl)
+                        .transition(DrawableTransitionOptions.withCrossFade(250))
+                        .placeholder(new ColorDrawable(Color.parseColor("#1C1C1E")))
+                        .error(R.drawable.placeholder_pocket)
+                        .centerCrop()
+                        .into(photoImage);
             }
-            Glide.with(photoImage)
-                    .load(imageUrl)
-                    .centerCrop()
-                    .placeholder(R.drawable.placeholder_pocket)
-                    .error(R.drawable.placeholder_pocket)
-                    .into(photoImage);
+
             String captionText = photo.getCaption();
             boolean hasCaption = captionText != null && !captionText.trim().isEmpty();
-            caption.setVisibility(hasCaption ? View.VISIBLE : View.GONE);
-            caption.setText(hasCaption ? captionText : "");
-
-            boolean canReply = photo.getSenderId() != null
-                    && !photo.getSenderId().trim().isEmpty()
-                    && !currentUserId.equals(photo.getSenderId())
-                    && listener != null;
-            replyRow.setVisibility(canReply ? View.VISIBLE : View.GONE);
-            replyInput.setText(null);
-            replyInput.setEnabled(canReply);
-            replyInput.setHint(canReply
-                    ? R.string.history_reply_hint
-                    : R.string.history_reply_own_photo);
-            replyInput.setOnEditorActionListener((view, actionId, event) -> {
-                boolean sendAction = actionId == EditorInfo.IME_ACTION_SEND
-                        || (event != null
-                        && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
-                        && event.getAction() == KeyEvent.ACTION_DOWN);
-                if (!sendAction || !canReply) {
-                    return false;
-                }
-                String content = replyInput.getText().toString().trim();
-                if (content.isEmpty()) {
-                    return true;
-                }
-                sendReply(photo, content, "text", listener);
-                return true;
-            });
-
-            bindEmoji(heartsReply, photo, canReply, listener);
-            bindEmoji(shockReply, photo, canReply, listener);
-            bindEmoji(fireReply, photo, canReply, listener);
-            moreReply.setEnabled(canReply);
-            moreReply.setAlpha(canReply ? 1f : 0.35f);
-            moreReply.setOnClickListener(clicked -> {
-                if (canReply && listener != null) {
-                    showEmojiPicker(photo, listener);
-                }
-            });
+            tvCaption.setVisibility(hasCaption ? View.VISIBLE : View.GONE);
+            tvCaption.setText(hasCaption ? captionText : "");
 
             int activityCount = activityCount(photo);
             boolean ownPhoto = currentUserId.equals(photo.getSenderId());
@@ -261,8 +216,28 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
             });
         }
 
+        private void initializePlayer(String videoUrl) {
+            if (exoPlayer == null) {
+                exoPlayer = new ExoPlayer.Builder(itemView.getContext()).build();
+                videoPlayer.setPlayer(exoPlayer);
+                exoPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
+                exoPlayer.setVolume(1.0f); // Play with sound
+            }
+            exoPlayer.clearMediaItems();
+            exoPlayer.setMediaItem(MediaItem.fromUri(videoUrl));
+            exoPlayer.prepare();
+            exoPlayer.play();
+        }
+
+        void releasePlayer() {
+            if (exoPlayer != null) {
+                exoPlayer.release();
+                exoPlayer = null;
+            }
+        }
+
         private int activityCount(@NonNull Photo photo) {
-            java.util.Set<String> userIds = new java.util.HashSet<>();
+            Set<String> userIds = new HashSet<>();
             if (photo.getSeenBy() != null) {
                 userIds.addAll(photo.getSeenBy());
             }
@@ -272,80 +247,6 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
             userIds.remove(null);
             userIds.remove("");
             return userIds.size();
-        }
-
-        private void bindEmoji(@NonNull TextView view,
-                               @NonNull Photo photo,
-                               boolean enabled,
-                               QuickReplyListener listener) {
-            view.setEnabled(enabled);
-            view.setAlpha(enabled ? 1f : 0.35f);
-            view.setOnClickListener(clicked -> {
-                if (enabled) {
-                    sendReply(photo, view.getText().toString(), "emoji", listener);
-                }
-            });
-        }
-
-        private void showEmojiPicker(@NonNull Photo photo,
-                                     @NonNull QuickReplyListener listener) {
-            Context context = itemView.getContext();
-            BottomSheetDialog dialog = new BottomSheetDialog(context);
-            View content = LayoutInflater.from(context)
-                    .inflate(R.layout.bottom_sheet_emoji_picker, null, false);
-            GridLayout grid = content.findViewById(R.id.history_emoji_grid);
-            for (int index = 0; index < PICKER_EMOJIS.length; index++) {
-                String emoji = PICKER_EMOJIS[index];
-                TextView option = new TextView(context);
-                option.setText(emoji);
-                option.setTextSize(27f);
-                option.setGravity(Gravity.CENTER);
-                option.setBackgroundResource(R.drawable.bg_filter_row);
-                option.setContentDescription(emoji);
-                int margin = dp(context, 4);
-                GridLayout.LayoutParams params = new GridLayout.LayoutParams(
-                        GridLayout.spec(index / 4), GridLayout.spec(index % 4, 1, 1f));
-                params.width = 0;
-                params.height = dp(context, 58);
-                params.setMargins(margin, margin, margin, margin);
-                option.setLayoutParams(params);
-                option.setOnClickListener(clicked -> {
-                    dialog.dismiss();
-                    sendReply(photo, emoji, "emoji", listener);
-                });
-                grid.addView(option);
-            }
-            dialog.setContentView(content);
-            dialog.show();
-        }
-
-        private static int dp(@NonNull Context context, int value) {
-            return Math.round(value * context.getResources().getDisplayMetrics().density);
-        }
-
-        private void sendReply(@NonNull Photo photo,
-                               @NonNull String content,
-                               @NonNull String type,
-                               @NonNull QuickReplyListener listener) {
-            String sendingPhotoId = photo.getId();
-            setReplyControlsEnabled(false);
-            listener.onQuickReply(photo, content, type, success -> {
-                if (!Objects.equals(boundPhotoId, sendingPhotoId)) {
-                    return;
-                }
-                setReplyControlsEnabled(true);
-                if (success) {
-                    replyInput.setText(null);
-                }
-            });
-        }
-
-        private void setReplyControlsEnabled(boolean enabled) {
-            replyInput.setEnabled(enabled);
-            heartsReply.setEnabled(enabled);
-            shockReply.setEnabled(enabled);
-            fireReply.setEnabled(enabled);
-            moreReply.setEnabled(enabled);
         }
     }
 
@@ -362,7 +263,9 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
                             && Objects.equals(oldItem.getCaption(), newItem.getCaption())
                             && Objects.equals(oldItem.getCreatedAt(), newItem.getCreatedAt())
                             && Objects.equals(oldItem.getSeenBy(), newItem.getSeenBy())
-                            && Objects.equals(oldItem.getReactions(), newItem.getReactions());
+                            && Objects.equals(oldItem.getReactions(), newItem.getReactions())
+                            && Objects.equals(oldItem.getType(), newItem.getType())
+                            && Objects.equals(oldItem.getVideoUrl(), newItem.getVideoUrl());
                 }
             };
 }

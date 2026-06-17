@@ -3,6 +3,7 @@ package com.example.pocket;
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -43,10 +44,32 @@ import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
+
+import android.widget.GridLayout;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.Timestamp;
+import java.util.HashMap;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import nl.dionsegijn.konfetti.xml.KonfettiView;
+import nl.dionsegijn.konfetti.core.PartyFactory;
+import nl.dionsegijn.konfetti.core.Position;
+import nl.dionsegijn.konfetti.core.models.Size;
+import nl.dionsegijn.konfetti.core.emitter.Emitter;
+import nl.dionsegijn.konfetti.core.models.Shape;
+import java.util.concurrent.TimeUnit;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.Color;
 
 import com.bumptech.glide.Glide;
 import com.example.pocket.data.model.Photo;
 import com.example.pocket.data.model.User;
+import com.example.pocket.data.remote.CloudinaryService;
 import com.example.pocket.data.repository.ChatRepository;
 import com.example.pocket.data.repository.UserRepository;
 import com.example.pocket.ui.AvatarView;
@@ -112,8 +135,7 @@ public class HomeFragment extends Fragment {
     private View captureRecipientsContainer;
     private RecyclerView captureRecipientList;
     private RecipientSelectionAdapter recipientSelectionAdapter;
-    private RecyclerView homePager;
-    private PagerSnapHelper pagerSnapHelper;
+    private ViewPager2 homePager;
     private View historyHeader;
     private TextView historyCount;
     private PhotoHistoryAdapter historyAdapter;
@@ -124,6 +146,12 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore firestore;
     private ExecutorService cameraExecutor;
     private ImageCapture imageCapture;
+    private androidx.camera.video.VideoCapture<androidx.camera.video.Recorder> videoCapture;
+    private androidx.camera.video.Recording activeRecording;
+    private boolean isRecordingVideo = false;
+    private final android.os.Handler recordProgressHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable stopVideoRecordingRunnable = this::stopVideoRecording;
+    private int recordProgressSeconds = 0;
     private Camera camera;
     private int lensFacing = CameraSelector.LENS_FACING_BACK;
     private boolean flashEnabled;
@@ -144,6 +172,39 @@ public class HomeFragment extends Fragment {
     private boolean homeTabActive = true;
     private boolean cameraErrorShown;
     private final Set<String> locallySeenPhotoIds = new HashSet<>();
+
+    // Persistent reply bar & Emoji rain
+    private View replyBar;
+    private android.widget.EditText etQuickReply;
+    private android.widget.ImageView btnSendReply;
+    private TextView btnReactionHearts;
+    private TextView btnReactionShock;
+    private TextView btnReactionFire;
+    private TextView btnReactionMore;
+    private KonfettiView konfettiView;
+    private Photo currentPhoto;
+    private String currentReceiverId;
+    private boolean keyboardVisible;
+    private android.widget.ProgressBar videoRecordProgress;
+    private ChatRepository chatRepositoryHome = new ChatRepository();
+
+    // Mode toggle and recording progress animation
+    private View modeToggle;
+    private ImageButton btnModePhoto;
+    private ImageButton btnModeVideo;
+    private boolean isVideoMode = false;
+    private com.example.pocket.ui.RecordingBorderView recordingBorderView;
+    private android.animation.ValueAnimator recordingBorderAnimator;
+
+    private final ActivityResultLauncher<Intent> videoPreviewLauncher =
+            registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == android.app.Activity.RESULT_OK) {
+                    resetCapture();
+                    scrollToHistory();
+                } else {
+                    resetCapture();
+                }
+            });
 
     private final ActivityResultLauncher<String> cameraPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
@@ -185,6 +246,91 @@ public class HomeFragment extends Fragment {
                 ? null
                 : savedInstanceState.getString(STATE_HOME_POST_ID);
 
+        // Bind fixed reply bar and Konfetti
+        replyBar = view.findViewById(R.id.replyBar);
+        etQuickReply = view.findViewById(R.id.etQuickReply);
+        btnSendReply = view.findViewById(R.id.btnSendReply);
+        btnReactionHearts = view.findViewById(R.id.btnReactionHearts);
+        btnReactionShock = view.findViewById(R.id.btnReactionShock);
+        btnReactionFire = view.findViewById(R.id.btnReactionFire);
+        btnReactionMore = view.findViewById(R.id.btnReactionMore);
+        konfettiView = view.findViewById(R.id.konfettiView);
+        View bottomNavPlaceholder = view.findViewById(R.id.bottomNavigation);
+        if (bottomNavPlaceholder != null) {
+            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(bottomNavPlaceholder, (v, insets) -> {
+                int navHeight = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.navigationBars()).bottom;
+                float density = v.getResources().getDisplayMetrics().density;
+                ViewGroup.LayoutParams lp = v.getLayoutParams();
+                lp.height = navHeight + Math.round(84 * density);
+                v.setLayoutParams(lp);
+                return insets;
+            });
+        }
+
+        // Apply press animations
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(btnSendReply);
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(btnReactionHearts);
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(btnReactionShock);
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(btnReactionFire);
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(btnReactionMore);
+
+        // TextWatcher to toggle send vs emojis
+        etQuickReply.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean empty = s.toString().trim().isEmpty();
+                btnSendReply.setVisibility(empty ? View.GONE : View.VISIBLE);
+                btnReactionHearts.setVisibility(empty ? View.VISIBLE : View.GONE);
+                btnReactionShock.setVisibility(empty ? View.VISIBLE : View.GONE);
+                btnReactionFire.setVisibility(empty ? View.VISIBLE : View.GONE);
+                btnReactionMore.setVisibility(empty ? View.VISIBLE : View.GONE);
+            }
+            @Override public void afterTextChanged(android.text.Editable s) {}
+        });
+
+        // Click listeners
+        btnSendReply.setOnClickListener(v -> sendFixedTextReply());
+        View.OnClickListener emojiClickListener = v -> {
+            String emoji = v.getTag() != null ? (String) v.getTag() : ((TextView) v).getText().toString();
+            sendFixedEmojiReply(emoji);
+        };
+        btnReactionHearts.setOnClickListener(emojiClickListener);
+        btnReactionShock.setOnClickListener(emojiClickListener);
+        btnReactionFire.setOnClickListener(emojiClickListener);
+        btnReactionMore.setOnClickListener(v -> showFixedEmojiPicker());
+
+        etQuickReply.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEND) {
+                sendFixedTextReply();
+                return true;
+            }
+            return false;
+        });
+
+        // Lift bar above keyboard
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(replyBar, (v, insets) -> {
+            int imeHeight = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime()).bottom;
+            int navHeight = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.navigationBars()).bottom;
+            v.setTranslationY(-(imeHeight > 0 ? imeHeight : 0));
+            return insets;
+        });
+
+        // Keyboard visibility and pager lock
+        view.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            if (!isAdded()) return;
+            Rect r = new Rect();
+            view.getWindowVisibleDisplayFrame(r);
+            int screenHeight = view.getRootView().getHeight();
+            int keypadHeight = screenHeight - r.bottom;
+            boolean visible = keypadHeight > screenHeight * 0.15;
+            if (visible != keyboardVisible) {
+                keyboardVisible = visible;
+                if (homePager != null) {
+                    homePager.setUserInputEnabled(!keyboardVisible);
+                }
+            }
+        });
+
         bindFixedTopBar(view);
         bindPager(view);
         observeTimeline();
@@ -217,37 +363,31 @@ public class HomeFragment extends Fragment {
 
     private void bindPager(@NonNull View view) {
         homePager = view.findViewById(R.id.home_pager);
-        homePager.setLayoutManager(new LinearLayoutManager(requireContext(),
-                RecyclerView.VERTICAL, false) {
-            @Override
-            public boolean canScrollVertically() {
-                return capturedJpegBytes == null && super.canScrollVertically();
-            }
+        homePager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
+        homePager.setUserInputEnabled(capturedJpegBytes == null);
+
+        // Task 5b ViewPager2 scale transformer
+        homePager.setPageTransformer((page, position) -> {
+            float scale = 1f - 0.05f * Math.abs(position);
+            page.setScaleX(scale);
+            page.setScaleY(scale);
+            page.setAlpha(1f - 0.3f * Math.abs(position));
         });
-        homePager.setItemViewCacheSize(2);
-        pagerSnapHelper = new PagerSnapHelper();
-        pagerSnapHelper.attachToRecyclerView(homePager);
-        homePager.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+        // ViewPager2 page change callback
+        homePager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                if (newState != RecyclerView.SCROLL_STATE_IDLE || !homeTabActive) {
-                    return;
-                }
-                View snappedView = pagerSnapHelper.findSnapView(recyclerView.getLayoutManager());
-                if (snappedView != null) {
-                    int position = recyclerView.getChildAdapterPosition(snappedView);
-                    if (position != RecyclerView.NO_POSITION) {
-                        currentPageIndex = position;
-                        updateCurrentPostId(position);
-                        updateModeForPage(position);
-                        markVisiblePostSeen(position);
-                    }
-                }
+            public void onPageSelected(int position) {
+                currentPageIndex = position;
+                updateCurrentPostId(position);
+                updateModeForPage(position);
+                markVisiblePostSeen(position);
+                updateReplyBarVisibilityForCurrentPage(position);
             }
         });
 
         String userId = currentUserId();
-        historyAdapter = new PhotoHistoryAdapter(userId, this::sendQuickReply,
+        historyAdapter = new PhotoHistoryAdapter(userId,
                 photo -> PostActivitySheet.show(requireContext(), photo));
         homePager.setAdapter(new ConcatAdapter(new CameraPageAdapter(this::bindCameraPage),
                 historyAdapter));
@@ -274,6 +414,28 @@ public class HomeFragment extends Fragment {
         historyHeader = view.findViewById(R.id.history_header);
         historyCount = view.findViewById(R.id.history_count);
         historyCount.setText(String.valueOf(timelineCount));
+        videoRecordProgress = view.findViewById(R.id.video_record_progress);
+
+        modeToggle = view.findViewById(R.id.modeToggle);
+        btnModePhoto = view.findViewById(R.id.btnModePhoto);
+        btnModeVideo = view.findViewById(R.id.btnModeVideo);
+        recordingBorderView = view.findViewById(R.id.recording_border_view);
+
+        if (btnModePhoto != null) {
+            btnModePhoto.setOnClickListener(v -> setCameraMode(false));
+        }
+        if (btnModeVideo != null) {
+            btnModeVideo.setOnClickListener(v -> setCameraMode(true));
+        }
+        setCameraMode(false);
+
+        // Apply press animations to camera controls (excluding captureButton which has custom touch handler)
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(retakeButton);
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(suggestCaptionButton);
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(sendPhotoButton);
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(flipButton);
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(galleryButton);
+        com.example.pocket.utils.ViewUtils.applyPressAnimation(savePhotoButton);
 
         bindActions();
         applyHomeIconPolish();
@@ -306,7 +468,60 @@ public class HomeFragment extends Fragment {
                 captionInput.setHint(R.string.camera_add_message);
             }
         });
-        captureButton.setOnClickListener(view -> capturePhoto());
+
+        // Click to take photo
+        captureButton.setOnClickListener(view -> {
+            if (!isVideoMode) {
+                capturePhoto();
+            }
+        });
+
+        // Custom touch listener for click zoom animation + video recording long-press (Task 2 & 9)
+        captureButton.setOnTouchListener(new View.OnTouchListener() {
+            private static final long LONG_PRESS_THRESHOLD = 300; // ms
+            private long downTime;
+            private boolean isLongPressed = false;
+            private final Runnable longPressRunnable = () -> {
+                if (isVideoMode) {
+                    isLongPressed = true;
+                    startVideoRecording();
+                }
+            };
+
+            @Override
+            public boolean onTouch(View v, android.view.MotionEvent event) {
+                switch (event.getAction()) {
+                    case android.view.MotionEvent.ACTION_DOWN:
+                        downTime = System.currentTimeMillis();
+                        isLongPressed = false;
+                        v.animate().scaleX(0.90f).scaleY(0.90f).setDuration(80).start();
+                        if (isVideoMode) {
+                            v.postDelayed(longPressRunnable, LONG_PRESS_THRESHOLD);
+                        }
+                        break;
+                    case android.view.MotionEvent.ACTION_UP:
+                    case android.view.MotionEvent.ACTION_CANCEL:
+                        v.removeCallbacks(longPressRunnable);
+                        v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
+                        if (isVideoMode) {
+                            if (isLongPressed) {
+                                stopVideoRecording();
+                            } else {
+                                if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
+                                    Toast.makeText(requireContext(), "Hold to record video", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        } else {
+                            if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
+                                v.performClick();
+                            }
+                        }
+                        break;
+                }
+                return true;
+            }
+        });
+
         retakeButton.setOnClickListener(view -> resetCapture());
         sendPhotoButton.setOnClickListener(view -> sendCapturedPhoto());
         galleryButton.setOnClickListener(view -> galleryLauncher.launch("image/*"));
@@ -430,6 +645,7 @@ public class HomeFragment extends Fragment {
                         } else {
                             restorePagerPosition();
                         }
+                        updateReplyBarVisibilityForCurrentPage(currentPageIndex);
                     });
     }
 
@@ -468,7 +684,7 @@ public class HomeFragment extends Fragment {
             currentPageIndex = 1;
             updateCurrentPostId(1);
             updateModeForPage(1);
-            homePager.smoothScrollToPosition(1);
+            homePager.setCurrentItem(1, true);
         }
     }
 
@@ -479,7 +695,7 @@ public class HomeFragment extends Fragment {
             currentPostId = null;
             homeMode = HomeMode.CAMERA;
             updateTopBar();
-            homePager.smoothScrollToPosition(0);
+            homePager.setCurrentItem(0, true);
         }
     }
 
@@ -502,7 +718,7 @@ public class HomeFragment extends Fragment {
             if (homePager == null) {
                 return;
             }
-            homePager.scrollToPosition(target);
+            homePager.setCurrentItem(target, false);
             currentPageIndex = target;
             updateCurrentPostId(target);
             updateModeForPage(target);
@@ -512,24 +728,18 @@ public class HomeFragment extends Fragment {
     }
 
     private void captureCurrentPagerPosition() {
-        if (homePager == null || pagerSnapHelper == null) {
+        if (homePager == null) {
             return;
         }
-        View snappedView = pagerSnapHelper.findSnapView(homePager.getLayoutManager());
-        if (snappedView == null) {
+        int position = homePager.getCurrentItem();
+        // A hidden pager can briefly report page 0 while Home is being switched out.
+        // Keep the confirmed post position in that transition.
+        if (position == 0 && homeMode == HomeMode.POSTS && currentPageIndex > 0) {
             return;
         }
-        int position = homePager.getChildAdapterPosition(snappedView);
-        if (position != RecyclerView.NO_POSITION) {
-            // A hidden pager can briefly report page 0 while Home is being switched out.
-            // Keep the confirmed post position in that transition.
-            if (position == 0 && homeMode == HomeMode.POSTS && currentPageIndex > 0) {
-                return;
-            }
-            currentPageIndex = position;
-            updateCurrentPostId(position);
-            updateModeForPage(position);
-        }
+        currentPageIndex = position;
+        updateCurrentPostId(position);
+        updateModeForPage(position);
     }
 
     private void updateCurrentPostId(int pageIndex) {
@@ -639,7 +849,7 @@ public class HomeFragment extends Fragment {
         int target = resolveRestorePage();
         homePager.post(() -> {
             if (homePager != null) {
-                homePager.scrollToPosition(target);
+                homePager.setCurrentItem(target, false);
                 currentPageIndex = target;
                 updateCurrentPostId(target);
                 updateModeForPage(target);
@@ -648,50 +858,147 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void sendQuickReply(@NonNull Photo photo,
-                                @NonNull String content,
-                                @NonNull String type,
-                                @NonNull PhotoHistoryAdapter.ReplyResult result) {
-        String currentUserId = currentUserId();
-        String targetUserId = photo.getSenderId();
-        if (targetUserId == null || targetUserId.trim().isEmpty()
-                || currentUserId.equals(targetUserId)) {
-            Toast.makeText(requireContext(), R.string.history_reply_own_photo,
-                    Toast.LENGTH_SHORT).show();
-            result.complete(false);
-            return;
-        }
+    private void sendFixedTextReply() {
+        if (currentReceiverId == null || currentPhoto == null) return;
+        String text = etQuickReply.getText().toString().trim();
+        if (text.isEmpty()) return;
 
-        String chatId = chatRepository.getChatId(currentUserId, targetUserId);
-        chatRepository.sendMessage(chatId, content, type, new UserRepository.Callback<Void>() {
+        etQuickReply.setText("");
+        hideKeyboard(etQuickReply);
+
+        String chatId = chatRepositoryHome.getChatId(currentUserId(), currentReceiverId);
+        
+        chatRepositoryHome.sendPhotoReply(chatId, text, currentPhoto.getThumbnailUrl(), currentPhoto.getId(), new UserRepository.Callback<Void>() {
             @Override
             public void onSuccess(Void ignored) {
-                if ("emoji".equals(type) && photo.getId() != null) {
-                    feedViewModel.reactToPhoto(photo.getId(), currentUserId, content);
-                    Map<String, String> reactions = photo.getReactions();
-                    if (reactions == null) {
-                        reactions = new LinkedHashMap<>();
-                    }
-                    reactions.put(currentUserId, content);
-                    photo.setReactions(reactions);
-                }
                 if (isAdded()) {
-                    Toast.makeText(requireContext(), R.string.history_reply_sent,
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), R.string.history_reply_sent, Toast.LENGTH_SHORT).show();
                 }
-                result.complete(true);
             }
-
             @Override
             public void onError(@NonNull Exception error) {
-                Log.e(TAG, "Quick reply failed", error);
                 if (isAdded()) {
-                    Toast.makeText(requireContext(), R.string.history_reply_failed,
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireContext(), R.string.history_reply_failed, Toast.LENGTH_LONG).show();
                 }
-                result.complete(false);
             }
         });
+    }
+
+    private void sendFixedEmojiReply(String emoji) {
+        if (currentReceiverId == null || currentPhoto == null) return;
+        
+        triggerEmojiRain(konfettiView, emoji);
+
+        String chatId = chatRepositoryHome.getChatId(currentUserId(), currentReceiverId);
+        
+        String quotedUrl = currentPhoto.getThumbnailUrl();
+        if (quotedUrl == null || quotedUrl.trim().isEmpty()) {
+            quotedUrl = currentPhoto.getImageUrl();
+        }
+        if (quotedUrl == null) {
+            quotedUrl = "";
+        }
+
+        chatRepositoryHome.sendPhotoReply(chatId, emoji, quotedUrl, currentPhoto.getId(), new UserRepository.Callback<Void>() {
+            @Override
+            public void onSuccess(Void ignored) {
+                // Update parent chat document
+                java.util.Map<String, Object> chatUpdates = new java.util.HashMap<>();
+                chatUpdates.put("lastMessage", emoji);
+                chatUpdates.put("lastUpdated", com.google.firebase.Timestamp.now());
+                FirebaseFirestore.getInstance().collection("chats").document(chatId)
+                        .set(chatUpdates, SetOptions.merge());
+
+                if (currentPhoto.getId() != null) {
+                    feedViewModel.reactToPhoto(currentPhoto.getId(), currentUserId(), emoji);
+                    Map<String, String> reactions = currentPhoto.getReactions();
+                    if (reactions == null) {
+                        reactions = new java.util.LinkedHashMap<>();
+                    }
+                    reactions.put(currentUserId(), emoji);
+                    currentPhoto.setReactions(reactions);
+                }
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), R.string.history_reply_sent, Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onError(@NonNull Exception error) {
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), R.string.history_reply_failed, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private void showFixedEmojiPicker() {
+        if (currentReceiverId == null || currentPhoto == null) return;
+        Context context = requireContext();
+        BottomSheetDialog dialog = new BottomSheetDialog(context);
+        View content = getLayoutInflater().inflate(R.layout.bottom_sheet_emoji_picker, null, false);
+        GridLayout grid = content.findViewById(R.id.history_emoji_grid);
+        
+        String[] pickerEmojis = {
+                "\uD83D\uDC95", "\uD83D\uDE31", "\uD83D\uDD25", "\uD83D\uDE02",
+                "\uD83E\uDD23", "\uD83D\uDE0D", "\uD83E\uDD79", "\uD83D\uDE2D",
+                "\uD83E\uDEF6", "\uD83D\uDC40", "\uD83D\uDC80", "\uD83D\uDE0E",
+                "\uD83D\uDC4D", "\uD83D\uDC4E", "\uD83C\uDF89", "\uD83D\uDC90",
+                "\u2728", "\uD83D\uDE2E\u200D\uD83D\uDCA8", "\uD83E\uDD21", "\uD83D\uDE0B",
+                "\u2764\uFE0F\u200D\uD83D\uDD25", "\uD83D\uDE24", "\uD83D\uDE43", "\uD83E\uDD70",
+                "\uD83E\uDD1D", "\uD83E\uDD29", "\uD83D\uDE4C", "\uD83E\uDD73"
+        };
+
+        for (int index = 0; index < pickerEmojis.length; index++) {
+            String emoji = pickerEmojis[index];
+            TextView option = new TextView(context);
+            option.setText(emoji);
+            option.setTextSize(27f);
+            option.setGravity(android.view.Gravity.CENTER);
+            option.setBackgroundResource(R.drawable.bg_filter_row);
+            option.setContentDescription(emoji);
+            int margin = Math.round(4 * getResources().getDisplayMetrics().density);
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams(
+                    GridLayout.spec(index / 4), GridLayout.spec(index % 4, 1, 1f));
+            params.width = 0;
+            params.height = Math.round(58 * getResources().getDisplayMetrics().density);
+            params.setMargins(margin, margin, margin, margin);
+            option.setLayoutParams(params);
+            option.setOnClickListener(clicked -> {
+                dialog.dismiss();
+                sendFixedEmojiReply(emoji);
+            });
+            grid.addView(option);
+        }
+        dialog.setContentView(content);
+        dialog.show();
+    }
+
+    private void triggerEmojiRain(KonfettiView konfettiView, String emoji) {
+        if (konfettiView == null) return;
+        try {
+            int size = 80;
+            Bitmap bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bmp);
+            Paint paint = new Paint();
+            paint.setTextSize(50f);
+            paint.setTextAlign(Paint.Align.CENTER);
+            Paint.FontMetrics fm = paint.getFontMetrics();
+            float y = (size / 2f) - ((fm.descent + fm.ascent) / 2f);
+            canvas.drawText(emoji, size / 2f, y, paint);
+            Drawable drawable = new BitmapDrawable(getResources(), bmp);
+
+            konfettiView.start(
+                new PartyFactory(new Emitter(1500L, TimeUnit.MILLISECONDS).max(80))
+                    .angle(270).spread(40)
+                    .shapes(java.util.Collections.singletonList(new Shape.DrawableShape(drawable, false, false)))
+                    .setSpeedBetween(1f, 4f).setDamping(0.85f).sizes(new Size(24, 5f, 0.2f))
+                    .position(new Position.Relative(0.0, 0.0)
+                        .between(new Position.Relative(1.0, 0.0)))
+                    .build()
+            );
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to run emoji rain", e);
+        }
     }
 
     private void startCamera() {
@@ -716,13 +1023,21 @@ public class HomeFragment extends Fragment {
                                 ? ImageCapture.FLASH_MODE_ON
                                 : ImageCapture.FLASH_MODE_OFF)
                         .build();
+                
+                androidx.camera.video.Recorder recorder = new androidx.camera.video.Recorder.Builder()
+                        .setExecutor(ContextCompat.getMainExecutor(requireContext()))
+                        .setQualitySelector(androidx.camera.video.QualitySelector.from(androidx.camera.video.Quality.SD))
+                        .setTargetVideoEncodingBitRate(4000000)
+                        .build();
+                videoCapture = androidx.camera.video.VideoCapture.withOutput(recorder);
+
                 CameraSelector selector = new CameraSelector.Builder()
                         .requireLensFacing(lensFacing)
                         .build();
 
                 provider.unbindAll();
                 camera = provider.bindToLifecycle(getViewLifecycleOwner(), selector,
-                        preview, imageCapture);
+                        preview, imageCapture, videoCapture);
                 if (previewView != activePreviewView) {
                     return;
                 }
@@ -828,6 +1143,9 @@ public class HomeFragment extends Fragment {
         savePhotoButton.setVisibility(View.VISIBLE);
         captureRecipientsContainer.setVisibility(View.VISIBLE);
         historyHeader.setVisibility(View.GONE);
+        if (modeToggle != null) {
+            modeToggle.setVisibility(View.GONE);
+        }
         recipientSelectionAdapter.selectAll();
         captureRecipientList.scrollToPosition(0);
         centerCaptureRecipients();
@@ -845,8 +1163,10 @@ public class HomeFragment extends Fragment {
         hideKeyboard(captionInput);
         captionPanel.setVisibility(View.GONE);
         captionInputLayout.setVisibility(View.GONE);
+        captureButton.setLoading(false);
         captureButton.setVisibility(View.VISIBLE);
         captureButtonSurface.setVisibility(View.VISIBLE);
+        captureButtonSurface.setBackgroundResource(R.drawable.bg_shutter_button);
         galleryButton.setVisibility(View.VISIBLE);
         flipButton.setVisibility(View.VISIBLE);
         retakeButton.setVisibility(View.GONE);
@@ -856,6 +1176,9 @@ public class HomeFragment extends Fragment {
         savePhotoButton.setVisibility(View.GONE);
         captureRecipientsContainer.setVisibility(View.GONE);
         historyHeader.setVisibility(View.VISIBLE);
+        if (modeToggle != null) {
+            modeToggle.setVisibility(View.VISIBLE);
+        }
         if (recipientSelectionAdapter != null) {
             recipientSelectionAdapter.selectAll();
         }
@@ -893,6 +1216,9 @@ public class HomeFragment extends Fragment {
         savePhotoButton.setVisibility(View.VISIBLE);
         captureRecipientsContainer.setVisibility(View.VISIBLE);
         historyHeader.setVisibility(View.GONE);
+        if (modeToggle != null) {
+            modeToggle.setVisibility(View.GONE);
+        }
         captureRecipientList.scrollToPosition(0);
         centerCaptureRecipients();
         updateTopBar();
@@ -1245,7 +1571,6 @@ public class HomeFragment extends Fragment {
         capturedImageView = null;
         captionPanel = null;
         homePager = null;
-        pagerSnapHelper = null;
         historyAdapter = null;
         historyHeader = null;
         historyCount = null;
@@ -1403,6 +1728,200 @@ public class HomeFragment extends Fragment {
             CaptionViewHolder(@NonNull View itemView) {
                 super(itemView);
                 captionView = itemView.findViewById(R.id.caption_option_text);
+            }
+        }
+    }
+
+    private void startVideoRecording() {
+        if (videoCapture == null || isRecordingVideo) {
+            return;
+        }
+        isRecordingVideo = true;
+        recordProgressSeconds = 0;
+
+        if (modeToggle != null) {
+            modeToggle.setVisibility(View.GONE);
+        }
+
+        if (recordingBorderView != null) {
+            recordingBorderView.setVisibility(View.VISIBLE);
+            recordingBorderView.setSweepAngle(0f);
+            if (recordingBorderAnimator != null) {
+                recordingBorderAnimator.cancel();
+            }
+            recordingBorderAnimator = android.animation.ValueAnimator.ofFloat(0f, 360f);
+            recordingBorderAnimator.setDuration(10000);
+            recordingBorderAnimator.setInterpolator(new android.view.animation.LinearInterpolator());
+            recordingBorderAnimator.addUpdateListener(animator -> {
+                if (recordingBorderView != null) {
+                    recordingBorderView.setSweepAngle((float) animator.getAnimatedValue());
+                }
+            });
+            recordingBorderAnimator.start();
+        }
+
+        if (captureButtonSurface != null) {
+            captureButtonSurface.setBackgroundResource(R.drawable.bg_shutter_button_stop);
+        }
+
+        File videoFile = new File(requireContext().getCacheDir(), "pocket-video-" + System.currentTimeMillis() + ".mp4");
+        androidx.camera.video.FileOutputOptions options = new androidx.camera.video.FileOutputOptions.Builder(videoFile)
+                .setDurationLimitMillis(10000)
+                .build();
+
+        try {
+            activeRecording = videoCapture.getOutput()
+                    .prepareRecording(requireContext(), options)
+                    .start(ContextCompat.getMainExecutor(requireContext()), event -> {
+                        if (event instanceof androidx.camera.video.VideoRecordEvent.Finalize) {
+                            androidx.camera.video.VideoRecordEvent.Finalize finalizeEvent = (androidx.camera.video.VideoRecordEvent.Finalize) event;
+                            if (finalizeEvent.hasError()) {
+                                Log.e(TAG, "Video record failed: " + finalizeEvent.getError());
+                                if (videoFile.exists()) {
+                                    videoFile.delete();
+                                }
+                                isRecordingVideo = false;
+                                recordProgressHandler.removeCallbacks(stopVideoRecordingRunnable);
+                                if (recordingBorderAnimator != null) {
+                                    recordingBorderAnimator.cancel();
+                                    recordingBorderAnimator = null;
+                                }
+                                if (recordingBorderView != null) {
+                                    recordingBorderView.setVisibility(View.GONE);
+                                }
+                                if (modeToggle != null) {
+                                    modeToggle.setVisibility(View.VISIBLE);
+                                }
+                                if (captureButtonSurface != null) {
+                                    captureButtonSurface.setBackgroundResource(R.drawable.bg_shutter_button);
+                                }
+                                Toast.makeText(requireContext(), "Failed to record video", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Uri outputUri = finalizeEvent.getOutputResults().getOutputUri();
+                                Log.d(TAG, "Video recording stopped. Local URI: " + outputUri);
+                                
+                                isRecordingVideo = false;
+                                recordProgressHandler.removeCallbacks(stopVideoRecordingRunnable);
+                                if (recordingBorderAnimator != null) {
+                                    recordingBorderAnimator.cancel();
+                                    recordingBorderAnimator = null;
+                                }
+                                if (recordingBorderView != null) {
+                                    recordingBorderView.setVisibility(View.GONE);
+                                }
+                                if (captureButtonSurface != null) {
+                                    captureButtonSurface.setBackgroundResource(R.drawable.bg_shutter_button);
+                                }
+
+                                // Navigate to VideoPreviewActivity
+                                List<String> receiverIds = recipientSelectionAdapter != null
+                                        ? recipientSelectionAdapter.selectedReceiverIds()
+                                        : new ArrayList<>();
+                                String caption = captionInput != null && captionInput.getText() != null
+                                        ? captionInput.getText().toString().trim()
+                                        : "";
+
+                                Intent intent = new Intent(requireContext(), VideoPreviewActivity.class);
+                                intent.putExtra(VideoPreviewActivity.EXTRA_VIDEO_URI, outputUri.toString());
+                                intent.putStringArrayListExtra(VideoPreviewActivity.EXTRA_RECEIVER_IDS, new ArrayList<>(receiverIds));
+                                intent.putExtra(VideoPreviewActivity.EXTRA_CAPTION, caption);
+                                videoPreviewLauncher.launch(intent);
+                            }
+                        }
+                    });
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to start camera recording", e);
+            isRecordingVideo = false;
+            recordProgressHandler.removeCallbacks(stopVideoRecordingRunnable);
+            if (recordingBorderAnimator != null) {
+                recordingBorderAnimator.cancel();
+                recordingBorderAnimator = null;
+            }
+            if (recordingBorderView != null) {
+                recordingBorderView.setVisibility(View.GONE);
+            }
+            if (modeToggle != null) {
+                modeToggle.setVisibility(View.VISIBLE);
+            }
+            if (captureButtonSurface != null) {
+                captureButtonSurface.setBackgroundResource(R.drawable.bg_shutter_button);
+            }
+            return;
+        }
+
+        // Start countdown progress limit (10 seconds)
+        recordProgressHandler.postDelayed(stopVideoRecordingRunnable, 10000);
+    }
+
+    private void stopVideoRecording() {
+        if (!isRecordingVideo) {
+            return;
+        }
+        isRecordingVideo = false;
+        recordProgressHandler.removeCallbacks(stopVideoRecordingRunnable);
+        if (recordingBorderAnimator != null) {
+            recordingBorderAnimator.cancel();
+            recordingBorderAnimator = null;
+        }
+        if (recordingBorderView != null) {
+            recordingBorderView.setVisibility(View.GONE);
+        }
+        if (captureButtonSurface != null) {
+            captureButtonSurface.setBackgroundResource(R.drawable.bg_shutter_button);
+        }
+
+        if (activeRecording != null) {
+            activeRecording.stop();
+            activeRecording = null;
+        }
+    }
+
+    private void setCameraMode(boolean videoMode) {
+        isVideoMode = videoMode;
+        if (btnModePhoto != null && btnModeVideo != null && isAdded() && getContext() != null) {
+            if (isVideoMode) {
+                btnModePhoto.setBackground(null);
+                btnModePhoto.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.pocket_text_muted)));
+                btnModeVideo.setBackgroundResource(R.drawable.bg_toggle_circle);
+                btnModeVideo.setImageTintList(ColorStateList.valueOf(Color.parseColor("#00E5FF")));
+            } else {
+                btnModePhoto.setBackgroundResource(R.drawable.bg_toggle_circle);
+                btnModePhoto.setImageTintList(ColorStateList.valueOf(Color.parseColor("#00E5FF")));
+                btnModeVideo.setBackground(null);
+                btnModeVideo.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.pocket_text_muted)));
+            }
+        }
+    }
+
+    private void updateReplyBarVisibilityForCurrentPage(int position) {
+        if (replyBar == null) return;
+        if (position == 0) {
+            replyBar.setVisibility(View.GONE);
+            currentPhoto = null;
+            currentReceiverId = null;
+        } else {
+            int adapterIndex = position - 1;
+            if (historyAdapter != null && adapterIndex >= 0 
+                    && adapterIndex < historyAdapter.getCurrentList().size()) {
+                Photo photo = historyAdapter.getCurrentList().get(adapterIndex);
+                currentPhoto = photo;
+                currentReceiverId = photo.getSenderId();
+                
+                if (currentPhoto != null) {
+                    String currentUserId = currentUserId();
+                    boolean isMyOwnPhoto = currentPhoto.getSenderId().equals(currentUserId);
+                    if (isMyOwnPhoto) {
+                        replyBar.setVisibility(View.GONE);
+                    } else {
+                        replyBar.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    replyBar.setVisibility(View.GONE);
+                }
+            } else {
+                replyBar.setVisibility(View.GONE);
+                currentPhoto = null;
+                currentReceiverId = null;
             }
         }
     }
