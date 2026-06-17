@@ -24,6 +24,7 @@
     <dimen name="pocket_avatar_sm">32dp</dimen>
     <dimen name="pocket_avatar_md">40dp</dimen>
     <dimen name="pocket_avatar_lg">56dp</dimen>
+    <dimen name="pocket_widget_bar_height">48dp</dimen>
 
     <dimen name="pocket_text_caption">12sp</dimen>
     <dimen name="pocket_text_label">11sp</dimen>

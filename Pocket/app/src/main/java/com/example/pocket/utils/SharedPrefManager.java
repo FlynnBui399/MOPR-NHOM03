@@ -19,6 +19,7 @@ public class SharedPrefManager {
     private static final String KEY_LANGUAGE_LOCALE = "language_locale";
     private static final String KEY_LATEST_PHOTO_URL = "latest_photo_url";
     private static final String KEY_LATEST_SENDER_NAME = "latest_sender_name";
+    private static final String KEY_LATEST_PHOTO_TIMESTAMP = "latest_photo_timestamp";
     private static SharedPrefManager instance;
     private final SharedPreferences preferences;
 
@@ -93,5 +94,13 @@ public class SharedPrefManager {
     @Nullable
     public String getLatestSenderName() {
         return preferences.getString(KEY_LATEST_SENDER_NAME, null);
+    }
+
+    public void setLatestPhotoTimestamp(long timestampMillis) {
+        preferences.edit().putLong(KEY_LATEST_PHOTO_TIMESTAMP, timestampMillis).apply();
+    }
+
+    public long getLatestPhotoTimestamp() {
+        return preferences.getLong(KEY_LATEST_PHOTO_TIMESTAMP, 0L);
     }
 }

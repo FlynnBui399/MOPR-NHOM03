@@ -15,17 +15,35 @@
         android:scaleType="centerCrop"
         android:src="@drawable/placeholder_pocket_widget_preview" />
 
+    <TextView
+        android:id="@+id/widget_empty_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="@dimen/pocket_space_lg"
+        android:layout_marginEnd="@dimen/pocket_space_lg"
+        android:gravity="center"
+        android:maxLines="2"
+        android:shadowColor="@color/pocket_overlay_black_80"
+        android:shadowDx="0"
+        android:shadowDy="1"
+        android:shadowRadius="2"
+        android:text="@string/widget_empty_message"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/pocket_text_body_sm"
+        android:textStyle="bold" />
+
     <LinearLayout
         android:id="@+id/widget_text_bar"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/pocket_widget_bar_height"
         android:layout_gravity="bottom"
         android:background="@drawable/bg_pocket_widget_scrim"
         android:gravity="bottom"
         android:orientation="horizontal"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:paddingBottom="8dp">
+        android:paddingStart="@dimen/pocket_space_md"
+        android:paddingEnd="@dimen/pocket_space_md"
+        android:paddingBottom="@dimen/pocket_space_sm">
 
         <TextView
             android:id="@+id/widget_sender_name"
@@ -39,7 +57,7 @@
             android:shadowDy="1"
             android:shadowRadius="2"
             android:textColor="@android:color/white"
-            android:textSize="14sp"
+            android:textSize="@dimen/pocket_text_body_sm"
             android:textStyle="bold"
             tools:text="Pocket" />
 
@@ -47,7 +65,7 @@
             android:id="@+id/widget_timestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/pocket_space_sm"
             android:ellipsize="end"
             android:maxLines="1"
             android:shadowColor="@color/pocket_overlay_black_80"
@@ -55,7 +73,7 @@
             android:shadowDy="1"
             android:shadowRadius="2"
             android:textColor="@android:color/white"
-            android:textSize="11sp"
+            android:textSize="@dimen/pocket_text_label"
             tools:text="09:30" />
     </LinearLayout>
 

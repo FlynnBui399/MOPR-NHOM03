@@ -51,9 +51,10 @@ public class PocketMessagingService extends FirebaseMessagingService {
         if (!imageUrl.isEmpty()) {
             com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestPhotoUrl(imageUrl);
             com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestSenderName(senderName);
+            com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestPhotoTimestamp(System.currentTimeMillis());
 
             Intent updateWidgetIntent = new Intent(this, com.example.pocket.widget.PocketWidgetProvider.class);
-            updateWidgetIntent.setAction("WIDGET_UPDATE");
+            updateWidgetIntent.setAction(com.example.pocket.widget.PocketWidgetProvider.ACTION_WIDGET_UPDATE);
             sendBroadcast(updateWidgetIntent);
         }
 

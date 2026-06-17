@@ -1,14 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-    <path
-        android:fillColor="@color/pocket_transparent"
-        android:pathData="M7,7h2l1.5,-2h3L15,7h2c1.1,0 2,0.9 2,2v7c0,1.1 -0.9,2 -2,2H7c-1.1,0 -2,-0.9 -2,-2V9c0,-1.1 0.9,-2 2,-2zM12,10a3,3 0,1 0,0.01 0M4,5l2,-2l2,2M20,19l-2,2l-2,-2"
-        android:strokeColor="@color/pocket_text_primary"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:strokeWidth="2" />
+<!--
+  ~ Copyright (C) 2026 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:viewportHeight="310.83" android:viewportWidth="310.83" android:width="24dp">
+      
+    <path android:fillColor="#000000" android:pathData="M69.02,195.68l27.1,27.1c-8.15,0 -64.24,0 -71.12,0v-76h8.5v-25H0v126c11.31,0 85.01,0 96.12,0l-27.1,27.1l17.68,17.68l57.28,-57.28l-57.28,-57.28L69.02,195.68z"/>
+      
+    <path android:fillColor="#000000" android:pathData="M277.33,121.4l0,25l8.5,0l0,76l-118.67,0l12.88,12.88l-12.12,12.12l142.91,0l0,-126z"/>
+      
+    <path android:fillColor="#000000" android:pathData="M238.17,159.99V40.84h-20.64V18.28h-47.54v22.57H73.29v119.14C80.54,159.99 230.96,159.99 238.17,159.99zM155.73,57.93c23.47,0 42.49,19.02 42.49,42.49c0,23.47 -19.02,42.49 -42.49,42.49s-42.49,-19.02 -42.49,-42.49C113.24,76.95 132.26,57.93 155.73,57.93z"/>
+    
 </vector>
