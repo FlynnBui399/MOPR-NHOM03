@@ -40,17 +40,24 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
         void onActivityClick(@NonNull Photo photo);
     }
 
+    public interface DeleteClickListener {
+        void onDeleteClick(@NonNull Photo photo, int position);
+    }
+
     private final String currentUserId;
     private final ActivityClickListener activityClickListener;
+    private final DeleteClickListener deleteClickListener;
     private final UserRepository userRepository = UserRepository.getInstance();
     private final Map<String, User> senderCache = new HashMap<>();
     private final Set<String> requestedSenderIds = new HashSet<>();
 
     public PhotoHistoryAdapter(@NonNull String currentUserId,
-                               ActivityClickListener activityClickListener) {
+                               ActivityClickListener activityClickListener,
+                               DeleteClickListener deleteClickListener) {
         super(DIFF_CALLBACK);
         this.currentUserId = currentUserId;
         this.activityClickListener = activityClickListener;
+        this.deleteClickListener = deleteClickListener;
     }
 
     @NonNull
@@ -65,7 +72,7 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
         Photo photo = getItem(position);
         User sender = photo.getSenderId() == null ? null : senderCache.get(photo.getSenderId());
-        holder.bind(photo, sender, currentUserId, activityClickListener);
+        holder.bind(photo, sender, currentUserId, activityClickListener, deleteClickListener);
         requestSenderIfNeeded(photo.getSenderId());
     }
 
@@ -112,6 +119,7 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
         private final PlayerView videoPlayer;
         private final TextView tvCaption;
         private final TextView activityButton;
+        private final android.widget.ImageButton btnDeletePost;
         
         private ExoPlayer exoPlayer;
         private String boundPhotoId;
@@ -126,12 +134,14 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
             videoPlayer = itemView.findViewById(R.id.history_video_player);
             tvCaption = itemView.findViewById(R.id.tvCaption);
             activityButton = itemView.findViewById(R.id.history_activity_button);
+            btnDeletePost = itemView.findViewById(R.id.btn_delete_post);
         }
 
         void bind(@NonNull Photo photo,
                   User sender,
                   @NonNull String currentUserId,
-                  ActivityClickListener activityListener) {
+                  ActivityClickListener activityListener,
+                  DeleteClickListener deleteListener) {
             boundPhotoId = photo.getId();
             String displayName = sender == null ? null : sender.getDisplayName();
             if ((displayName == null || displayName.trim().isEmpty()) && sender != null) {
@@ -214,6 +224,15 @@ public class PhotoHistoryAdapter extends ListAdapter<Photo, PhotoHistoryAdapter.
                     activityListener.onActivityClick(photo);
                 }
             });
+
+            if (btnDeletePost != null) {
+                btnDeletePost.setVisibility(ownPhoto ? View.VISIBLE : View.GONE);
+                btnDeletePost.setOnClickListener(v -> {
+                    if (deleteListener != null) {
+                        deleteListener.onDeleteClick(photo, getAdapterPosition());
+                    }
+                });
+            }
         }
 
         private void initializePlayer(String videoUrl) {

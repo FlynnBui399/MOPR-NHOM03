@@ -37,6 +37,10 @@ import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.PlayerView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
@@ -195,6 +199,9 @@ public class HomeFragment extends Fragment {
     private boolean isVideoMode = false;
     private com.example.pocket.ui.RecordingBorderView recordingBorderView;
     private android.animation.ValueAnimator recordingBorderAnimator;
+    private PlayerView videoPreviewView;
+    private ExoPlayer videoPreviewPlayer;
+    private Uri currentVideoUri;
 
     private final ActivityResultLauncher<Intent> videoPreviewLauncher =
             registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), result -> {
@@ -388,10 +395,42 @@ public class HomeFragment extends Fragment {
 
         String userId = currentUserId();
         historyAdapter = new PhotoHistoryAdapter(userId,
-                photo -> PostActivitySheet.show(requireContext(), photo));
+                photo -> PostActivitySheet.show(requireContext(), photo),
+                (photo, position) -> deletePhoto(photo, position));
         homePager.setAdapter(new ConcatAdapter(new CameraPageAdapter(this::bindCameraPage),
                 historyAdapter));
         restorePagerPosition();
+    }
+
+    private void deletePhoto(Photo currentPhoto, int position) {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setMessage("Delete this Pocket?")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete", (dialog, which) -> {
+                FirebaseFirestore.getInstance()
+                    .collection(Constants.COLLECTION_PHOTOS)
+                    .document(currentPhoto.getId())
+                    .delete()
+                    .addOnSuccessListener(unused -> {
+                        String photoId = currentPhoto.getId();
+                        Photo found = null;
+                        for (Photo p : allTimelinePhotos) {
+                            if (photoId.equals(p.getId())) {
+                                found = p;
+                                break;
+                            }
+                        }
+                        if (found != null) {
+                            allTimelinePhotos.remove(found);
+                        }
+                        applyHistoryFilter();
+                        Toast.makeText(requireContext(), "Pocket deleted", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(requireContext(), "Failed to delete: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+            })
+            .show();
     }
 
     private void bindCameraPage(@NonNull View view) {
@@ -442,6 +481,10 @@ public class HomeFragment extends Fragment {
         btnModePhoto = view.findViewById(R.id.btnModePhoto);
         btnModeVideo = view.findViewById(R.id.btnModeVideo);
         recordingBorderView = view.findViewById(R.id.recording_border_view);
+        if (recordingBorderView != null) {
+            recordingBorderView.setCornerRadius(36f);
+        }
+        videoPreviewView = view.findViewById(R.id.video_preview);
 
         if (btnModePhoto != null) {
             btnModePhoto.setOnClickListener(v -> setCameraMode(false));
@@ -803,7 +846,7 @@ public class HomeFragment extends Fragment {
             flashButton.setVisibility(View.INVISIBLE);
             recipientPill.setText(selectedHistorySenderName == null
                     ? getString(R.string.history_filter_everyone) : selectedHistorySenderName);
-        } else if (capturedJpegBytes != null) {
+        } else if (capturedJpegBytes != null || currentVideoUri != null) {
             flashButton.setVisibility(View.INVISIBLE);
             recipientPill.setText(R.string.camera_send_to);
         } else {
@@ -1175,6 +1218,30 @@ public class HomeFragment extends Fragment {
     }
 
     private void resetCapture() {
+        if (videoPreviewPlayer != null) {
+            videoPreviewPlayer.stop();
+            videoPreviewPlayer.release();
+            videoPreviewPlayer = null;
+        }
+        if (videoPreviewView != null) {
+            videoPreviewView.setVisibility(View.GONE);
+        }
+        if (previewView != null) {
+            previewView.setVisibility(View.VISIBLE);
+        }
+
+        if (currentVideoUri != null) {
+            if ("file".equals(currentVideoUri.getScheme())) {
+                try {
+                    File file = new File(currentVideoUri.getPath());
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                } catch (Exception ignored) {}
+            }
+            currentVideoUri = null;
+        }
+
         capturedJpegBytes = null;
         waitingForCaptionOptions = false;
         capturedImageView.setImageDrawable(null);
@@ -1206,6 +1273,7 @@ public class HomeFragment extends Fragment {
         }
         homeMode = HomeMode.CAMERA;
         updateTopBar();
+        startCamera();
     }
 
     private void hideKeyboard(@NonNull View view) {
@@ -1362,6 +1430,10 @@ public class HomeFragment extends Fragment {
     }
 
     private void sendCapturedPhoto() {
+        if (currentVideoUri != null) {
+            sendCapturedVideo();
+            return;
+        }
         if (capturedJpegBytes == null || recipientSelectionAdapter == null) {
             return;
         }
@@ -1377,8 +1449,221 @@ public class HomeFragment extends Fragment {
                 receiverIds, caption);
     }
 
+    private void showVideoPreview(Uri videoUri) {
+        currentVideoUri = videoUri;
+        
+        if (previewView != null) {
+            previewView.setVisibility(View.GONE);
+        }
+        if (videoPreviewView != null) {
+            videoPreviewView.setVisibility(View.VISIBLE);
+            
+            if (videoPreviewPlayer != null) {
+                videoPreviewPlayer.release();
+            }
+            
+            videoPreviewPlayer = new ExoPlayer.Builder(requireContext()).build();
+            videoPreviewView.setPlayer(videoPreviewPlayer);
+            
+            MediaItem mediaItem = MediaItem.fromUri(videoUri);
+            videoPreviewPlayer.setMediaItem(mediaItem);
+            videoPreviewPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
+            videoPreviewPlayer.prepare();
+            videoPreviewPlayer.play();
+        }
+
+        captionPanel.setVisibility(View.VISIBLE);
+        captionInputLayout.setVisibility(View.VISIBLE);
+        
+        captureButton.setVisibility(View.GONE);
+        captureButtonSurface.setVisibility(View.GONE);
+        galleryButton.setVisibility(View.GONE);
+        flipButton.setVisibility(View.GONE);
+        
+        retakeButton.setVisibility(View.VISIBLE);
+        
+        styleCapturedActionButtons();
+        sendPhotoButton.setVisibility(View.VISIBLE);
+        savePhotoButton.setVisibility(View.GONE);
+        captureRecipientsContainer.setVisibility(View.VISIBLE);
+        historyHeader.setVisibility(View.GONE);
+        
+        if (modeToggle != null) {
+            modeToggle.setVisibility(View.GONE);
+        }
+
+        recipientSelectionAdapter.selectAll();
+        captureRecipientList.scrollToPosition(0);
+        centerCaptureRecipients();
+        
+        updateTopBar();
+    }
+
+    private void sendCapturedVideo() {
+        if (currentVideoUri == null || recipientSelectionAdapter == null) {
+            return;
+        }
+        
+        List<String> receiverIds = recipientSelectionAdapter.selectedReceiverIds();
+        if (receiverIds.isEmpty()) {
+            Toast.makeText(requireContext(), R.string.photo_send_no_friend, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String caption = captionInput.getText() == null
+                ? "" : captionInput.getText().toString().trim();
+                
+        sendPhotoButton.setEnabled(false);
+        sendPhotoButton.setAlpha(0.55f);
+        captureButton.setEnabled(false);
+        retakeButton.setEnabled(false);
+        
+        Context context = requireContext();
+        String currentUserId = currentUserId();
+        String currentUserName = currentUserName();
+
+        new Thread(() -> {
+            try {
+                Uri localUri = currentVideoUri;
+                if ("content".equals(localUri.getScheme())) {
+                    File cacheFile = new File(context.getCacheDir(), "temp-media-" + System.currentTimeMillis() + ".mp4");
+                    try (java.io.InputStream in = context.getContentResolver().openInputStream(localUri);
+                         java.io.OutputStream out = new java.io.FileOutputStream(cacheFile)) {
+                        byte[] buf = new byte[4096];
+                        int len;
+                        while ((len = in.read(buf)) > 0) {
+                            out.write(buf, 0, len);
+                        }
+                    }
+                    localUri = Uri.fromFile(cacheFile);
+                }
+                
+                File file = new File(localUri.getPath());
+                if (!file.exists() || file.length() == 0) {
+                    throw new Exception("Media file does not exist or is empty");
+                }
+                
+                CloudinaryService cloudinaryService = new CloudinaryService();
+                com.google.android.gms.tasks.Task<CloudinaryService.UploadResult> uploadTask =
+                        cloudinaryService.uploadUnsignedVideo(file);
+                CloudinaryService.UploadResult result = com.google.android.gms.tasks.Tasks.await(uploadTask);
+                String secureUrl = result.getSecureUrl();
+                String thumbnailUrl = result.getSecureUrl();
+                String publicId = result.getPublicId();
+                
+                DocumentReference photoRef = FirebaseFirestore.getInstance()
+                        .collection(Constants.COLLECTION_PHOTOS).document();
+                
+                Photo photo = new Photo(
+                        photoRef.getId(),
+                        currentUserId,
+                        currentUserName,
+                        secureUrl,
+                        thumbnailUrl,
+                        publicId,
+                        caption,
+                        receiverIds,
+                        new HashMap<>(),
+                        new ArrayList<>(),
+                        Timestamp.now()
+                );
+                photo.setType("video");
+                photo.setVideoUrl(secureUrl);
+                photo.setImageUrl("");
+                photo.setThumbnailUrl("");
+                
+                final File finalFileToDelete = file;
+                
+                FirebaseFirestore.getInstance().runTransaction(transaction -> {
+                    transaction.set(photoRef, photo);
+                    return null;
+                }).addOnSuccessListener(unused -> {
+                    for (String receiverId : receiverIds) {
+                        com.example.pocket.utils.StreakHelper.updateStreak(currentUserId, receiverId);
+                    }
+                    
+                    try {
+                        if (finalFileToDelete.exists()) {
+                            finalFileToDelete.delete();
+                        }
+                    } catch (Exception ignored) {}
+                    
+                    createFcmTriggers(photo);
+
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                        if (isAdded()) {
+                            if (videoPreviewPlayer != null) {
+                                videoPreviewPlayer.stop();
+                                videoPreviewPlayer.release();
+                                videoPreviewPlayer = null;
+                            }
+                            if (videoPreviewView != null) {
+                                videoPreviewView.setVisibility(View.GONE);
+                            }
+                            if (previewView != null) {
+                                previewView.setVisibility(View.VISIBLE);
+                            }
+                            currentVideoUri = null;
+                            
+                            sendPhotoButton.setEnabled(true);
+                            sendPhotoButton.setAlpha(1f);
+                            captureButton.setEnabled(true);
+                            retakeButton.setEnabled(true);
+                            
+                            Toast.makeText(requireContext(), R.string.camera_upload_success, Toast.LENGTH_SHORT).show();
+                            resetCapture();
+                            openHistoryAfterUpload = true;
+                            scrollToHistory();
+                        }
+                    });
+                }).addOnFailureListener(e -> {
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                        if (isAdded()) {
+                            sendPhotoButton.setEnabled(true);
+                            sendPhotoButton.setAlpha(1f);
+                            captureButton.setEnabled(true);
+                            retakeButton.setEnabled(true);
+                            Toast.makeText(requireContext(), "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                });
+                
+            } catch (Exception e) {
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    if (isAdded()) {
+                        sendPhotoButton.setEnabled(true);
+                        sendPhotoButton.setAlpha(1f);
+                        captureButton.setEnabled(true);
+                        retakeButton.setEnabled(true);
+                        Toast.makeText(requireContext(), "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void createFcmTriggers(@NonNull Photo photo) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        for (String recipientId : photo.getReceiverIds()) {
+            Map<String, Object> trigger = new HashMap<>();
+            trigger.put("type", "photo_received");
+            trigger.put("photoId", photo.getId());
+            trigger.put("senderId", photo.getSenderId());
+            trigger.put("senderName", photo.getSenderName());
+            trigger.put("recipientId", recipientId);
+            trigger.put("imageUrl", photo.getThumbnailUrl());
+            trigger.put("caption", photo.getCaption());
+            trigger.put("createdAt", Timestamp.now());
+            trigger.put("processed", false);
+
+            firestore.collection(Constants.COLLECTION_FCM_TRIGGERS)
+                    .document()
+                    .set(trigger);
+        }
+    }
+
     private void updateCapturedRecipientLabel() {
-        if (capturedJpegBytes == null || recipientSelectionAdapter == null) {
+        if (capturedJpegBytes == null && currentVideoUri == null || recipientSelectionAdapter == null) {
             return;
         }
         List<String> selected = recipientSelectionAdapter.selectedReceiverIds();
@@ -1596,6 +1881,11 @@ public class HomeFragment extends Fragment {
         historyAdapter = null;
         historyHeader = null;
         historyCount = null;
+        if (videoPreviewPlayer != null) {
+            videoPreviewPlayer.release();
+            videoPreviewPlayer = null;
+        }
+        videoPreviewView = null;
         super.onDestroyView();
     }
 
@@ -1772,11 +2062,15 @@ public class HomeFragment extends Fragment {
                 recordingBorderAnimator.cancel();
             }
             recordingBorderAnimator = android.animation.ValueAnimator.ofFloat(0f, 360f);
-            recordingBorderAnimator.setDuration(10000);
+            recordingBorderAnimator.setDuration(5000);
             recordingBorderAnimator.setInterpolator(new android.view.animation.LinearInterpolator());
             recordingBorderAnimator.addUpdateListener(animator -> {
                 if (recordingBorderView != null) {
-                    recordingBorderView.setSweepAngle((float) animator.getAnimatedValue());
+                    float sweepAngle = (float) animator.getAnimatedValue();
+                    recordingBorderView.setSweepAngle(sweepAngle);
+                    if (Math.round(sweepAngle) % 36 == 0) {
+                        Log.d("Border", "sweep=" + sweepAngle);
+                    }
                 }
             });
             recordingBorderAnimator.start();
@@ -1788,7 +2082,7 @@ public class HomeFragment extends Fragment {
 
         File videoFile = new File(requireContext().getCacheDir(), "pocket-video-" + System.currentTimeMillis() + ".mp4");
         androidx.camera.video.FileOutputOptions options = new androidx.camera.video.FileOutputOptions.Builder(videoFile)
-                .setDurationLimitMillis(10000)
+                .setDurationLimitMillis(5000)
                 .build();
 
         try {
@@ -1835,19 +2129,7 @@ public class HomeFragment extends Fragment {
                                     captureButtonSurface.setBackgroundResource(R.drawable.bg_shutter_button);
                                 }
 
-                                // Navigate to VideoPreviewActivity
-                                List<String> receiverIds = recipientSelectionAdapter != null
-                                        ? recipientSelectionAdapter.selectedReceiverIds()
-                                        : new ArrayList<>();
-                                String caption = captionInput != null && captionInput.getText() != null
-                                        ? captionInput.getText().toString().trim()
-                                        : "";
-
-                                Intent intent = new Intent(requireContext(), VideoPreviewActivity.class);
-                                intent.putExtra(VideoPreviewActivity.EXTRA_VIDEO_URI, outputUri.toString());
-                                intent.putStringArrayListExtra(VideoPreviewActivity.EXTRA_RECEIVER_IDS, new ArrayList<>(receiverIds));
-                                intent.putExtra(VideoPreviewActivity.EXTRA_CAPTION, caption);
-                                videoPreviewLauncher.launch(intent);
+                                showVideoPreview(outputUri);
                             }
                         }
                     });
@@ -1871,8 +2153,8 @@ public class HomeFragment extends Fragment {
             return;
         }
 
-        // Start countdown progress limit (10 seconds)
-        recordProgressHandler.postDelayed(stopVideoRecordingRunnable, 10000);
+        // Start countdown progress limit (5 seconds)
+        recordProgressHandler.postDelayed(stopVideoRecordingRunnable, 5000);
     }
 
     private void stopVideoRecording() {
@@ -1890,6 +2172,9 @@ public class HomeFragment extends Fragment {
         }
         if (captureButtonSurface != null) {
             captureButtonSurface.setBackgroundResource(R.drawable.bg_shutter_button);
+        }
+        if (captureButton != null) {
+            captureButton.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
         }
 
         if (activeRecording != null) {

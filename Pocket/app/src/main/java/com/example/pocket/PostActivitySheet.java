@@ -19,6 +19,7 @@ import com.example.pocket.data.model.User;
 import com.example.pocket.data.remote.CloudinaryService;
 import com.example.pocket.data.repository.UserRepository;
 import com.example.pocket.ui.PocketButton;
+import com.example.pocket.ui.AvatarView;
 import com.example.pocket.utils.Constants;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
@@ -479,12 +480,7 @@ public final class PostActivitySheet {
                     : friend.getDisplayName();
             holder.nameView.setText(name == null || name.trim().isEmpty() ? "Pocket User" : name);
             
-            Glide.with(holder.avatarView)
-                    .load(friend.getAvatarUrl())
-                    .circleCrop()
-                    .placeholder(R.drawable.avatar_placeholder)
-                    .error(R.drawable.avatar_placeholder)
-                    .into(holder.avatarView);
+            holder.avatarView.setAvatarUrl(friend.getAvatarUrl(), name);
 
             String id = friend.getId();
             holder.checkBox.setOnCheckedChangeListener(null);
@@ -508,7 +504,7 @@ public final class PostActivitySheet {
         }
 
         static class FriendViewHolder extends RecyclerView.ViewHolder {
-            final CircleImageView avatarView;
+            final AvatarView avatarView;
             final TextView nameView;
             final android.widget.CheckBox checkBox;
 

@@ -19,6 +19,14 @@
             android:contentDescription="@string/history_photo_description"
             android:scaleType="centerCrop" />
 
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/memory_viewer_video"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:use_controller="false"
+            app:resize_mode="zoom"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/memory_viewer_caption"
             android:layout_width="wrap_content"

@@ -22,6 +22,7 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.content.ContextCompat;
 
 import com.example.pocket.R;
+import com.bumptech.glide.Glide;
 
 import java.util.Locale;
 
@@ -92,6 +93,25 @@ public class AvatarView extends FrameLayout {
         imageView.setVisibility(GONE);
         initialsView.setVisibility(VISIBLE);
         initialsView.setText(toInitials(text));
+    }
+
+    public void setAvatarUrl(@Nullable String url) {
+        setAvatarUrl(url, null);
+    }
+
+    public void setAvatarUrl(@Nullable String url, @Nullable String nameFallback) {
+        if (url != null && !url.trim().isEmpty()) {
+            imageView.setVisibility(VISIBLE);
+            initialsView.setVisibility(GONE);
+            Glide.with(getContext())
+                    .load(url)
+                    .circleCrop()
+                    .placeholder(R.drawable.avatar_placeholder)
+                    .error(R.drawable.avatar_placeholder)
+                    .into(imageView);
+        } else {
+            setAvatarText(nameFallback);
+        }
     }
 
     public void setAvatarImageResource(@DrawableRes int imageResId) {

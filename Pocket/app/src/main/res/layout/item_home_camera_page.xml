@@ -139,6 +139,22 @@
                     android:scaleType="fitCenter"
                     android:layout_marginStart="4dp" />
             </LinearLayout>
+
+            <androidx.media3.ui.PlayerView
+                android:id="@+id/video_preview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:use_controller="false"
+                app:resize_mode="zoom"
+                android:visibility="gone" />
+
+            <com.example.pocket.ui.RecordingBorderView
+                android:id="@+id/recording_border_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="false"
+                android:focusable="false"
+                android:visibility="gone" />
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -243,15 +259,6 @@
                 android:src="@drawable/ic_send_diagonal"
                 android:visibility="gone"
                 app:tint="@color/pocket_text_primary" />
-
-            <com.example.pocket.ui.RecordingBorderView
-                android:id="@+id/recording_border_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="0dp"
-                android:clickable="false"
-                android:focusable="false"
-                android:visibility="gone" />
         </FrameLayout>
 
         <com.example.pocket.ui.PocketButton

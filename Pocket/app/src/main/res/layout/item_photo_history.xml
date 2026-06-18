@@ -101,6 +101,21 @@
                 android:visibility="gone"
                 tools:text="Sample caption"
                 tools:visibility="visible" />
+
+            <ImageButton
+                android:id="@+id/btn_delete_post"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:padding="6dp"
+                android:scaleType="fitCenter"
+                android:background="@drawable/bg_icon_circle_dark"
+                android:src="@drawable/ic_trash"
+                android:contentDescription="Delete Post"
+                android:visibility="gone"
+                android:tint="@color/white" />
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 
