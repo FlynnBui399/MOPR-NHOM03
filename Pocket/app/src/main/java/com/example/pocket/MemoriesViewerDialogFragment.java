@@ -390,12 +390,23 @@ public class MemoriesViewerDialogFragment extends DialogFragment {
 
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
+            MemoryItem item = items.get(position);
+            String thumbUrl = (item.thumbnail != null && !item.thumbnail.isEmpty())
+                    ? item.thumbnail
+                    : item.videoUrl;
+
             Glide.with(holder.image)
-                    .load(items.get(position).thumbnail)
+                    .load(thumbUrl)
                     .centerCrop()
                     .placeholder(R.drawable.placeholder_pocket)
                     .error(R.drawable.placeholder_pocket)
                     .into(holder.image);
+
+            boolean isVideo = "video".equals(item.type);
+            if (holder.playIcon != null) {
+                holder.playIcon.setVisibility(isVideo ? View.VISIBLE : View.GONE);
+            }
+
             boolean selected = position == selectedIndex;
             holder.card.setStrokeWidth(selected ? dp(holder.itemView, 4) : 0);
             holder.card.setStrokeColor(ContextCompat.getColor(holder.itemView.getContext(),
@@ -415,11 +426,13 @@ public class MemoriesViewerDialogFragment extends DialogFragment {
         static class Holder extends RecyclerView.ViewHolder {
             final MaterialCardView card;
             final ImageView image;
+            final ImageView playIcon;
 
             Holder(@NonNull View itemView) {
                 super(itemView);
                 card = (MaterialCardView) itemView;
                 image = itemView.findViewById(R.id.memory_viewer_thumbnail);
+                playIcon = itemView.findViewById(R.id.memory_thumbnail_play_icon);
             }
         }
     }

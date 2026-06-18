@@ -230,6 +230,21 @@ public class HomeFragment extends Fragment {
                 }
             });
 
+    private Photo pendingDownloadPhoto;
+
+    private final ActivityResultLauncher<String> writeStoragePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                if (granted) {
+                    if (pendingDownloadPhoto != null) {
+                        performDownload(pendingDownloadPhoto);
+                        pendingDownloadPhoto = null;
+                    }
+                } else if (isAdded()) {
+                    Toast.makeText(requireContext(), "Storage permission is required to download files", Toast.LENGTH_LONG).show();
+                    pendingDownloadPhoto = null;
+                }
+            });
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -396,7 +411,7 @@ public class HomeFragment extends Fragment {
         String userId = currentUserId();
         historyAdapter = new PhotoHistoryAdapter(userId,
                 photo -> PostActivitySheet.show(requireContext(), photo),
-                (photo, position) -> deletePhoto(photo, position));
+                (photo, position) -> showPhotoOptionsBottomSheet(photo, position));
         homePager.setAdapter(new ConcatAdapter(new CameraPageAdapter(this::bindCameraPage),
                 historyAdapter));
         restorePagerPosition();
@@ -431,6 +446,156 @@ public class HomeFragment extends Fragment {
                     });
             })
             .show();
+    }
+
+    private void showPhotoOptionsBottomSheet(@NonNull Photo photo, int position) {
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_photo_options, null);
+        
+        View btnShare = view.findViewById(R.id.option_share);
+        View btnDownload = view.findViewById(R.id.option_download);
+        View btnDelete = view.findViewById(R.id.option_delete);
+        View btnReport = view.findViewById(R.id.option_report);
+        View btnCancel = view.findViewById(R.id.option_cancel);
+
+        boolean isOwnPost = currentUserId().equals(photo.getSenderId());
+        if (isOwnPost) {
+            btnDelete.setVisibility(View.VISIBLE);
+            btnReport.setVisibility(View.GONE);
+        } else {
+            btnDelete.setVisibility(View.GONE);
+            btnReport.setVisibility(View.VISIBLE);
+        }
+
+        btnShare.setOnClickListener(v -> {
+            dialog.dismiss();
+            sharePhoto(photo);
+        });
+
+        btnDownload.setOnClickListener(v -> {
+            dialog.dismiss();
+            downloadPhoto(photo);
+        });
+
+        btnDelete.setOnClickListener(v -> {
+            dialog.dismiss();
+            deletePhoto(photo, position);
+        });
+
+        btnReport.setOnClickListener(v -> {
+            dialog.dismiss();
+            Toast.makeText(requireContext(), "Post reported. Thank you!", Toast.LENGTH_SHORT).show();
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private void sharePhoto(@NonNull Photo photo) {
+        String mediaUrl = "video".equals(photo.getType()) ? photo.getVideoUrl() : photo.getImageUrl();
+        if (mediaUrl == null || mediaUrl.trim().isEmpty()) {
+            mediaUrl = photo.getThumbnailUrl();
+        }
+        if (mediaUrl == null || mediaUrl.trim().isEmpty()) {
+            return;
+        }
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, mediaUrl);
+        startActivity(Intent.createChooser(intent, "Share post"));
+    }
+
+    private void downloadPhoto(@NonNull Photo photo) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            performDownload(photo);
+        } else {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                performDownload(photo);
+            } else {
+                pendingDownloadPhoto = photo;
+                writeStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+        }
+    }
+
+    private void performDownload(@NonNull Photo photo) {
+        String mediaUrl = "video".equals(photo.getType()) ? photo.getVideoUrl() : photo.getImageUrl();
+        if (mediaUrl == null || mediaUrl.trim().isEmpty()) {
+            mediaUrl = photo.getThumbnailUrl();
+        }
+        if (mediaUrl == null || mediaUrl.trim().isEmpty()) {
+            Toast.makeText(requireContext(), "No URL found to download", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final String finalUrl = mediaUrl;
+        final boolean isVideo = "video".equals(photo.getType());
+        final String mimeType = isVideo ? "video/mp4" : "image/jpeg";
+        final String ext = isVideo ? ".mp4" : ".jpg";
+        final String filename = "Pocket_" + System.currentTimeMillis() + ext;
+
+        Toast.makeText(requireContext(), "Downloading...", Toast.LENGTH_SHORT).show();
+
+        Context context = requireContext().getApplicationContext();
+
+        new Thread(() -> {
+            try {
+                okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+                okhttp3.Request request = new okhttp3.Request.Builder().url(finalUrl).build();
+                try (okhttp3.Response response = client.newCall(request).execute()) {
+                    if (!response.isSuccessful()) {
+                        throw new java.io.IOException("Unexpected HTTP code: " + response.code());
+                    }
+                    byte[] bytes = response.body().bytes();
+                    saveMediaToGallery(context, bytes, filename, mimeType, isVideo);
+                }
+            } catch (Exception e) {
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(context, "Download failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+        }).start();
+    }
+
+    private void saveMediaToGallery(Context context, byte[] bytes, String filename, String mimeType, boolean isVideo) {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, filename);
+        values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
+        
+        Uri collectionUri;
+        if (isVideo) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                values.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/Pocket");
+            }
+            collectionUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+        } else {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Pocket");
+            }
+            collectionUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        }
+
+        android.content.ContentResolver resolver = context.getContentResolver();
+        Uri itemUri = resolver.insert(collectionUri, values);
+        if (itemUri != null) {
+            try (java.io.OutputStream out = resolver.openOutputStream(itemUri)) {
+                out.write(bytes);
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(context, "Downloaded successfully!", Toast.LENGTH_SHORT).show();
+                });
+            } catch (Exception e) {
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(context, "Download failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+        } else {
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                Toast.makeText(context, "Download failed: Cannot create file", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private void bindCameraPage(@NonNull View view) {
@@ -933,7 +1098,19 @@ public class HomeFragment extends Fragment {
 
         String chatId = chatRepositoryHome.getChatId(currentUserId(), currentReceiverId);
         
-        chatRepositoryHome.sendPhotoReply(chatId, text, currentPhoto.getThumbnailUrl(), currentPhoto.getId(), new UserRepository.Callback<Void>() {
+        String quotedUrl = currentPhoto.getThumbnailUrl();
+        if (quotedUrl == null || quotedUrl.trim().isEmpty()) {
+            quotedUrl = currentPhoto.getImageUrl();
+        }
+        if (quotedUrl == null || quotedUrl.trim().isEmpty()) {
+            quotedUrl = currentPhoto.getVideoUrl();
+        }
+        if (quotedUrl == null) {
+            quotedUrl = "";
+        }
+
+        chatRepositoryHome.sendPhotoReply(chatId, text, quotedUrl, currentPhoto.getId(),
+                currentPhoto.getCaption(), currentPhoto.getType(), new UserRepository.Callback<Void>() {
             @Override
             public void onSuccess(Void ignored) {
                 if (isAdded()) {
@@ -960,11 +1137,15 @@ public class HomeFragment extends Fragment {
         if (quotedUrl == null || quotedUrl.trim().isEmpty()) {
             quotedUrl = currentPhoto.getImageUrl();
         }
+        if (quotedUrl == null || quotedUrl.trim().isEmpty()) {
+            quotedUrl = currentPhoto.getVideoUrl();
+        }
         if (quotedUrl == null) {
             quotedUrl = "";
         }
 
-        chatRepositoryHome.sendPhotoReply(chatId, emoji, quotedUrl, currentPhoto.getId(), new UserRepository.Callback<Void>() {
+        chatRepositoryHome.sendPhotoReply(chatId, emoji, quotedUrl, currentPhoto.getId(),
+                currentPhoto.getCaption(), currentPhoto.getType(), new UserRepository.Callback<Void>() {
             @Override
             public void onSuccess(Void ignored) {
                 // Update parent chat document
@@ -1567,10 +1748,12 @@ public class HomeFragment extends Fragment {
                         new ArrayList<>(),
                         Timestamp.now()
                 );
+                String thumbnailFromVideo = "https://res.cloudinary.com/" + Constants.CLOUDINARY_CLOUD_NAME
+                        + "/video/upload/so_0,w_300,h_300,c_fill,f_jpg/" + publicId + ".jpg";
                 photo.setType("video");
                 photo.setVideoUrl(secureUrl);
-                photo.setImageUrl("");
-                photo.setThumbnailUrl("");
+                photo.setImageUrl(thumbnailFromVideo);
+                photo.setThumbnailUrl(thumbnailFromVideo);
                 
                 final File finalFileToDelete = file;
                 

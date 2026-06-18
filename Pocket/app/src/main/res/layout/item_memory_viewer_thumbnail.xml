@@ -9,10 +9,24 @@
     app:cardElevation="0dp"
     app:strokeColor="@color/pocket_primary">
 
-    <ImageView
-        android:id="@+id/memory_viewer_thumbnail"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:contentDescription="@string/history_photo_description"
-        android:scaleType="centerCrop" />
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/memory_viewer_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/history_photo_description"
+            android:scaleType="centerCrop" />
+
+        <ImageView
+            android:id="@+id/memory_thumbnail_play_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_play"
+            android:visibility="gone"
+            android:scaleType="fitCenter" />
+    </FrameLayout>
 </com.google.android.material.card.MaterialCardView>

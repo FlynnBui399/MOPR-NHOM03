@@ -386,10 +386,12 @@ public final class PostActivitySheet {
                             Timestamp.now()
                     );
                     if ("video".equals(type)) {
+                        String thumbnailFromVideo = "https://res.cloudinary.com/" + Constants.CLOUDINARY_CLOUD_NAME
+                                + "/video/upload/so_0,w_300,h_300,c_fill,f_jpg/" + publicId + ".jpg";
                         photo.setType("video");
                         photo.setVideoUrl(secureUrl);
-                        photo.setImageUrl("");
-                        photo.setThumbnailUrl("");
+                        photo.setImageUrl(thumbnailFromVideo);
+                        photo.setThumbnailUrl(thumbnailFromVideo);
                     }
                     
                     final File finalFileToDelete = file;

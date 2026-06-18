@@ -3,6 +3,7 @@ package com.example.pocket.data.repository;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -69,6 +70,8 @@ public class ChatRepository {
                                @NonNull String replyText,
                                @NonNull String quotedPhotoUrl,
                                @NonNull String quotedPhotoId,
+                               @Nullable String quotedPhotoCaption,
+                               @Nullable String quotedPhotoType,
                                @NonNull UserRepository.Callback<Void> callback) {
         String senderId = auth.getCurrentUser() == null ? null : auth.getCurrentUser().getUid();
         if (senderId == null) {
@@ -84,6 +87,8 @@ public class ChatRepository {
         message.put("type", "photo_reply");
         message.put("quotedPhotoUrl", quotedPhotoUrl);
         message.put("quotedPhotoId", quotedPhotoId);
+        message.put("quotedPhotoCaption", quotedPhotoCaption);
+        message.put("quotedPhotoType", quotedPhotoType);
         message.put("createdAt", Timestamp.now());
         message.put("read", false);
 

@@ -103,7 +103,7 @@
                 tools:visibility="visible" />
 
             <ImageButton
-                android:id="@+id/btn_delete_post"
+                android:id="@+id/btn_post_options"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_gravity="top|end"
@@ -112,9 +112,9 @@
                 android:padding="6dp"
                 android:scaleType="fitCenter"
                 android:background="@drawable/bg_icon_circle_dark"
-                android:src="@drawable/ic_trash"
-                android:contentDescription="Delete Post"
-                android:visibility="gone"
+                android:src="@drawable/ic_more_vert"
+                android:contentDescription="Post Options"
+                android:visibility="visible"
                 android:tint="@color/white" />
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>

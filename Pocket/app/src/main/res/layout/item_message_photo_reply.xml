@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="3dp"
@@ -14,32 +15,66 @@
         android:layout_marginStart="48dp"
         android:layout_marginEnd="48dp">
 
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/quotedBox"
-            android:layout_width="wrap_content"
+            android:layout_width="260dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_quoted_box"
-            android:padding="12dp"
-            android:orientation="horizontal"
-            android:layout_marginBottom="4dp"
-            android:gravity="center_vertical">
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#1C1C1E"
+            android:layout_marginBottom="4dp">
 
-            <ImageView
-                android:id="@+id/ivQuotedThumb"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:contentDescription="@null"
-                android:scaleType="centerCrop"/>
-
-            <TextView
-                android:id="@+id/tvQuotedLabel"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="10dp"
-                android:textSize="12sp"
-                android:textColor="#AAAAAA"/>
-        </LinearLayout>
+                android:orientation="vertical">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="260dp">
+
+                    <ImageView
+                        android:id="@+id/ivQuotedThumb"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:contentDescription="@null" />
+
+                    <ImageView
+                        android:id="@+id/ivQuotedPlayIcon"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_play"
+                        android:visibility="gone"
+                        android:contentDescription="@null" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvQuotedCaption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="4dp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvQuotedLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#8E8E93"
+                    android:textSize="11sp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="8dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/tvReplyText"
