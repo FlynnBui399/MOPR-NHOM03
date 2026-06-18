@@ -48,6 +48,7 @@ public class MemoriesViewerDialogFragment extends DialogFragment {
         ArrayList<String> urls = new ArrayList<>();
         ArrayList<String> thumbnails = new ArrayList<>();
         ArrayList<Long> timestamps = new ArrayList<>();
+        ArrayList<String> captions = new ArrayList<>();
         for (Photo photo : photos) {
             String url = photo.getImageUrl();
             if (url == null || url.trim().isEmpty()) {
@@ -62,12 +63,14 @@ public class MemoriesViewerDialogFragment extends DialogFragment {
             timestamps.add(photo.getCreatedAt() == null
                     ? System.currentTimeMillis()
                     : photo.getCreatedAt().toDate().getTime());
+            captions.add(photo.getCaption() == null ? "" : photo.getCaption());
         }
         MemoriesViewerDialogFragment fragment = new MemoriesViewerDialogFragment();
         Bundle arguments = new Bundle();
         arguments.putStringArrayList(ARG_URLS, urls);
         arguments.putStringArrayList(ARG_THUMBNAILS, thumbnails);
         arguments.putSerializable(ARG_TIMESTAMPS, timestamps);
+        arguments.putStringArrayList("captions", captions);
         arguments.putInt(ARG_SELECTED, selectedIndex);
         fragment.setArguments(arguments);
         return fragment;
@@ -85,11 +88,13 @@ public class MemoriesViewerDialogFragment extends DialogFragment {
         ArrayList<String> thumbnails = arguments.getStringArrayList(ARG_THUMBNAILS);
         @SuppressWarnings("unchecked")
         ArrayList<Long> timestamps = (ArrayList<Long>) arguments.getSerializable(ARG_TIMESTAMPS);
+        ArrayList<String> captions = arguments.getStringArrayList("captions");
         if (urls != null && thumbnails != null && timestamps != null) {
             int count = Math.min(urls.size(), Math.min(thumbnails.size(), timestamps.size()));
             for (int index = 0; index < count; index++) {
+                String caption = (captions != null && index < captions.size()) ? captions.get(index) : "";
                 items.add(new MemoryItem(urls.get(index), thumbnails.get(index),
-                        timestamps.get(index)));
+                        timestamps.get(index), caption));
             }
         }
         selectedIndex = Math.max(0, Math.min(arguments.getInt(ARG_SELECTED, 0),
@@ -202,11 +207,13 @@ public class MemoriesViewerDialogFragment extends DialogFragment {
         final String url;
         final String thumbnail;
         final long timestamp;
+        final String caption;
 
-        MemoryItem(String url, String thumbnail, long timestamp) {
+        MemoryItem(String url, String thumbnail, long timestamp, String caption) {
             this.url = url;
             this.thumbnail = thumbnail;
             this.timestamp = timestamp;
+            this.caption = caption;
         }
     }
 
@@ -226,12 +233,20 @@ public class MemoriesViewerDialogFragment extends DialogFragment {
 
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
+            MemoryItem item = items.get(position);
             Glide.with(holder.image)
-                    .load(items.get(position).url)
+                    .load(item.url)
                     .centerCrop()
                     .placeholder(R.drawable.placeholder_pocket)
                     .error(R.drawable.placeholder_pocket)
                     .into(holder.image);
+            
+            if (item.caption != null && !item.caption.trim().isEmpty()) {
+                holder.captionView.setText(item.caption);
+                holder.captionView.setVisibility(View.VISIBLE);
+            } else {
+                holder.captionView.setVisibility(View.GONE);
+            }
         }
 
         @Override
@@ -241,10 +256,12 @@ public class MemoriesViewerDialogFragment extends DialogFragment {
 
         static class Holder extends RecyclerView.ViewHolder {
             final ImageView image;
+            final TextView captionView;
 
             Holder(@NonNull View itemView) {
                 super(itemView);
                 image = itemView.findViewById(R.id.memory_viewer_photo);
+                captionView = itemView.findViewById(R.id.memory_viewer_caption);
                 itemView.post(() -> {
                     ViewGroup.LayoutParams params = itemView.getLayoutParams();
                     View parent = (View) itemView.getParent();

@@ -396,6 +396,28 @@ public class HomeFragment extends Fragment {
 
     private void bindCameraPage(@NonNull View view) {
         previewView = view.findViewById(R.id.camera_preview);
+
+        // Pinch-to-zoom (Issue 3)
+        android.view.ScaleGestureDetector scaleGestureDetector = new android.view.ScaleGestureDetector(requireContext(),
+                new android.view.ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                    @Override
+                    public boolean onScale(android.view.ScaleGestureDetector detector) {
+                        if (camera != null) {
+                            androidx.camera.core.ZoomState zoomState = camera.getCameraInfo().getZoomState().getValue();
+                            if (zoomState != null) {
+                                float currentZoom = zoomState.getZoomRatio();
+                                float delta = detector.getScaleFactor();
+                                camera.getCameraControl().setZoomRatio(currentZoom * delta);
+                            }
+                        }
+                        return true;
+                    }
+                });
+
+        previewView.setOnTouchListener((v, event) -> {
+            scaleGestureDetector.onTouchEvent(event);
+            return true;
+        });
         previewCard = view.findViewById(R.id.camera_preview_card);
         capturedImageView = view.findViewById(R.id.captured_image);
         captionPanel = view.findViewById(R.id.caption_panel);

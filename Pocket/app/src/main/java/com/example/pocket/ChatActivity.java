@@ -52,6 +52,7 @@ public class ChatActivity extends AppCompatActivity {
     private ExecutorService notificationExecutor;
     private String friendUid;
     private String friendName;
+    private com.google.firebase.firestore.ListenerRegistration streakListenerRegistration;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -102,6 +103,7 @@ public class ChatActivity extends AppCompatActivity {
         ImageButton backButton = findViewById(R.id.chat_back_button);
         CircleImageView avatar = findViewById(R.id.chat_other_avatar);
         TextView name = findViewById(R.id.chat_other_name);
+        TextView streakBadge = findViewById(R.id.chat_streak_badge);
         messageInput = findViewById(R.id.chat_message_input);
         ImageButton sendButton = findViewById(R.id.chat_send_button);
         messagesRecycler = findViewById(R.id.chat_messages_recycler);
@@ -195,6 +197,19 @@ public class ChatActivity extends AppCompatActivity {
                 Toast.makeText(ChatActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        if (!currentUid().isEmpty() && friendUid != null) {
+            streakListenerRegistration = com.example.pocket.utils.StreakHelper.listenStreak(currentUid(), friendUid, count -> {
+                if (streakBadge != null) {
+                    if (count >= 2) {
+                        streakBadge.setText("🔥 " + count);
+                        streakBadge.setVisibility(View.VISIBLE);
+                    } else {
+                        streakBadge.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
     }
 
     private void sendText() {
@@ -251,6 +266,10 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (streakListenerRegistration != null) {
+            streakListenerRegistration.remove();
+            streakListenerRegistration = null;
+        }
         if (notificationExecutor != null) {
             notificationExecutor.shutdown();
         }

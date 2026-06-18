@@ -19,37 +19,75 @@ public class StreakHelper {
 
         db.runTransaction(transaction -> {
             DocumentSnapshot doc = transaction.get(ref);
-            Map<String, Object> data = new HashMap<>();
+            long streakCount = 0;
+            boolean userAPostedToday = false;
+            boolean userBPostedToday = false;
+            Timestamp lastUpdated = null;
+
+            boolean isUserA = senderUid.compareTo(receiverUid) < 0;
+
+            if (doc.exists()) {
+                Long sc = doc.getLong("streakCount");
+                if (sc != null) streakCount = sc;
+                Boolean aPosted = doc.getBoolean("userAPostedToday");
+                if (aPosted != null) userAPostedToday = aPosted;
+                Boolean bPosted = doc.getBoolean("userBPostedToday");
+                if (bPosted != null) userBPostedToday = bPosted;
+                lastUpdated = doc.getTimestamp("lastUpdated");
+
+                if (lastUpdated != null) {
+                    long diffMs = System.currentTimeMillis() - lastUpdated.toDate().getTime();
+                    if (diffMs > 48 * 60 * 60 * 1000L) {
+                        if (!userAPostedToday || !userBPostedToday) {
+                            streakCount = 0;
+                            userAPostedToday = false;
+                            userBPostedToday = false;
+                        }
+                    }
+                }
+            }
+
+            if (isUserA) {
+                userAPostedToday = true;
+            } else {
+                userBPostedToday = true;
+            }
+
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("userAPostedToday", userAPostedToday);
+            updates.put("userBPostedToday", userBPostedToday);
+
+            if (userAPostedToday && userBPostedToday) {
+                boolean isNewDay = true;
+                if (streakCount > 0 && lastUpdated != null) {
+                    Calendar calLast = Calendar.getInstance();
+                    calLast.setTime(lastUpdated.toDate());
+                    Calendar calNow = Calendar.getInstance();
+                    
+                    isNewDay = calLast.get(Calendar.YEAR) != calNow.get(Calendar.YEAR)
+                            || calLast.get(Calendar.DAY_OF_YEAR) != calNow.get(Calendar.DAY_OF_YEAR);
+                }
+                if (isNewDay) {
+                    streakCount++;
+                    updates.put("streakCount", streakCount);
+                    updates.put("userAPostedToday", false);
+                    updates.put("userBPostedToday", false);
+                    updates.put("lastUpdated", FieldValue.serverTimestamp());
+                } else {
+                    updates.put("streakCount", streakCount);
+                }
+            } else {
+                updates.put("streakCount", streakCount);
+                if (lastUpdated == null) {
+                    updates.put("lastUpdated", FieldValue.serverTimestamp());
+                }
+            }
 
             if (!doc.exists()) {
-                data.put("participants", Arrays.asList(senderUid, receiverUid));
-                data.put("streakCount", 1L);
-                data.put("lastPhotoAt", FieldValue.serverTimestamp());
-                data.put(senderUid + "_sent", true);
-                data.put(receiverUid + "_sent", false);
-                transaction.set(ref, data);
-                return null;
-            }
-
-            Timestamp last = doc.getTimestamp("lastPhotoAt");
-            long hoursAgo = last != null
-                ? (System.currentTimeMillis() - last.toDate().getTime()) / 3_600_000L : 999L;
-            long current = doc.getLong("streakCount") != null ? doc.getLong("streakCount") : 0L;
-            boolean otherSent = Boolean.TRUE.equals(doc.getBoolean(receiverUid + "_sent"));
-
-            if (hoursAgo > 48) {
-                data.put("streakCount", 1L);
-                data.put(senderUid + "_sent", true);
-                data.put(receiverUid + "_sent", false);
-            } else if (otherSent) {
-                data.put("streakCount", current + 1);
-                data.put(senderUid + "_sent", false);
-                data.put(receiverUid + "_sent", false);
+                transaction.set(ref, updates);
             } else {
-                data.put(senderUid + "_sent", true);
+                transaction.update(ref, updates);
             }
-            data.put("lastPhotoAt", FieldValue.serverTimestamp());
-            transaction.update(ref, data);
             return null;
         });
     }
@@ -62,6 +100,8 @@ public class StreakHelper {
                 if (doc != null && doc.exists()) {
                     Long count = doc.getLong("streakCount");
                     onUpdate.accept(count != null ? count : 0L);
+                } else {
+                    onUpdate.accept(0L);
                 }
             });
     }
