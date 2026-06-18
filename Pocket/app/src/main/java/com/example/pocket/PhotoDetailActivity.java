@@ -118,8 +118,12 @@ public class PhotoDetailActivity extends AppCompatActivity {
         if (photo == null) return;
         com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestPhotoUrl(photo.getImageUrl());
         com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestSenderName(photo.getSenderName());
+        long timestampMillis = photo.getCreatedAt() == null
+                ? System.currentTimeMillis()
+                : photo.getCreatedAt().toDate().getTime();
+        com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestPhotoTimestamp(timestampMillis);
         Intent updateWidgetIntent = new Intent(this, com.example.pocket.widget.PocketWidgetProvider.class);
-        updateWidgetIntent.setAction("WIDGET_UPDATE");
+        updateWidgetIntent.setAction(com.example.pocket.widget.PocketWidgetProvider.ACTION_WIDGET_UPDATE);
         sendBroadcast(updateWidgetIntent);
         // Load image
         Glide.with(this)

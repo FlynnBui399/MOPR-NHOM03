@@ -186,6 +186,10 @@
     <string name="add_friend_sent">Sent</string>
     <string name="add_friend_not_found">User not found.</string>
     <string name="add_friend_request_failed">Unable to send request.</string>
+    <string name="pocket_widget_name">Pocket Moment</string>
+    <string name="widget_description">Shows the latest Pocket photo on your home screen.</string>
+    <string name="widget_empty_message">Waiting for a photo</string>
+    <string name="widget_empty_hint">Open app</string>
     <string name="notification_channel_messages">Messages</string>
     <string name="notification_channel_messages_description">New Pocket chat messages</string>
 </resources>
