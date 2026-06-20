@@ -13,6 +13,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.pocket.utils.Constants;
+import com.example.pocket.widget.PocketWidgetProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -49,13 +50,7 @@ public class PocketMessagingService extends FirebaseMessagingService {
         // Locket clone feature: Auto update widget if notification contains a photo
         String imageUrl = valueOrDefault(data.get("imageUrl"), data.get("photoUrl"));
         if (!imageUrl.isEmpty()) {
-            com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestPhotoUrl(imageUrl);
-            com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestSenderName(senderName);
-            com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestPhotoTimestamp(System.currentTimeMillis());
-
-            Intent updateWidgetIntent = new Intent(this, com.example.pocket.widget.PocketWidgetProvider.class);
-            updateWidgetIntent.setAction(com.example.pocket.widget.PocketWidgetProvider.ACTION_WIDGET_UPDATE);
-            sendBroadcast(updateWidgetIntent);
+            PocketWidgetProvider.updateLatestPhoto(this, imageUrl, senderName, System.currentTimeMillis());
         }
 
         showMessageNotification(senderName, body, friendUid, avatarUrl);

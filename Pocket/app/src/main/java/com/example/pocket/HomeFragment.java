@@ -79,6 +79,7 @@ import com.example.pocket.utils.ImageUtils;
 import com.example.pocket.utils.SharedPrefManager;
 import com.example.pocket.viewmodel.CameraViewModel;
 import com.example.pocket.viewmodel.FeedViewModel;
+import com.example.pocket.widget.PocketWidgetProvider;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -557,6 +558,7 @@ public class HomeFragment extends Fragment {
             suggestCaptionButton.setEnabled(!loading);
 
             if (status.getState() == CameraViewModel.UploadStatus.State.SUCCESS) {
+                PocketWidgetProvider.updateLatestPhoto(requireContext(), status.getPhoto());
                 Toast.makeText(requireContext(), R.string.camera_upload_success,
                         Toast.LENGTH_SHORT).show();
                 resetCapture();
@@ -634,6 +636,9 @@ public class HomeFragment extends Fragment {
             visiblePhotos.addAll(allTimelinePhotos);
         }
         timelineCount = visiblePhotos.size();
+        if (!allTimelinePhotos.isEmpty()) {
+            PocketWidgetProvider.updateLatestPhoto(requireContext(), allTimelinePhotos.get(0));
+        }
         updateUnseenCount();
         updateTopBar();
         historyAdapter.submitList(visiblePhotos,

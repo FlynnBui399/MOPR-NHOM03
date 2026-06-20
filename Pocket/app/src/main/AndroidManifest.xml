@@ -78,7 +78,7 @@
             android:label="@string/pocket_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="WIDGET_UPDATE" />
+                <action android:name="com.example.pocket.action.WIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.AppWidgetTarget;
 import com.example.pocket.MainActivity;
 import com.example.pocket.R;
+import com.example.pocket.data.model.Photo;
 import com.example.pocket.utils.SharedPrefManager;
 
 import java.text.SimpleDateFormat;
@@ -23,7 +24,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class PocketWidgetProvider extends AppWidgetProvider {
-    public static final String ACTION_WIDGET_UPDATE = "WIDGET_UPDATE";
+    public static final String ACTION_WIDGET_UPDATE = "com.example.pocket.action.WIDGET_UPDATE";
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager,
@@ -40,6 +41,48 @@ public class PocketWidgetProvider extends AppWidgetProvider {
                     new ComponentName(context, PocketWidgetProvider.class));
             updateWidgets(context, appWidgetManager, appWidgetIds);
         }
+    }
+
+    public static void updateLatestPhoto(@NonNull Context context, @Nullable Photo photo) {
+        if (photo == null) {
+            return;
+        }
+        String imageUrl = firstNonEmpty(photo.getImageUrl(), photo.getThumbnailUrl());
+        if (imageUrl.isEmpty()) {
+            return;
+        }
+        SharedPrefManager sharedPrefManager = SharedPrefManager.getInstance(context);
+        sharedPrefManager.setLatestPhotoUrl(imageUrl);
+        sharedPrefManager.setLatestSenderName(photo.getSenderName());
+        long timestampMillis = photo.getCreatedAt() == null
+                ? System.currentTimeMillis()
+                : photo.getCreatedAt().toDate().getTime();
+        sharedPrefManager.setLatestPhotoTimestamp(timestampMillis);
+        requestUpdate(context);
+    }
+
+    public static void updateLatestPhoto(@NonNull Context context,
+                                         @Nullable String imageUrl,
+                                         @Nullable String senderName,
+                                         long timestampMillis) {
+        String safeImageUrl = firstNonEmpty(imageUrl);
+        if (safeImageUrl.isEmpty()) {
+            return;
+        }
+        SharedPrefManager sharedPrefManager = SharedPrefManager.getInstance(context);
+        sharedPrefManager.setLatestPhotoUrl(safeImageUrl);
+        sharedPrefManager.setLatestSenderName(senderName);
+        sharedPrefManager.setLatestPhotoTimestamp(timestampMillis > 0L
+                ? timestampMillis
+                : System.currentTimeMillis());
+        requestUpdate(context);
+    }
+
+    public static void requestUpdate(@NonNull Context context) {
+        Intent updateWidgetIntent = new Intent(context, PocketWidgetProvider.class);
+        updateWidgetIntent.setAction(ACTION_WIDGET_UPDATE);
+        updateWidgetIntent.setPackage(context.getPackageName());
+        context.sendBroadcast(updateWidgetIntent);
     }
 
     private static void updateWidgets(Context context, AppWidgetManager appWidgetManager,
@@ -106,5 +149,18 @@ public class PocketWidgetProvider extends AppWidgetProvider {
     private static String formatWidgetTime(long timestampMillis) {
         long safeTimestamp = timestampMillis > 0L ? timestampMillis : System.currentTimeMillis();
         return new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date(safeTimestamp));
+    }
+
+    @NonNull
+    private static String firstNonEmpty(@Nullable String... values) {
+        if (values == null) {
+            return "";
+        }
+        for (String value : values) {
+            if (value != null && !value.trim().isEmpty()) {
+                return value.trim();
+            }
+        }
+        return "";
     }
 }

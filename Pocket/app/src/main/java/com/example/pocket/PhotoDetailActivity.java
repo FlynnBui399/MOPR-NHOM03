@@ -23,6 +23,7 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.pocket.data.model.Photo;
 import com.example.pocket.viewmodel.FeedViewModel;
+import com.example.pocket.widget.PocketWidgetProvider;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.ortiz.touchview.TouchImageView;
 
@@ -116,15 +117,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
     private void displayPhoto(Photo photo) {
         if (photo == null) return;
-        com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestPhotoUrl(photo.getImageUrl());
-        com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestSenderName(photo.getSenderName());
-        long timestampMillis = photo.getCreatedAt() == null
-                ? System.currentTimeMillis()
-                : photo.getCreatedAt().toDate().getTime();
-        com.example.pocket.utils.SharedPrefManager.getInstance(this).setLatestPhotoTimestamp(timestampMillis);
-        Intent updateWidgetIntent = new Intent(this, com.example.pocket.widget.PocketWidgetProvider.class);
-        updateWidgetIntent.setAction(com.example.pocket.widget.PocketWidgetProvider.ACTION_WIDGET_UPDATE);
-        sendBroadcast(updateWidgetIntent);
+        PocketWidgetProvider.updateLatestPhoto(this, photo);
         // Load image
         Glide.with(this)
                 .load(photo.getImageUrl())
