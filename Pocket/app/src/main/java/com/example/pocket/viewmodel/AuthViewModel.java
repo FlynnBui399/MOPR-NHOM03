@@ -246,6 +246,7 @@ public class AuthViewModel extends AndroidViewModel {
                                         if (user != null) {
                                             user.setId(updatedSnapshot.getId());
                                             currentUser.setValue(user);
+                                            SharedPrefManager.getInstance(getApplication()).saveUser(user);
                                         }
                                     })
                                     .addOnFailureListener(error ->

@@ -819,7 +819,7 @@ public class HomeFragment extends Fragment {
             suggestCaptionButton.setEnabled(!loading);
 
             if (status.getState() == CameraViewModel.UploadStatus.State.SUCCESS) {
-                PocketWidgetProvider.updateLatestPhoto(requireContext(), status.getPhoto());
+                updateWidgetWithPhoto(status.getPhoto());
                 Toast.makeText(requireContext(), R.string.camera_upload_success,
                         Toast.LENGTH_SHORT).show();
                 resetCapture();
@@ -904,7 +904,7 @@ public class HomeFragment extends Fragment {
         }
         timelineCount = visiblePhotos.size();
         if (!allTimelinePhotos.isEmpty()) {
-            PocketWidgetProvider.updateLatestPhoto(requireContext(), allTimelinePhotos.get(0));
+            updateWidgetWithPhoto(allTimelinePhotos.get(0));
         }
         updateUnseenCount();
         updateTopBar();
@@ -1840,6 +1840,9 @@ public class HomeFragment extends Fragment {
         }
         friends.clear();
         friends.addAll(loadedFriends);
+        if (!allTimelinePhotos.isEmpty()) {
+            updateWidgetWithPhoto(allTimelinePhotos.get(0));
+        }
         updateCameraRecipientPill();
         if (recipientSelectionAdapter != null) {
             recipientSelectionAdapter.submitFriends(friends);
@@ -2258,6 +2261,43 @@ public class HomeFragment extends Fragment {
         dialog.show();
     }
 
+    private void updateWidgetWithPhoto(@Nullable Photo photo) {
+        if (photo == null) {
+            return;
+        }
+        String imageUrl = photo.getImageUrl();
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            imageUrl = photo.getThumbnailUrl();
+        }
+        long timestampMillis = photo.getCreatedAt() == null
+                ? System.currentTimeMillis()
+                : photo.getCreatedAt().toDate().getTime();
+        PocketWidgetProvider.updateLatestPhoto(requireContext(), imageUrl,
+                displayNameForWidgetPhoto(photo), timestampMillis);
+    }
+
+    @Nullable
+    private String displayNameForWidgetPhoto(@NonNull Photo photo) {
+        if (isRealDisplayName(photo.getSenderName())) {
+            return photo.getSenderName().trim();
+        }
+        String senderId = photo.getSenderId();
+        if (senderId != null && senderId.equals(currentUserId())) {
+            return currentUserName();
+        }
+        for (User friend : friends) {
+            if (senderId != null && senderId.equals(friend.getId())) {
+                if (isRealDisplayName(friend.getDisplayName())) {
+                    return friend.getDisplayName().trim();
+                }
+                if (friend.getUsername() != null && !friend.getUsername().trim().isEmpty()) {
+                    return friend.getUsername().trim();
+                }
+            }
+        }
+        return null;
+    }
+
     @NonNull
     private String currentUserId() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -2266,17 +2306,36 @@ public class HomeFragment extends Fragment {
 
     @NonNull
     private String currentUserName() {
+        SharedPrefManager sharedPrefManager = SharedPrefManager.getInstance(requireContext());
+        String savedDisplayName = sharedPrefManager.getDisplayName();
+        if (isRealDisplayName(savedDisplayName)) {
+            return savedDisplayName.trim();
+        }
+        String savedUsername = sharedPrefManager.getUsername();
+        if (savedUsername != null && !savedUsername.trim().isEmpty()) {
+            return savedUsername.trim();
+        }
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             return getString(R.string.camera_default_user);
         }
-        if (user.getDisplayName() != null && !user.getDisplayName().trim().isEmpty()) {
-            return user.getDisplayName();
+        if (isRealDisplayName(user.getDisplayName())) {
+            return user.getDisplayName().trim();
         }
         if (user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
             return user.getEmail();
         }
         return getString(R.string.camera_default_user);
+    }
+
+    private boolean isRealDisplayName(@Nullable String displayName) {
+        if (displayName == null || displayName.trim().isEmpty()) {
+            return false;
+        }
+        String trimmed = displayName.trim();
+        return !trimmed.equals(getString(R.string.camera_default_user))
+                && !"Pocket User".equals(trimmed);
     }
 
     @Override

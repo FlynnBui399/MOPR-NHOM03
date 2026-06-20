@@ -13,6 +13,7 @@ public class SharedPrefManager {
     private static final String PREF_NAME = "pocket_user_prefs";
     private static final String KEY_UID = "uid";
     private static final String KEY_DISPLAY_NAME = "displayName";
+    private static final String KEY_USERNAME = "username";
     private static final String KEY_PHONE_NUMBER = "phoneNumber";
     private static final String KEY_AVATAR_URL = "avatarUrl";
     private static final String KEY_THEME_MODE = "theme_mode";
@@ -41,6 +42,7 @@ public class SharedPrefManager {
         preferences.edit()
                 .putString(KEY_UID, user.getId())
                 .putString(KEY_DISPLAY_NAME, user.getDisplayName())
+                .putString(KEY_USERNAME, user.getUsername())
                 .putString(KEY_PHONE_NUMBER, user.getPhoneNumber())
                 .putString(KEY_AVATAR_URL, user.getAvatarUrl())
                 .apply();
@@ -53,6 +55,16 @@ public class SharedPrefManager {
     @Nullable
     public String getAvatarUrl() {
         return preferences.getString(KEY_AVATAR_URL, null);
+    }
+
+    @Nullable
+    public String getDisplayName() {
+        return preferences.getString(KEY_DISPLAY_NAME, null);
+    }
+
+    @Nullable
+    public String getUsername() {
+        return preferences.getString(KEY_USERNAME, null);
     }
 
     public void setThemeMode(int mode) {
