@@ -49,6 +49,8 @@
     <string name="camera_upload_error">Unable to send photo</string>
     <string name="camera_start_failed">Camera is temporarily unavailable.</string>
     <string name="camera_capture_failed">Unable to capture photo.</string>
+    <string name="camera_not_ready">Camera is not ready yet.</string>
+    <string name="camera_video_unavailable">Video is unavailable on this camera.</string>
     <string name="camera_default_user">Pocket User</string>
     <string name="photo_send_no_friend">Choose at least one friend.</string>
     <string name="camera_friends">Friends</string>

@@ -54,22 +54,17 @@ public class GeminiServiceTest {
     }
 
     @Test
-    public void parseCaptions_appliesGenericCaptionFilter_keepsUpToTwo() {
-        // Here we pass 3 generic captions and 2 non-generic captions:
-        // Generic: "một chút hôm nay", "vừa chụp nè", "hôm nay thật vui"
-        // Non-generic: "Món này ngon ghê", "Ăn thôi cả nhà"
-        // The filter should keep at most 2 generic captions, so it will keep the first two,
-        // and keep both non-generic ones, yielding 4 captions in total.
+    public void parseCaptions_preservesThreeSpecificAndOneGeneric() {
         List<String> parsed = GeminiService.parseCaptions(
-                "[\"một chút hôm nay\",\"Món này ngon ghê\",\"vừa chụp nè\",\"hôm nay thật vui\",\"Ăn thôi cả nhà\"]");
-        
-        // Assert size is 4
+                "{\"imageSpecific\":[\"G\",\"Chó 3\",\"Mèo ngồi ngắm\","
+                        + "\"ly cà phê trên bàn\",\"góc phòng đầy nắng\","
+                        + "\"chiếc ghế trông thật êm\"],"
+                        + "\"generic\":\"một chút hôm nay\"}");
+
         assertEquals(4, parsed.size());
-        
-        // Verify it kept the first two generic ones and the non-generic ones
-        assertTrue(parsed.contains("Món này ngon ghê"));
-        assertTrue(parsed.contains("Ăn thôi cả nhà"));
-        assertTrue(parsed.contains("một chút hôm nay"));
-        assertTrue(parsed.contains("vừa chụp nè"));
+        assertEquals("Ly cà phê trên bàn", parsed.get(0));
+        assertEquals("Góc phòng đầy nắng", parsed.get(1));
+        assertEquals("Chiếc ghế trông thật êm", parsed.get(2));
+        assertEquals("Một chút hôm nay", parsed.get(3));
     }
 }

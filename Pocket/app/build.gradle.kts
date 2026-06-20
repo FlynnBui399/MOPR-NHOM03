@@ -14,6 +14,11 @@ fun secretString(name: String): String {
     return "\"$value\""
 }
 
+fun secretString(name: String, defaultValue: String): String {
+    val value = secrets[name]?.toString().orEmpty().trim().trim('"')
+    return "\"${value.ifBlank { defaultValue }}\""
+}
+
 android {
     namespace = "com.example.pocket"
     compileSdk {
@@ -38,6 +43,7 @@ android {
         buildConfigField("String", "CLOUDINARY_CLOUD_NAME", secretString("CLOUDINARY_CLOUD_NAME"))
         buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", secretString("CLOUDINARY_UPLOAD_PRESET"))
         buildConfigField("String", "GEMINI_API_KEY", secretString("GEMINI_API_KEY"))
+        buildConfigField("String", "GEMINI_MODEL", secretString("GEMINI_MODEL", "gemini-2.5-flash"))
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", secretString("GOOGLE_WEB_CLIENT_ID"))
 }
     buildTypes {

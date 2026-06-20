@@ -112,6 +112,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
+    private static final String TAG_CAMERA = "PocketCamera";
+    private static final String TAG_AI = "PocketAI";
     private static final String STATE_HOME_PAGE = "home_page";
     private static final String STATE_HOME_POST_ID = "home_post_id";
 
@@ -151,6 +153,12 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore firestore;
     private ExecutorService cameraExecutor;
     private ImageCapture imageCapture;
+    private ProcessCameraProvider cameraProvider;
+    private boolean cameraBound;
+    private boolean cameraBinding;
+    private int cameraBindGeneration;
+    private int boundLensFacing = -1;
+    private boolean boundVideoMode;
     private androidx.camera.video.VideoCapture<androidx.camera.video.Recorder> videoCapture;
     private androidx.camera.video.Recording activeRecording;
     private boolean isRecordingVideo = false;
@@ -216,9 +224,13 @@ public class HomeFragment extends Fragment {
 
     private final ActivityResultLauncher<String> cameraPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                Log.d(TAG_CAMERA, "Camera permission result: granted=" + granted
+                        + ", fragmentAdded=" + isAdded());
                 if (granted) {
+                    Log.d(TAG_CAMERA, "Camera permission granted; calling startCamera()");
                     startCamera();
                 } else if (isAdded()) {
+                    Log.e(TAG_CAMERA, "Camera permission denied");
                     Toast.makeText(requireContext(), R.string.camera_permission_required,
                             Toast.LENGTH_LONG).show();
                 }
@@ -251,12 +263,15 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        Log.d(TAG_CAMERA, "HomeFragment.onCreateView");
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG_CAMERA, "HomeFragment.onViewCreated: savedState="
+                + (savedInstanceState != null));
         firestore = FirebaseFirestore.getInstance();
         cameraExecutor = Executors.newSingleThreadExecutor();
         cameraViewModel = new ViewModelProvider(this).get(CameraViewModel.class);
@@ -600,6 +615,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void bindCameraPage(@NonNull View view) {
+        Log.d(TAG_CAMERA, "Binding camera page/view");
         previewView = view.findViewById(R.id.camera_preview);
 
         // Pinch-to-zoom (Issue 3)
@@ -642,6 +658,9 @@ public class HomeFragment extends Fragment {
         historyCount = view.findViewById(R.id.history_count);
         historyCount.setText(String.valueOf(timelineCount));
         videoRecordProgress = view.findViewById(R.id.video_record_progress);
+        Log.d(TAG_CAMERA, "Camera views bound: previewView=" + (previewView != null)
+                + ", captureButton=" + (captureButton != null)
+                + ", capturedImageView=" + (capturedImageView != null));
 
         modeToggle = view.findViewById(R.id.modeToggle);
         btnModePhoto = view.findViewById(R.id.btnModePhoto);
@@ -684,8 +703,10 @@ public class HomeFragment extends Fragment {
 
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG_CAMERA, "Camera permission already granted; calling startCamera()");
             startCamera();
         } else {
+            Log.d(TAG_CAMERA, "Camera permission missing; requesting CAMERA permission");
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
         }
     }
@@ -702,6 +723,10 @@ public class HomeFragment extends Fragment {
 
         // Click to take photo
         captureButton.setOnClickListener(view -> {
+            Log.d(TAG_CAMERA, "Capture button clicked: homeMode=" + homeMode
+                    + ", isVideoMode=" + isVideoMode
+                    + ", capturedPreviewActive=" + (capturedJpegBytes != null)
+                    + ", imageCaptureNull=" + (imageCapture == null));
             if (!isVideoMode) {
                 capturePhoto();
             }
@@ -759,7 +784,13 @@ public class HomeFragment extends Fragment {
         savePhotoButton.setOnClickListener(view -> saveCapturedPhoto());
         historyHeader.setOnClickListener(view -> scrollToHistory());
         suggestCaptionButton.setOnClickListener(view -> {
+            Log.d(TAG_AI, "AI suggestion tapped: capturedBytesPresent="
+                    + (capturedJpegBytes != null)
+                    + ", byteLength=" + (capturedJpegBytes == null ? 0 : capturedJpegBytes.length)
+                    + ", imagePathAvailable=false, imageUriAvailable=false"
+                    + ", fileExists=N/A, source=in-memory JPEG, mimeType=image/jpeg");
             if (capturedJpegBytes == null) {
+                Log.e(TAG_AI, "AI suggestion aborted: captured image bytes are missing");
                 return;
             }
             waitingForCaptionOptions = true;
@@ -815,6 +846,12 @@ public class HomeFragment extends Fragment {
             String modelName = Constants.GEMINI_CAPTION_MODEL;
             boolean isApiKeyPresent = Constants.GEMINI_API_KEY != null && !Constants.GEMINI_API_KEY.trim().isEmpty();
             String errorMsg = suggestion.getErrorMessage();
+
+            Log.d(TAG_AI, "Caption result delivered to UI: source=" + source
+                    + ", captionCount=" + numCaptions
+                    + ", model=" + modelName
+                    + ", apiKeyPresent=" + isApiKeyPresent
+                    + ", fallbackReason=" + (errorMsg == null ? "none" : errorMsg));
 
             android.util.Log.d("CaptionDisplay", "--- Suggest Caption Metrics ---");
             android.util.Log.d("CaptionDisplay", "Source: " + source);
@@ -931,6 +968,7 @@ public class HomeFragment extends Fragment {
             homeMode = HomeMode.CAMERA;
             updateTopBar();
             homePager.setCurrentItem(0, true);
+            homePager.post(this::ensureCameraReady);
         }
     }
 
@@ -959,6 +997,9 @@ public class HomeFragment extends Fragment {
             updateModeForPage(target);
             markVisiblePostSeen(target);
             homeTabActive = true;
+            if (target == 0) {
+                ensureCameraReady();
+            }
         });
     }
 
@@ -1253,51 +1294,163 @@ public class HomeFragment extends Fragment {
     }
 
     private void startCamera() {
+        final boolean requestedVideoMode = isVideoMode;
+        final int requestedLensFacing = lensFacing;
+        Log.d(TAG_CAMERA, "startCamera() called: fragmentAdded=" + isAdded()
+                + ", previewViewNull=" + (previewView == null)
+                + ", lensFacing=" + lensFacingName()
+                + ", mode=" + (requestedVideoMode ? "VIDEO" : "PHOTO")
+                + ", cameraBound=" + cameraBound
+                + ", cameraBinding=" + cameraBinding);
         if (!isAdded() || previewView == null) {
+            Log.e(TAG_CAMERA, "startCamera() aborted: fragment/view is not ready");
             return;
         }
+        boolean expectedUseCaseReady = requestedVideoMode
+                ? videoCapture != null : imageCapture != null;
+        if (cameraBound && camera != null && expectedUseCaseReady
+                && boundLensFacing == requestedLensFacing
+                && boundVideoMode == requestedVideoMode) {
+            Log.d(TAG_CAMERA, "Camera already bound for current lens/mode; skipping duplicate bind");
+            return;
+        }
+
+        final int bindGeneration = ++cameraBindGeneration;
+        cameraBinding = true;
         PreviewView activePreviewView = previewView;
+        Log.d(TAG_CAMERA, "Requesting ProcessCameraProvider: generation=" + bindGeneration);
         ListenableFuture<ProcessCameraProvider> providerFuture =
                 ProcessCameraProvider.getInstance(requireContext());
         providerFuture.addListener(() -> {
+            if (bindGeneration != cameraBindGeneration) {
+                Log.d(TAG_CAMERA, "Ignoring stale camera bind callback: generation="
+                        + bindGeneration + ", current=" + cameraBindGeneration);
+                return;
+            }
             if (!isAdded() || getView() == null || previewView != activePreviewView
                     || !getViewLifecycleOwner().getLifecycle().getCurrentState()
                     .isAtLeast(Lifecycle.State.STARTED)) {
+                cameraBinding = false;
+                Log.e(TAG_CAMERA, "Camera provider callback ignored: view/lifecycle no longer active");
                 return;
             }
             try {
                 ProcessCameraProvider provider = providerFuture.get();
+                cameraProvider = provider;
+                Log.d(TAG_CAMERA, "ProcessCameraProvider available: generation=" + bindGeneration);
                 Preview preview = new Preview.Builder().build();
-                imageCapture = new ImageCapture.Builder()
-                        .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                        .setFlashMode(flashEnabled
-                                ? ImageCapture.FLASH_MODE_ON
-                                : ImageCapture.FLASH_MODE_OFF)
-                        .build();
-                
-                androidx.camera.video.Recorder recorder = new androidx.camera.video.Recorder.Builder()
-                        .setExecutor(ContextCompat.getMainExecutor(requireContext()))
-                        .setQualitySelector(androidx.camera.video.QualitySelector.from(androidx.camera.video.Quality.SD))
-                        .setTargetVideoEncodingBitRate(4000000)
-                        .build();
-                videoCapture = androidx.camera.video.VideoCapture.withOutput(recorder);
+                Log.d(TAG_CAMERA, "Preview use case created=" + (preview != null));
+                ImageCapture newImageCapture = null;
+                androidx.camera.video.VideoCapture<androidx.camera.video.Recorder>
+                        newVideoCapture = null;
+
+                if (requestedVideoMode) {
+                    androidx.camera.video.QualitySelector qualitySelector =
+                            androidx.camera.video.QualitySelector.fromOrderedList(
+                                    java.util.Arrays.asList(
+                                            androidx.camera.video.Quality.HD,
+                                            androidx.camera.video.Quality.SD),
+                                    androidx.camera.video.FallbackStrategy
+                                            .lowerQualityOrHigherThan(androidx.camera.video.Quality.SD));
+                    androidx.camera.video.Recorder recorder =
+                            new androidx.camera.video.Recorder.Builder()
+                                    .setExecutor(ContextCompat.getMainExecutor(requireContext()))
+                                    .setQualitySelector(qualitySelector)
+                                    .setTargetVideoEncodingBitRate(4000000)
+                                    .build();
+                    newVideoCapture = androidx.camera.video.VideoCapture.withOutput(recorder);
+                    Log.d(TAG_CAMERA, "VideoCapture use case created with HD/SD fallback");
+                } else {
+                    newImageCapture = new ImageCapture.Builder()
+                            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                            .setFlashMode(flashEnabled
+                                    ? ImageCapture.FLASH_MODE_ON
+                                    : ImageCapture.FLASH_MODE_OFF)
+                            .build();
+                    Log.d(TAG_CAMERA, "ImageCapture use case created="
+                            + (newImageCapture != null) + ", flashEnabled=" + flashEnabled);
+                }
 
                 CameraSelector selector = new CameraSelector.Builder()
-                        .requireLensFacing(lensFacing)
+                        .requireLensFacing(requestedLensFacing)
                         .build();
+                Log.d(TAG_CAMERA, "Camera selector created: lensFacing="
+                        + (requestedLensFacing == CameraSelector.LENS_FACING_FRONT
+                        ? "FRONT" : "BACK"));
 
+                cameraBound = false;
+                imageCapture = null;
+                videoCapture = null;
+                camera = null;
+                Log.d(TAG_CAMERA, "Calling unbindAll(); shared use cases cleared");
                 provider.unbindAll();
-                camera = provider.bindToLifecycle(getViewLifecycleOwner(), selector,
-                        preview, imageCapture, videoCapture);
-                if (previewView != activePreviewView) {
+
+                preview.setSurfaceProvider(activePreviewView.getSurfaceProvider());
+                Camera newCamera;
+                if (requestedVideoMode) {
+                    Log.d(TAG_CAMERA, "Binding VIDEO mode use cases: Preview + VideoCapture");
+                    newCamera = provider.bindToLifecycle(getViewLifecycleOwner(), selector,
+                            preview, newVideoCapture);
+                } else {
+                    Log.d(TAG_CAMERA, "Binding PHOTO mode use cases: Preview + ImageCapture");
+                    newCamera = provider.bindToLifecycle(getViewLifecycleOwner(), selector,
+                            preview, newImageCapture);
+                }
+                if (bindGeneration != cameraBindGeneration) {
+                    Log.d(TAG_CAMERA, "Camera bind became stale after bindToLifecycle; unbinding generation="
+                            + bindGeneration);
+                    if (requestedVideoMode) {
+                        provider.unbind(preview, newVideoCapture);
+                    } else {
+                        provider.unbind(preview, newImageCapture);
+                    }
                     return;
                 }
-                preview.setSurfaceProvider(activePreviewView.getSurfaceProvider());
+
+                camera = newCamera;
+                imageCapture = newImageCapture;
+                videoCapture = newVideoCapture;
+                boundLensFacing = requestedLensFacing;
+                boundVideoMode = requestedVideoMode;
+                cameraBound = true;
+                cameraBinding = false;
+                Log.d(TAG_CAMERA, "bindToLifecycle succeeded: mode="
+                        + (requestedVideoMode ? "VIDEO" : "PHOTO")
+                        + ", cameraNull=" + (camera == null)
+                        + ", imageCaptureNull=" + (imageCapture == null)
+                        + ", videoCaptureNull=" + (videoCapture == null)
+                        + ", cameraBound=" + cameraBound);
+                if (previewView != activePreviewView) {
+                    Log.e(TAG_CAMERA, "Preview view changed after camera binding; skipping surface provider");
+                    return;
+                }
+                Log.d(TAG_CAMERA, "Preview surface provider attached; final imageCaptureNull="
+                        + (imageCapture == null) + ", videoCaptureNull="
+                        + (videoCapture == null) + ", cameraBound=" + cameraBound);
                 if (flashButton != null) {
                     applyFlashMode();
                 }
                 cameraErrorShown = false;
             } catch (Exception exception) {
+                if (bindGeneration == cameraBindGeneration) {
+                    cameraBinding = false;
+                    cameraBound = false;
+                    boundVideoMode = false;
+                    imageCapture = null;
+                    videoCapture = null;
+                    camera = null;
+                }
+                if (requestedVideoMode && bindGeneration == cameraBindGeneration) {
+                    Log.e(TAG_CAMERA, "Video mode unavailable; returning to photo mode. Reason="
+                            + exception.getMessage(), exception);
+                    if (isAdded()) {
+                        Toast.makeText(requireContext(), R.string.camera_video_unavailable,
+                                Toast.LENGTH_SHORT).show();
+                        setCameraMode(false);
+                    }
+                    return;
+                }
+                Log.e(TAG_CAMERA, "bindToLifecycle/startCamera failed", exception);
                 Log.e(TAG, "Unable to start CameraX preview", exception);
                 if (!cameraErrorShown && isAdded() && isResumed()
                         && homeMode == HomeMode.CAMERA) {
@@ -1309,25 +1462,71 @@ public class HomeFragment extends Fragment {
         }, ContextCompat.getMainExecutor(requireContext()));
     }
 
+    private void ensureCameraReady() {
+        boolean expectedUseCaseReady = isVideoMode
+                ? videoCapture != null : imageCapture != null;
+        if (!cameraBound || camera == null || !expectedUseCaseReady
+                || boundLensFacing != lensFacing || boundVideoMode != isVideoMode) {
+            Log.d(TAG_CAMERA, "Camera is not ready; requesting a fresh bind");
+            startCamera();
+        }
+    }
+
+    @NonNull
+    private String lensFacingName() {
+        return lensFacing == CameraSelector.LENS_FACING_FRONT ? "FRONT" : "BACK";
+    }
+
     private void capturePhoto() {
-        if (imageCapture == null) {
+        Log.d(TAG_CAMERA, "capturePhoto() entered: imageCaptureNull=" + (imageCapture == null)
+                + ", cameraBound=" + cameraBound
+                + ", cameraBinding=" + cameraBinding
+                + ", homeMode=" + homeMode + ", isVideoMode=" + isVideoMode);
+        if (imageCapture == null || !cameraBound || camera == null) {
+            Log.e(TAG_CAMERA, "Capture aborted: camera/ImageCapture is not currently bound");
+            ensureCameraReady();
+            Toast.makeText(requireContext(), R.string.camera_not_ready,
+                    Toast.LENGTH_SHORT).show();
             return;
         }
+        ImageCapture activeImageCapture = imageCapture;
         captureButton.setLoading(true);
-        File outputFile = new File(requireContext().getCacheDir(),
-                "pocket-capture-" + System.currentTimeMillis() + ".jpg");
+        File outputFile;
+        try {
+            Log.d(TAG_CAMERA, "Creating temporary capture output file");
+            outputFile = new File(requireContext().getCacheDir(),
+                    "pocket-capture-" + System.currentTimeMillis() + ".jpg");
+            Log.d(TAG_CAMERA, "Capture output path=" + outputFile.getAbsolutePath());
+        } catch (RuntimeException exception) {
+            Log.e(TAG_CAMERA, "Failed to create capture output file", exception);
+            postCaptureError(exception);
+            return;
+        }
         ImageCapture.OutputFileOptions options =
                 new ImageCapture.OutputFileOptions.Builder(outputFile).build();
-        imageCapture.takePicture(options, cameraExecutor,
+        Log.d(TAG_CAMERA, "Calling ImageCapture.takePicture()");
+        activeImageCapture.takePicture(options, cameraExecutor,
                 new ImageCapture.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults results) {
+                        Uri savedUri = results.getSavedUri();
+                        Log.d(TAG_CAMERA, "onImageSaved: savedUri=" + savedUri
+                                + ", outputPath=" + outputFile.getAbsolutePath()
+                                + ", fileExists=" + outputFile.exists()
+                                + ", fileBytes=" + outputFile.length());
                         try {
+                            Log.d(TAG_CAMERA, "Decoding saved capture into Bitmap");
                             Bitmap bitmap = ImageUtils.uriToBitmap(requireContext(),
                                     Uri.fromFile(outputFile));
+                            Log.d(TAG_CAMERA, "Capture Bitmap decoded: bitmapNull=" + (bitmap == null)
+                                    + (bitmap == null ? "" : ", size=" + bitmap.getWidth()
+                                    + "x" + bitmap.getHeight()));
                             byte[] compressed = ImageUtils.compress(bitmap);
+                            Log.d(TAG_CAMERA, "Capture image compressed: bytes=" + compressed.length
+                                    + "; posting captured preview UI");
                             postToView(() -> onPhotoCaptured(bitmap, compressed));
                         } catch (IOException exception) {
+                            Log.e(TAG_CAMERA, "Failed to load saved capture for preview", exception);
                             postCaptureError(exception);
                         } finally {
                             if (outputFile.exists()) {
@@ -1338,6 +1537,16 @@ public class HomeFragment extends Fragment {
 
                     @Override
                     public void onError(@NonNull ImageCaptureException exception) {
+                        Log.e(TAG_CAMERA, "ImageCapture.onError: code="
+                                + exception.getImageCaptureError()
+                                + ", type=" + exception.getClass().getName()
+                                + ", message=" + exception.getMessage()
+                                + ", cause=" + exception.getCause(), exception);
+                        if (exception.getImageCaptureError() == ImageCapture.ERROR_INVALID_CAMERA) {
+                            cameraBound = false;
+                            imageCapture = null;
+                            postToView(HomeFragment.this::ensureCameraReady);
+                        }
                         postCaptureError(exception);
                     }
                 });
@@ -1356,6 +1565,9 @@ public class HomeFragment extends Fragment {
     }
 
     private void postCaptureError(@NonNull Exception exception) {
+        Log.e(TAG_CAMERA, "Capture pipeline failed: type=" + exception.getClass().getName()
+                + ", message=" + exception.getMessage()
+                + ", cause=" + exception.getCause(), exception);
         Log.e(TAG, "Photo capture failed", exception);
         postToView(() -> {
             if (captureButton != null) {
@@ -1373,12 +1585,24 @@ public class HomeFragment extends Fragment {
                     action.run();
                 }
             });
+        } else {
+            Log.e(TAG_CAMERA, "Cannot post capture result: previewView is null");
         }
     }
 
     private void onPhotoCaptured(@NonNull Bitmap bitmap, @NonNull byte[] compressed) {
+        Log.d(TAG_CAMERA, "onPhotoCaptured: bitmap=" + bitmap.getWidth() + "x"
+                + bitmap.getHeight() + ", compressedBytes=" + compressed.length
+                + ", capturedImageViewNull=" + (capturedImageView == null));
         capturedJpegBytes = compressed;
-        capturedImageView.setImageBitmap(bitmap);
+        try {
+            capturedImageView.setImageBitmap(bitmap);
+            Log.d(TAG_CAMERA, "Captured bitmap loaded into preview ImageView");
+        } catch (RuntimeException exception) {
+            Log.e(TAG_CAMERA, "Failed to load captured bitmap into preview ImageView", exception);
+            postCaptureError(exception);
+            return;
+        }
         capturedImageView.setVisibility(View.VISIBLE);
         captionPanel.setVisibility(View.VISIBLE);
         captionInputLayout.setVisibility(View.VISIBLE);
@@ -1401,9 +1625,15 @@ public class HomeFragment extends Fragment {
         captureRecipientList.scrollToPosition(0);
         centerCaptureRecipients();
         updateTopBar();
+        Log.d(TAG_CAMERA, "Switched to captured preview/send UI: capturedBytesPresent="
+                + (capturedJpegBytes != null));
     }
 
     private void resetCapture() {
+        resetCapture(true);
+    }
+
+    private void resetCapture(boolean ensureCameraBound) {
         if (videoPreviewPlayer != null) {
             videoPreviewPlayer.stop();
             videoPreviewPlayer.release();
@@ -1459,7 +1689,9 @@ public class HomeFragment extends Fragment {
         }
         homeMode = HomeMode.CAMERA;
         updateTopBar();
-        startCamera();
+        if (ensureCameraBound) {
+            ensureCameraReady();
+        }
     }
 
     private void hideKeyboard(@NonNull View view) {
@@ -1472,7 +1704,7 @@ public class HomeFragment extends Fragment {
 
     private void restoreCameraPageState() {
         if (capturedJpegBytes == null) {
-            resetCapture();
+            resetCapture(false);
             return;
         }
         Bitmap bitmap = BitmapFactory.decodeByteArray(capturedJpegBytes, 0,
@@ -2059,7 +2291,18 @@ public class HomeFragment extends Fragment {
         captureCurrentPagerPosition();
         homeTabActive = false;
         cameraObserversBound = false;
+        cameraBindGeneration++;
+        cameraBinding = false;
+        cameraBound = false;
+        boundLensFacing = -1;
+        boundVideoMode = false;
+        if (cameraProvider != null) {
+            Log.d(TAG_CAMERA, "onDestroyView: calling unbindAll() and clearing camera use cases");
+            cameraProvider.unbindAll();
+            cameraProvider = null;
+        }
         imageCapture = null;
+        videoCapture = null;
         camera = null;
         previewView = null;
         previewCard = null;
@@ -2233,7 +2476,16 @@ public class HomeFragment extends Fragment {
     }
 
     private void startVideoRecording() {
-        if (videoCapture == null || isRecordingVideo) {
+        if (isRecordingVideo) {
+            return;
+        }
+        if (!cameraBound || !boundVideoMode || videoCapture == null || camera == null) {
+            Log.e(TAG_CAMERA, "Video recording unavailable: cameraBound=" + cameraBound
+                    + ", boundVideoMode=" + boundVideoMode
+                    + ", videoCaptureNull=" + (videoCapture == null));
+            ensureCameraReady();
+            Toast.makeText(requireContext(), R.string.camera_video_unavailable,
+                    Toast.LENGTH_SHORT).show();
             return;
         }
         isRecordingVideo = true;
@@ -2372,7 +2624,10 @@ public class HomeFragment extends Fragment {
     }
 
     private void setCameraMode(boolean videoMode) {
+        boolean modeChanged = isVideoMode != videoMode;
         isVideoMode = videoMode;
+        Log.d(TAG_CAMERA, "Camera mode selected: " + (isVideoMode ? "VIDEO" : "PHOTO")
+                + ", changed=" + modeChanged);
         if (btnModePhoto != null && btnModeVideo != null && isAdded() && getContext() != null) {
             if (isVideoMode) {
                 btnModePhoto.setBackground(null);
@@ -2385,6 +2640,9 @@ public class HomeFragment extends Fragment {
                 btnModeVideo.setBackground(null);
                 btnModeVideo.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.pocket_text_muted)));
             }
+        }
+        if (modeChanged && previewView != null && capturedJpegBytes == null) {
+            startCamera();
         }
     }
 

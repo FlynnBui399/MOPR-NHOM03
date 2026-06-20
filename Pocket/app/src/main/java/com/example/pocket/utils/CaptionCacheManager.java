@@ -2,6 +2,7 @@ package com.example.pocket.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -13,7 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CaptionCacheManager {
-    public static final String CAPTION_PROMPT_VERSION = "v3_mixed_image_specific";
+    private static final String TAG_AI = "PocketAI";
+    public static final String CAPTION_PROMPT_VERSION = "v6_three_specific_one_generic_caps";
     private static final String PREFERENCES = "caption_cache";
     private static final String INDEX_KEY = "cached_image_hashes";
     private static final String ENTRY_PREFIX = "captions_";
@@ -29,8 +31,12 @@ public class CaptionCacheManager {
     @NonNull
     public List<String> get(@NonNull String imageHash) {
         String cacheKey = CAPTION_PROMPT_VERSION + "_" + imageHash;
+        Log.d(TAG_AI, "Caption cache lookup: keySource=promptVersion+optimizedJPEG_SHA256"
+                + ", promptVersion=" + CAPTION_PROMPT_VERSION
+                + ", hashPrefix=" + hashPrefix(imageHash));
         String value = preferences.getString(ENTRY_PREFIX + cacheKey, null);
         if (value == null) {
+            Log.d(TAG_AI, "Caption cache MISS: hashPrefix=" + hashPrefix(imageHash));
             return new ArrayList<>();
         }
         try {
@@ -42,8 +48,12 @@ public class CaptionCacheManager {
                     captions.add(caption);
                 }
             }
+            Log.d(TAG_AI, "Caption cache HIT: captionCount=" + captions.size()
+                    + ", source=previous successful Gemini result");
             return captions;
         } catch (JSONException error) {
+            Log.e(TAG_AI, "Caption cache entry invalid; removing it. type="
+                    + error.getClass().getName() + ", message=" + error.getMessage(), error);
             preferences.edit().remove(ENTRY_PREFIX + cacheKey).apply();
             return new ArrayList<>();
         }
@@ -57,6 +67,7 @@ public class CaptionCacheManager {
             }
         }
         if (array.length() == 0) {
+            Log.d(TAG_AI, "Caption cache write skipped: no usable captions");
             return;
         }
 
@@ -71,6 +82,13 @@ public class CaptionCacheManager {
             editor.remove(ENTRY_PREFIX + oldest);
         }
         editor.putString(INDEX_KEY, joinHashes(hashes)).apply();
+        Log.d(TAG_AI, "Caption cache SAVE: captionCount=" + array.length()
+                + ", hashPrefix=" + hashPrefix(imageHash));
+    }
+
+    @NonNull
+    private static String hashPrefix(@NonNull String imageHash) {
+        return imageHash.substring(0, Math.min(12, imageHash.length()));
     }
 
     @NonNull

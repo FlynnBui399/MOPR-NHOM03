@@ -179,6 +179,8 @@
     <string name="notification_channel_messages_description">Tin nhắn Pocket mới</string>
     <string name="camera_start_failed">Camera tạm thời không khả dụng.</string>
     <string name="camera_capture_failed">Không thể chụp ảnh.</string>
+    <string name="camera_not_ready">Camera chưa sẵn sàng.</string>
+    <string name="camera_video_unavailable">Camera này không hỗ trợ quay video.</string>
     <string name="pocket_widget_name">Pocket Moment</string>
     <string name="widget_description">Shows the latest Pocket photo on your home screen.</string>
     <string name="widget_empty_message">Waiting for a photo</string>
