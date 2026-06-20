@@ -25,6 +25,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +43,7 @@ public class VideoPreviewActivity extends AppCompatActivity {
     private ExoPlayer player;
     private PocketButton btnRetake;
     private PocketButton btnSend;
+    private TextInputEditText captionInput;
 
     private Uri rawVideoUri;
     private List<String> receiverIds;
@@ -70,12 +73,17 @@ public class VideoPreviewActivity extends AppCompatActivity {
         bindViews();
         setupPlayer();
         setupListeners();
+        
+        if (captionInput != null && !captionText.isEmpty()) {
+            captionInput.setText(captionText);
+        }
     }
 
     private void bindViews() {
         playerView = findViewById(R.id.player_view);
         btnRetake = findViewById(R.id.btn_retake);
         btnSend = findViewById(R.id.btn_send);
+        captionInput = findViewById(R.id.caption_input);
     }
 
     private void setupPlayer() {
@@ -104,89 +112,26 @@ public class VideoPreviewActivity extends AppCompatActivity {
     }
 
     private void handleSend() {
+        String caption = captionInput != null && captionInput.getText() != null
+                ? captionInput.getText().toString().trim() : "";
         btnSend.setLoading(true);
         btnRetake.setEnabled(false);
 
-        new Thread(() -> {
-            try {
-                Uri localUri = getLocalFileUri(rawVideoUri);
-                if (localUri == null) {
-                    throw new Exception("Local URI resolved to null");
-                }
-
-                File videoFile = new File(localUri.getPath());
-                Log.d(TAG, "Uploading video to Cloudinary. Local path: " + videoFile.getAbsolutePath());
-
-                if (!videoFile.exists() || videoFile.length() == 0) {
-                    throw new Exception("Video file does not exist or is empty");
-                }
-
-                CloudinaryService cloudinaryService = new CloudinaryService();
-                com.google.android.gms.tasks.Task<CloudinaryService.UploadResult> uploadTask =
-                        cloudinaryService.uploadUnsignedVideo(videoFile);
-
-                CloudinaryService.UploadResult result = com.google.android.gms.tasks.Tasks.await(uploadTask);
-                String videoUrl = result.getSecureUrl();
-
-                saveVideoToFirestore(videoUrl, videoFile);
-
-            } catch (Exception e) {
-                Log.e(TAG, "Upload failed", e);
-                runOnUiThread(() -> {
-                    Toast.makeText(VideoPreviewActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    btnSend.setLoading(false);
-                    btnRetake.setEnabled(true);
-                });
+        PostActivitySheet.showFriendPicker(this, rawVideoUri, "video", caption, new PostActivitySheet.PostCallback() {
+            @Override
+            public void onSuccess() {
+                deleteTempFile();
+                setResult(RESULT_OK);
+                finish();
             }
-        }).start();
-    }
 
-    private void saveVideoToFirestore(String videoUrl, File videoFile) {
-        String senderId = currentUserId();
-        String senderName = currentUserName();
-
-        DocumentReference photoRef = FirebaseFirestore.getInstance()
-                .collection(Constants.COLLECTION_PHOTOS).document();
-
-        Photo photo = new Photo(
-                photoRef.getId(),
-                senderId,
-                senderName,
-                "",
-                "",
-                "",
-                captionText,
-                receiverIds,
-                new HashMap<>(),
-                new ArrayList<>(),
-                Timestamp.now()
-        );
-        photo.setType("video");
-        photo.setVideoUrl(videoUrl);
-
-        photoRef.set(photo)
-                .addOnSuccessListener(unused -> {
-                    for (String receiverId : receiverIds) {
-                        com.example.pocket.utils.StreakHelper.updateStreak(senderId, receiverId);
-                    }
-                    if (videoFile.exists()) {
-                        videoFile.delete();
-                    }
-                    deleteTempFile(); // Also delete the original raw video file if it's different
-                    runOnUiThread(() -> {
-                        Toast.makeText(VideoPreviewActivity.this, R.string.camera_upload_success, Toast.LENGTH_SHORT).show();
-                        setResult(RESULT_OK);
-                        finish();
-                    });
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to save video to Firestore", e);
-                    runOnUiThread(() -> {
-                        Toast.makeText(VideoPreviewActivity.this, "Save to Firestore failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        btnSend.setLoading(false);
-                        btnRetake.setEnabled(true);
-                    });
-                });
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(VideoPreviewActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                btnSend.setLoading(false);
+                btnRetake.setEnabled(true);
+            }
+        });
     }
 
     private void deleteTempFile() {
@@ -200,51 +145,6 @@ public class VideoPreviewActivity extends AppCompatActivity {
                 Log.e(TAG, "Failed to delete temp file", e);
             }
         }
-    }
-
-    private Uri getLocalFileUri(Uri uri) {
-        if (uri == null) return null;
-        if ("file".equals(uri.getScheme())) {
-            return uri;
-        }
-        if ("content".equals(uri.getScheme())) {
-            try {
-                File cacheFile = new File(getCacheDir(), "temp-video-" + System.currentTimeMillis() + ".mp4");
-                try (java.io.InputStream in = getContentResolver().openInputStream(uri);
-                     java.io.OutputStream out = new java.io.FileOutputStream(cacheFile)) {
-                    byte[] buf = new byte[4096];
-                    int len;
-                    while ((len = in.read(buf)) > 0) {
-                        out.write(buf, 0, len);
-                    }
-                }
-                return Uri.fromFile(cacheFile);
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to copy content URI to cache file", e);
-            }
-        }
-        return uri;
-    }
-
-    @NonNull
-    private String currentUserId() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        return user == null ? "local_user" : user.getUid();
-    }
-
-    @NonNull
-    private String currentUserName() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            return getString(R.string.camera_default_user);
-        }
-        if (user.getDisplayName() != null && !user.getDisplayName().trim().isEmpty()) {
-            return user.getDisplayName();
-        }
-        if (user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
-            return user.getEmail();
-        }
-        return getString(R.string.camera_default_user);
     }
 
     @Override

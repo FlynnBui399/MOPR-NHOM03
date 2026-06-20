@@ -18,6 +18,8 @@ public class Message {
     private boolean read;
     private String quotedPhotoUrl;
     private String quotedPhotoId;
+    private String quotedPhotoCaption;
+    private String quotedPhotoType;
 
     public Message() {
     }
@@ -144,5 +146,21 @@ public class Message {
 
     public void setQuotedPhotoId(String quotedPhotoId) {
         this.quotedPhotoId = quotedPhotoId;
+    }
+
+    public String getQuotedPhotoCaption() {
+        return quotedPhotoCaption;
+    }
+
+    public void setQuotedPhotoCaption(String quotedPhotoCaption) {
+        this.quotedPhotoCaption = quotedPhotoCaption;
+    }
+
+    public String getQuotedPhotoType() {
+        return quotedPhotoType;
+    }
+
+    public void setQuotedPhotoType(String quotedPhotoType) {
+        this.quotedPhotoType = quotedPhotoType;
     }
 }

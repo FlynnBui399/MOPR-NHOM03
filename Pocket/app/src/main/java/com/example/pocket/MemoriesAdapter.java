@@ -153,6 +153,7 @@ public class MemoriesAdapter extends RecyclerView.Adapter<MemoriesAdapter.MonthV
 
                 int dayNumber = cell - leadingCells + 1;
                 ImageView thumbnail = dayView.findViewById(R.id.memory_day_thumbnail);
+                ImageView playIcon = dayView.findViewById(R.id.memory_day_play_icon);
                 View dot = dayView.findViewById(R.id.memory_day_dot);
                 TextView count = dayView.findViewById(R.id.memory_day_count);
                 TextView number = dayView.findViewById(R.id.memory_day_number);
@@ -165,16 +166,23 @@ public class MemoriesAdapter extends RecyclerView.Adapter<MemoriesAdapter.MonthV
                     List<Photo> dayPhotos = section.photosByDay.get(keyFormat.format(date.getTime()));
                     if (dayPhotos == null || dayPhotos.isEmpty()) {
                         dot.setVisibility(View.VISIBLE);
+                        if (playIcon != null) {
+                            playIcon.setVisibility(View.GONE);
+                        }
                     } else {
                         Photo newest = dayPhotos.get(0);
                         thumbnail.setVisibility(View.VISIBLE);
                         dot.setVisibility(View.GONE);
+                        boolean isVideo = "video".equals(newest.getType());
+                        if (playIcon != null) {
+                            playIcon.setVisibility(isVideo ? View.VISIBLE : View.GONE);
+                        }
                         String url = newest.getThumbnailUrl();
                         if (url == null || url.trim().isEmpty()) {
                             url = newest.getImageUrl();
                         }
                         Glide.with(thumbnail)
-                                .load(url)
+                                .load(isVideo && newest.getVideoUrl() != null ? newest.getVideoUrl() : url)
                                 .centerCrop()
                                 .placeholder(R.drawable.placeholder_pocket)
                                 .error(R.drawable.placeholder_pocket)

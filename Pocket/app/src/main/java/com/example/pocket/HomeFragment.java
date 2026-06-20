@@ -37,6 +37,10 @@ import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.PlayerView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
@@ -196,6 +200,9 @@ public class HomeFragment extends Fragment {
     private boolean isVideoMode = false;
     private com.example.pocket.ui.RecordingBorderView recordingBorderView;
     private android.animation.ValueAnimator recordingBorderAnimator;
+    private PlayerView videoPreviewView;
+    private ExoPlayer videoPreviewPlayer;
+    private Uri currentVideoUri;
 
     private final ActivityResultLauncher<Intent> videoPreviewLauncher =
             registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), result -> {
@@ -221,6 +228,21 @@ public class HomeFragment extends Fragment {
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
                 if (uri != null) {
                     loadGalleryPhoto(uri);
+                }
+            });
+
+    private Photo pendingDownloadPhoto;
+
+    private final ActivityResultLauncher<String> writeStoragePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                if (granted) {
+                    if (pendingDownloadPhoto != null) {
+                        performDownload(pendingDownloadPhoto);
+                        pendingDownloadPhoto = null;
+                    }
+                } else if (isAdded()) {
+                    Toast.makeText(requireContext(), "Storage permission is required to download files", Toast.LENGTH_LONG).show();
+                    pendingDownloadPhoto = null;
                 }
             });
 
@@ -389,14 +411,218 @@ public class HomeFragment extends Fragment {
 
         String userId = currentUserId();
         historyAdapter = new PhotoHistoryAdapter(userId,
-                photo -> PostActivitySheet.show(requireContext(), photo));
+                photo -> PostActivitySheet.show(requireContext(), photo),
+                (photo, position) -> showPhotoOptionsBottomSheet(photo, position));
         homePager.setAdapter(new ConcatAdapter(new CameraPageAdapter(this::bindCameraPage),
                 historyAdapter));
         restorePagerPosition();
     }
 
+    private void deletePhoto(Photo currentPhoto, int position) {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setMessage("Delete this Pocket?")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete", (dialog, which) -> {
+                FirebaseFirestore.getInstance()
+                    .collection(Constants.COLLECTION_PHOTOS)
+                    .document(currentPhoto.getId())
+                    .delete()
+                    .addOnSuccessListener(unused -> {
+                        String photoId = currentPhoto.getId();
+                        Photo found = null;
+                        for (Photo p : allTimelinePhotos) {
+                            if (photoId.equals(p.getId())) {
+                                found = p;
+                                break;
+                            }
+                        }
+                        if (found != null) {
+                            allTimelinePhotos.remove(found);
+                        }
+                        applyHistoryFilter();
+                        Toast.makeText(requireContext(), "Pocket deleted", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(requireContext(), "Failed to delete: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+            })
+            .show();
+    }
+
+    private void showPhotoOptionsBottomSheet(@NonNull Photo photo, int position) {
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_photo_options, null);
+        
+        View btnShare = view.findViewById(R.id.option_share);
+        View btnDownload = view.findViewById(R.id.option_download);
+        View btnDelete = view.findViewById(R.id.option_delete);
+        View btnReport = view.findViewById(R.id.option_report);
+        View btnCancel = view.findViewById(R.id.option_cancel);
+
+        boolean isOwnPost = currentUserId().equals(photo.getSenderId());
+        if (isOwnPost) {
+            btnDelete.setVisibility(View.VISIBLE);
+            btnReport.setVisibility(View.GONE);
+        } else {
+            btnDelete.setVisibility(View.GONE);
+            btnReport.setVisibility(View.VISIBLE);
+        }
+
+        btnShare.setOnClickListener(v -> {
+            dialog.dismiss();
+            sharePhoto(photo);
+        });
+
+        btnDownload.setOnClickListener(v -> {
+            dialog.dismiss();
+            downloadPhoto(photo);
+        });
+
+        btnDelete.setOnClickListener(v -> {
+            dialog.dismiss();
+            deletePhoto(photo, position);
+        });
+
+        btnReport.setOnClickListener(v -> {
+            dialog.dismiss();
+            Toast.makeText(requireContext(), "Post reported. Thank you!", Toast.LENGTH_SHORT).show();
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private void sharePhoto(@NonNull Photo photo) {
+        String mediaUrl = "video".equals(photo.getType()) ? photo.getVideoUrl() : photo.getImageUrl();
+        if (mediaUrl == null || mediaUrl.trim().isEmpty()) {
+            mediaUrl = photo.getThumbnailUrl();
+        }
+        if (mediaUrl == null || mediaUrl.trim().isEmpty()) {
+            return;
+        }
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, mediaUrl);
+        startActivity(Intent.createChooser(intent, "Share post"));
+    }
+
+    private void downloadPhoto(@NonNull Photo photo) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            performDownload(photo);
+        } else {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                performDownload(photo);
+            } else {
+                pendingDownloadPhoto = photo;
+                writeStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+        }
+    }
+
+    private void performDownload(@NonNull Photo photo) {
+        String mediaUrl = "video".equals(photo.getType()) ? photo.getVideoUrl() : photo.getImageUrl();
+        if (mediaUrl == null || mediaUrl.trim().isEmpty()) {
+            mediaUrl = photo.getThumbnailUrl();
+        }
+        if (mediaUrl == null || mediaUrl.trim().isEmpty()) {
+            Toast.makeText(requireContext(), "No URL found to download", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final String finalUrl = mediaUrl;
+        final boolean isVideo = "video".equals(photo.getType());
+        final String mimeType = isVideo ? "video/mp4" : "image/jpeg";
+        final String ext = isVideo ? ".mp4" : ".jpg";
+        final String filename = "Pocket_" + System.currentTimeMillis() + ext;
+
+        Toast.makeText(requireContext(), "Downloading...", Toast.LENGTH_SHORT).show();
+
+        Context context = requireContext().getApplicationContext();
+
+        new Thread(() -> {
+            try {
+                okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+                okhttp3.Request request = new okhttp3.Request.Builder().url(finalUrl).build();
+                try (okhttp3.Response response = client.newCall(request).execute()) {
+                    if (!response.isSuccessful()) {
+                        throw new java.io.IOException("Unexpected HTTP code: " + response.code());
+                    }
+                    byte[] bytes = response.body().bytes();
+                    saveMediaToGallery(context, bytes, filename, mimeType, isVideo);
+                }
+            } catch (Exception e) {
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(context, "Download failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+        }).start();
+    }
+
+    private void saveMediaToGallery(Context context, byte[] bytes, String filename, String mimeType, boolean isVideo) {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, filename);
+        values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
+        
+        Uri collectionUri;
+        if (isVideo) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                values.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/Pocket");
+            }
+            collectionUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+        } else {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Pocket");
+            }
+            collectionUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        }
+
+        android.content.ContentResolver resolver = context.getContentResolver();
+        Uri itemUri = resolver.insert(collectionUri, values);
+        if (itemUri != null) {
+            try (java.io.OutputStream out = resolver.openOutputStream(itemUri)) {
+                out.write(bytes);
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(context, "Downloaded successfully!", Toast.LENGTH_SHORT).show();
+                });
+            } catch (Exception e) {
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(context, "Download failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+        } else {
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                Toast.makeText(context, "Download failed: Cannot create file", Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
+
     private void bindCameraPage(@NonNull View view) {
         previewView = view.findViewById(R.id.camera_preview);
+
+        // Pinch-to-zoom (Issue 3)
+        android.view.ScaleGestureDetector scaleGestureDetector = new android.view.ScaleGestureDetector(requireContext(),
+                new android.view.ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                    @Override
+                    public boolean onScale(android.view.ScaleGestureDetector detector) {
+                        if (camera != null) {
+                            androidx.camera.core.ZoomState zoomState = camera.getCameraInfo().getZoomState().getValue();
+                            if (zoomState != null) {
+                                float currentZoom = zoomState.getZoomRatio();
+                                float delta = detector.getScaleFactor();
+                                camera.getCameraControl().setZoomRatio(currentZoom * delta);
+                            }
+                        }
+                        return true;
+                    }
+                });
+
+        previewView.setOnTouchListener((v, event) -> {
+            scaleGestureDetector.onTouchEvent(event);
+            return true;
+        });
         previewCard = view.findViewById(R.id.camera_preview_card);
         capturedImageView = view.findViewById(R.id.captured_image);
         captionPanel = view.findViewById(R.id.caption_panel);
@@ -421,6 +647,10 @@ public class HomeFragment extends Fragment {
         btnModePhoto = view.findViewById(R.id.btnModePhoto);
         btnModeVideo = view.findViewById(R.id.btnModeVideo);
         recordingBorderView = view.findViewById(R.id.recording_border_view);
+        if (recordingBorderView != null) {
+            recordingBorderView.setCornerRadius(36f);
+        }
+        videoPreviewView = view.findViewById(R.id.video_preview);
 
         if (btnModePhoto != null) {
             btnModePhoto.setOnClickListener(v -> setCameraMode(false));
@@ -786,7 +1016,7 @@ public class HomeFragment extends Fragment {
             flashButton.setVisibility(View.INVISIBLE);
             recipientPill.setText(selectedHistorySenderName == null
                     ? getString(R.string.history_filter_everyone) : selectedHistorySenderName);
-        } else if (capturedJpegBytes != null) {
+        } else if (capturedJpegBytes != null || currentVideoUri != null) {
             flashButton.setVisibility(View.INVISIBLE);
             recipientPill.setText(R.string.camera_send_to);
         } else {
@@ -873,7 +1103,19 @@ public class HomeFragment extends Fragment {
 
         String chatId = chatRepositoryHome.getChatId(currentUserId(), currentReceiverId);
         
-        chatRepositoryHome.sendPhotoReply(chatId, text, currentPhoto.getThumbnailUrl(), currentPhoto.getId(), new UserRepository.Callback<Void>() {
+        String quotedUrl = currentPhoto.getThumbnailUrl();
+        if (quotedUrl == null || quotedUrl.trim().isEmpty()) {
+            quotedUrl = currentPhoto.getImageUrl();
+        }
+        if (quotedUrl == null || quotedUrl.trim().isEmpty()) {
+            quotedUrl = currentPhoto.getVideoUrl();
+        }
+        if (quotedUrl == null) {
+            quotedUrl = "";
+        }
+
+        chatRepositoryHome.sendPhotoReply(chatId, text, quotedUrl, currentPhoto.getId(),
+                currentPhoto.getCaption(), currentPhoto.getType(), new UserRepository.Callback<Void>() {
             @Override
             public void onSuccess(Void ignored) {
                 if (isAdded()) {
@@ -900,11 +1142,15 @@ public class HomeFragment extends Fragment {
         if (quotedUrl == null || quotedUrl.trim().isEmpty()) {
             quotedUrl = currentPhoto.getImageUrl();
         }
+        if (quotedUrl == null || quotedUrl.trim().isEmpty()) {
+            quotedUrl = currentPhoto.getVideoUrl();
+        }
         if (quotedUrl == null) {
             quotedUrl = "";
         }
 
-        chatRepositoryHome.sendPhotoReply(chatId, emoji, quotedUrl, currentPhoto.getId(), new UserRepository.Callback<Void>() {
+        chatRepositoryHome.sendPhotoReply(chatId, emoji, quotedUrl, currentPhoto.getId(),
+                currentPhoto.getCaption(), currentPhoto.getType(), new UserRepository.Callback<Void>() {
             @Override
             public void onSuccess(Void ignored) {
                 // Update parent chat document
@@ -1158,6 +1404,30 @@ public class HomeFragment extends Fragment {
     }
 
     private void resetCapture() {
+        if (videoPreviewPlayer != null) {
+            videoPreviewPlayer.stop();
+            videoPreviewPlayer.release();
+            videoPreviewPlayer = null;
+        }
+        if (videoPreviewView != null) {
+            videoPreviewView.setVisibility(View.GONE);
+        }
+        if (previewView != null) {
+            previewView.setVisibility(View.VISIBLE);
+        }
+
+        if (currentVideoUri != null) {
+            if ("file".equals(currentVideoUri.getScheme())) {
+                try {
+                    File file = new File(currentVideoUri.getPath());
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                } catch (Exception ignored) {}
+            }
+            currentVideoUri = null;
+        }
+
         capturedJpegBytes = null;
         waitingForCaptionOptions = false;
         capturedImageView.setImageDrawable(null);
@@ -1189,6 +1459,7 @@ public class HomeFragment extends Fragment {
         }
         homeMode = HomeMode.CAMERA;
         updateTopBar();
+        startCamera();
     }
 
     private void hideKeyboard(@NonNull View view) {
@@ -1345,6 +1616,10 @@ public class HomeFragment extends Fragment {
     }
 
     private void sendCapturedPhoto() {
+        if (currentVideoUri != null) {
+            sendCapturedVideo();
+            return;
+        }
         if (capturedJpegBytes == null || recipientSelectionAdapter == null) {
             return;
         }
@@ -1360,8 +1635,223 @@ public class HomeFragment extends Fragment {
                 receiverIds, caption);
     }
 
+    private void showVideoPreview(Uri videoUri) {
+        currentVideoUri = videoUri;
+        
+        if (previewView != null) {
+            previewView.setVisibility(View.GONE);
+        }
+        if (videoPreviewView != null) {
+            videoPreviewView.setVisibility(View.VISIBLE);
+            
+            if (videoPreviewPlayer != null) {
+                videoPreviewPlayer.release();
+            }
+            
+            videoPreviewPlayer = new ExoPlayer.Builder(requireContext()).build();
+            videoPreviewView.setPlayer(videoPreviewPlayer);
+            
+            MediaItem mediaItem = MediaItem.fromUri(videoUri);
+            videoPreviewPlayer.setMediaItem(mediaItem);
+            videoPreviewPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
+            videoPreviewPlayer.prepare();
+            videoPreviewPlayer.play();
+        }
+
+        captionPanel.setVisibility(View.VISIBLE);
+        captionInputLayout.setVisibility(View.VISIBLE);
+        
+        captureButton.setVisibility(View.GONE);
+        captureButtonSurface.setVisibility(View.GONE);
+        galleryButton.setVisibility(View.GONE);
+        flipButton.setVisibility(View.GONE);
+        
+        retakeButton.setVisibility(View.VISIBLE);
+        
+        styleCapturedActionButtons();
+        sendPhotoButton.setVisibility(View.VISIBLE);
+        savePhotoButton.setVisibility(View.GONE);
+        captureRecipientsContainer.setVisibility(View.VISIBLE);
+        historyHeader.setVisibility(View.GONE);
+        
+        if (modeToggle != null) {
+            modeToggle.setVisibility(View.GONE);
+        }
+
+        recipientSelectionAdapter.selectAll();
+        captureRecipientList.scrollToPosition(0);
+        centerCaptureRecipients();
+        
+        updateTopBar();
+    }
+
+    private void sendCapturedVideo() {
+        if (currentVideoUri == null || recipientSelectionAdapter == null) {
+            return;
+        }
+        
+        List<String> receiverIds = recipientSelectionAdapter.selectedReceiverIds();
+        if (receiverIds.isEmpty()) {
+            Toast.makeText(requireContext(), R.string.photo_send_no_friend, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String caption = captionInput.getText() == null
+                ? "" : captionInput.getText().toString().trim();
+                
+        sendPhotoButton.setEnabled(false);
+        sendPhotoButton.setAlpha(0.55f);
+        captureButton.setEnabled(false);
+        retakeButton.setEnabled(false);
+        
+        Context context = requireContext();
+        String currentUserId = currentUserId();
+        String currentUserName = currentUserName();
+
+        new Thread(() -> {
+            try {
+                Uri localUri = currentVideoUri;
+                if ("content".equals(localUri.getScheme())) {
+                    File cacheFile = new File(context.getCacheDir(), "temp-media-" + System.currentTimeMillis() + ".mp4");
+                    try (java.io.InputStream in = context.getContentResolver().openInputStream(localUri);
+                         java.io.OutputStream out = new java.io.FileOutputStream(cacheFile)) {
+                        byte[] buf = new byte[4096];
+                        int len;
+                        while ((len = in.read(buf)) > 0) {
+                            out.write(buf, 0, len);
+                        }
+                    }
+                    localUri = Uri.fromFile(cacheFile);
+                }
+                
+                File file = new File(localUri.getPath());
+                if (!file.exists() || file.length() == 0) {
+                    throw new Exception("Media file does not exist or is empty");
+                }
+                
+                CloudinaryService cloudinaryService = new CloudinaryService();
+                com.google.android.gms.tasks.Task<CloudinaryService.UploadResult> uploadTask =
+                        cloudinaryService.uploadUnsignedVideo(file);
+                CloudinaryService.UploadResult result = com.google.android.gms.tasks.Tasks.await(uploadTask);
+                String secureUrl = result.getSecureUrl();
+                String thumbnailUrl = result.getSecureUrl();
+                String publicId = result.getPublicId();
+                
+                DocumentReference photoRef = FirebaseFirestore.getInstance()
+                        .collection(Constants.COLLECTION_PHOTOS).document();
+                
+                Photo photo = new Photo(
+                        photoRef.getId(),
+                        currentUserId,
+                        currentUserName,
+                        secureUrl,
+                        thumbnailUrl,
+                        publicId,
+                        caption,
+                        receiverIds,
+                        new HashMap<>(),
+                        new ArrayList<>(),
+                        Timestamp.now()
+                );
+                String thumbnailFromVideo = "https://res.cloudinary.com/" + Constants.CLOUDINARY_CLOUD_NAME
+                        + "/video/upload/so_0,w_300,h_300,c_fill,f_jpg/" + publicId + ".jpg";
+                photo.setType("video");
+                photo.setVideoUrl(secureUrl);
+                photo.setImageUrl(thumbnailFromVideo);
+                photo.setThumbnailUrl(thumbnailFromVideo);
+                
+                final File finalFileToDelete = file;
+                
+                FirebaseFirestore.getInstance().runTransaction(transaction -> {
+                    transaction.set(photoRef, photo);
+                    return null;
+                }).addOnSuccessListener(unused -> {
+                    for (String receiverId : receiverIds) {
+                        com.example.pocket.utils.StreakHelper.updateStreak(currentUserId, receiverId);
+                    }
+                    
+                    try {
+                        if (finalFileToDelete.exists()) {
+                            finalFileToDelete.delete();
+                        }
+                    } catch (Exception ignored) {}
+                    
+                    createFcmTriggers(photo);
+
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                        if (isAdded()) {
+                            if (videoPreviewPlayer != null) {
+                                videoPreviewPlayer.stop();
+                                videoPreviewPlayer.release();
+                                videoPreviewPlayer = null;
+                            }
+                            if (videoPreviewView != null) {
+                                videoPreviewView.setVisibility(View.GONE);
+                            }
+                            if (previewView != null) {
+                                previewView.setVisibility(View.VISIBLE);
+                            }
+                            currentVideoUri = null;
+                            
+                            sendPhotoButton.setEnabled(true);
+                            sendPhotoButton.setAlpha(1f);
+                            captureButton.setEnabled(true);
+                            retakeButton.setEnabled(true);
+                            
+                            Toast.makeText(requireContext(), R.string.camera_upload_success, Toast.LENGTH_SHORT).show();
+                            resetCapture();
+                            openHistoryAfterUpload = true;
+                            scrollToHistory();
+                        }
+                    });
+                }).addOnFailureListener(e -> {
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                        if (isAdded()) {
+                            sendPhotoButton.setEnabled(true);
+                            sendPhotoButton.setAlpha(1f);
+                            captureButton.setEnabled(true);
+                            retakeButton.setEnabled(true);
+                            Toast.makeText(requireContext(), "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                });
+                
+            } catch (Exception e) {
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    if (isAdded()) {
+                        sendPhotoButton.setEnabled(true);
+                        sendPhotoButton.setAlpha(1f);
+                        captureButton.setEnabled(true);
+                        retakeButton.setEnabled(true);
+                        Toast.makeText(requireContext(), "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void createFcmTriggers(@NonNull Photo photo) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        for (String recipientId : photo.getReceiverIds()) {
+            Map<String, Object> trigger = new HashMap<>();
+            trigger.put("type", "photo_received");
+            trigger.put("photoId", photo.getId());
+            trigger.put("senderId", photo.getSenderId());
+            trigger.put("senderName", photo.getSenderName());
+            trigger.put("recipientId", recipientId);
+            trigger.put("imageUrl", photo.getThumbnailUrl());
+            trigger.put("caption", photo.getCaption());
+            trigger.put("createdAt", Timestamp.now());
+            trigger.put("processed", false);
+
+            firestore.collection(Constants.COLLECTION_FCM_TRIGGERS)
+                    .document()
+                    .set(trigger);
+        }
+    }
+
     private void updateCapturedRecipientLabel() {
-        if (capturedJpegBytes == null || recipientSelectionAdapter == null) {
+        if (capturedJpegBytes == null && currentVideoUri == null || recipientSelectionAdapter == null) {
             return;
         }
         List<String> selected = recipientSelectionAdapter.selectedReceiverIds();
@@ -1579,6 +2069,11 @@ public class HomeFragment extends Fragment {
         historyAdapter = null;
         historyHeader = null;
         historyCount = null;
+        if (videoPreviewPlayer != null) {
+            videoPreviewPlayer.release();
+            videoPreviewPlayer = null;
+        }
+        videoPreviewView = null;
         super.onDestroyView();
     }
 
@@ -1755,11 +2250,15 @@ public class HomeFragment extends Fragment {
                 recordingBorderAnimator.cancel();
             }
             recordingBorderAnimator = android.animation.ValueAnimator.ofFloat(0f, 360f);
-            recordingBorderAnimator.setDuration(10000);
+            recordingBorderAnimator.setDuration(5000);
             recordingBorderAnimator.setInterpolator(new android.view.animation.LinearInterpolator());
             recordingBorderAnimator.addUpdateListener(animator -> {
                 if (recordingBorderView != null) {
-                    recordingBorderView.setSweepAngle((float) animator.getAnimatedValue());
+                    float sweepAngle = (float) animator.getAnimatedValue();
+                    recordingBorderView.setSweepAngle(sweepAngle);
+                    if (Math.round(sweepAngle) % 36 == 0) {
+                        Log.d("Border", "sweep=" + sweepAngle);
+                    }
                 }
             });
             recordingBorderAnimator.start();
@@ -1771,7 +2270,7 @@ public class HomeFragment extends Fragment {
 
         File videoFile = new File(requireContext().getCacheDir(), "pocket-video-" + System.currentTimeMillis() + ".mp4");
         androidx.camera.video.FileOutputOptions options = new androidx.camera.video.FileOutputOptions.Builder(videoFile)
-                .setDurationLimitMillis(10000)
+                .setDurationLimitMillis(5000)
                 .build();
 
         try {
@@ -1818,19 +2317,7 @@ public class HomeFragment extends Fragment {
                                     captureButtonSurface.setBackgroundResource(R.drawable.bg_shutter_button);
                                 }
 
-                                // Navigate to VideoPreviewActivity
-                                List<String> receiverIds = recipientSelectionAdapter != null
-                                        ? recipientSelectionAdapter.selectedReceiverIds()
-                                        : new ArrayList<>();
-                                String caption = captionInput != null && captionInput.getText() != null
-                                        ? captionInput.getText().toString().trim()
-                                        : "";
-
-                                Intent intent = new Intent(requireContext(), VideoPreviewActivity.class);
-                                intent.putExtra(VideoPreviewActivity.EXTRA_VIDEO_URI, outputUri.toString());
-                                intent.putStringArrayListExtra(VideoPreviewActivity.EXTRA_RECEIVER_IDS, new ArrayList<>(receiverIds));
-                                intent.putExtra(VideoPreviewActivity.EXTRA_CAPTION, caption);
-                                videoPreviewLauncher.launch(intent);
+                                showVideoPreview(outputUri);
                             }
                         }
                     });
@@ -1854,8 +2341,8 @@ public class HomeFragment extends Fragment {
             return;
         }
 
-        // Start countdown progress limit (10 seconds)
-        recordProgressHandler.postDelayed(stopVideoRecordingRunnable, 10000);
+        // Start countdown progress limit (5 seconds)
+        recordProgressHandler.postDelayed(stopVideoRecordingRunnable, 5000);
     }
 
     private void stopVideoRecording() {
@@ -1873,6 +2360,9 @@ public class HomeFragment extends Fragment {
         }
         if (captureButtonSurface != null) {
             captureButtonSurface.setBackgroundResource(R.drawable.bg_shutter_button);
+        }
+        if (captureButton != null) {
+            captureButton.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
         }
 
         if (activeRecording != null) {

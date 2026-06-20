@@ -139,20 +139,26 @@
                     android:scaleType="fitCenter"
                     android:layout_marginStart="4dp" />
             </LinearLayout>
+
+            <androidx.media3.ui.PlayerView
+                android:id="@+id/video_preview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:use_controller="false"
+                app:resize_mode="zoom"
+                android:visibility="gone" />
+
+            <com.example.pocket.ui.RecordingBorderView
+                android:id="@+id/recording_border_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="false"
+                android:focusable="false"
+                android:visibility="gone" />
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <com.example.pocket.ui.RecordingBorderView
-        android:id="@+id/recording_border_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:clickable="false"
-        android:focusable="false"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="@id/camera_preview_card"
-        app:layout_constraintBottom_toBottomOf="@id/camera_preview_card"
-        app:layout_constraintStart_toStartOf="@id/camera_preview_card"
-        app:layout_constraintEnd_toEndOf="@id/camera_preview_card" />
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/camera_controls"

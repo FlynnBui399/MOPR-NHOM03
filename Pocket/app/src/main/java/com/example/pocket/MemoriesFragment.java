@@ -68,7 +68,7 @@ public class MemoriesFragment extends Fragment {
             photos.clear();
             if (nextPhotos != null) {
                 for (Photo photo : nextPhotos) {
-                    if (photo.getCreatedAt() != null) {
+                    if (photo.getCreatedAt() != null && user.getUid().equals(photo.getSenderId())) {
                         photos.add(photo);
                     }
                 }

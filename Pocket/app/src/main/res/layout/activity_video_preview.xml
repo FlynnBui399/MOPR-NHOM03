@@ -37,12 +37,56 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintDimensionRatio="1:1">
 
-        <androidx.media3.ui.PlayerView
-            android:id="@+id/player_view"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:use_controller="false"
-            app:resize_mode="zoom" />
+            android:layout_height="match_parent">
+
+            <androidx.media3.ui.PlayerView
+                android:id="@+id/player_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:use_controller="false"
+                app:resize_mode="zoom" />
+
+            <LinearLayout
+                android:id="@+id/caption_panel"
+                android:layout_width="228dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginStart="28dp"
+                android:layout_marginEnd="28dp"
+                android:layout_marginBottom="18dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="@drawable/bg_capture_caption_chip"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/caption_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:boxBackgroundMode="none"
+                    app:hintAnimationEnabled="false"
+                    app:hintEnabled="false">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/caption_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@color/pocket_transparent"
+                        android:gravity="center"
+                        android:hint="Add a caption…"
+                        android:inputType="textCapSentences"
+                        android:maxLength="100"
+                        android:maxLines="1"
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/pocket_white_60"
+                        android:singleLine="true"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Controls Container -->

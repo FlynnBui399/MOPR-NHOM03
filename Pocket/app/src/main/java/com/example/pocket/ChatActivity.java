@@ -52,6 +52,7 @@ public class ChatActivity extends AppCompatActivity {
     private ExecutorService notificationExecutor;
     private String friendUid;
     private String friendName;
+    private com.google.firebase.firestore.ListenerRegistration streakListenerRegistration;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -102,6 +103,7 @@ public class ChatActivity extends AppCompatActivity {
         ImageButton backButton = findViewById(R.id.chat_back_button);
         CircleImageView avatar = findViewById(R.id.chat_other_avatar);
         TextView name = findViewById(R.id.chat_other_name);
+        TextView streakBadge = findViewById(R.id.chat_streak_badge);
         messageInput = findViewById(R.id.chat_message_input);
         ImageButton sendButton = findViewById(R.id.chat_send_button);
         messagesRecycler = findViewById(R.id.chat_messages_recycler);
@@ -195,6 +197,19 @@ public class ChatActivity extends AppCompatActivity {
                 Toast.makeText(ChatActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        if (!currentUid().isEmpty() && friendUid != null) {
+            streakListenerRegistration = com.example.pocket.utils.StreakHelper.listenStreak(currentUid(), friendUid, count -> {
+                if (streakBadge != null) {
+                    if (count >= 2) {
+                        streakBadge.setText("🔥 " + count);
+                        streakBadge.setVisibility(View.VISIBLE);
+                    } else {
+                        streakBadge.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
     }
 
     private void sendText() {
@@ -251,6 +266,10 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (streakListenerRegistration != null) {
+            streakListenerRegistration.remove();
+            streakListenerRegistration = null;
+        }
         if (notificationExecutor != null) {
             notificationExecutor.shutdown();
         }
@@ -345,14 +364,27 @@ public class ChatActivity extends AppCompatActivity {
                 }
                 
                 if (holder.ivQuotedThumb != null) {
-                    float density = getResources().getDisplayMetrics().density;
                     Glide.with(ChatActivity.this)
                             .load(message.getQuotedPhotoUrl())
                             .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(250))
                             .placeholder(new android.graphics.drawable.ColorDrawable(android.graphics.Color.parseColor("#1C1C1E")))
                             .error(R.drawable.placeholder_pocket)
-                            .transform(new com.bumptech.glide.load.resource.bitmap.CenterCrop(), new com.bumptech.glide.load.resource.bitmap.RoundedCorners((int) (8 * density)))
                             .into(holder.ivQuotedThumb);
+                }
+
+                if (holder.ivQuotedPlayIcon != null) {
+                    boolean isVideo = "video".equals(message.getQuotedPhotoType());
+                    holder.ivQuotedPlayIcon.setVisibility(isVideo ? View.VISIBLE : View.GONE);
+                }
+
+                if (holder.tvQuotedCaption != null) {
+                    String caption = message.getQuotedPhotoCaption();
+                    if (caption != null && !caption.trim().isEmpty()) {
+                        holder.tvQuotedCaption.setText(caption);
+                        holder.tvQuotedCaption.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.tvQuotedCaption.setVisibility(View.GONE);
+                    }
                 }
 
                 String senderName = sent ? "You" : (friendName != null ? friendName : "Friend");
@@ -383,12 +415,21 @@ public class ChatActivity extends AppCompatActivity {
                             holder.tvReplyText.setTextColor(android.graphics.Color.WHITE);
                         }
                     }
+                    android.widget.LinearLayout.LayoutParams textParams =
+                            (android.widget.LinearLayout.LayoutParams) holder.tvReplyText.getLayoutParams();
+                    textParams.gravity = sent ? android.view.Gravity.END : android.view.Gravity.START;
+                    holder.tvReplyText.setLayoutParams(textParams);
                 }
 
                 if (holder.replyContainer != null) {
                     android.widget.FrameLayout.LayoutParams params =
                             (android.widget.FrameLayout.LayoutParams) holder.replyContainer.getLayoutParams();
                     params.gravity = sent ? android.view.Gravity.END : android.view.Gravity.START;
+                    float density = getResources().getDisplayMetrics().density;
+                    int largeMargin = (int) (64 * density);
+                    int smallMargin = (int) (16 * density);
+                    params.leftMargin = sent ? largeMargin : smallMargin;
+                    params.rightMargin = sent ? smallMargin : largeMargin;
                     holder.replyContainer.setLayoutParams(params);
                 }
             } else {
@@ -445,6 +486,8 @@ public class ChatActivity extends AppCompatActivity {
             final View replyContainer;
             final View quotedBox;
             final ImageView ivQuotedThumb;
+            final ImageView ivQuotedPlayIcon;
+            final TextView tvQuotedCaption;
             final TextView tvQuotedLabel;
             final TextView tvReplyText;
 
@@ -455,6 +498,8 @@ public class ChatActivity extends AppCompatActivity {
                 replyContainer = itemView.findViewById(R.id.chat_reply_container);
                 quotedBox = itemView.findViewById(R.id.quotedBox);
                 ivQuotedThumb = itemView.findViewById(R.id.ivQuotedThumb);
+                ivQuotedPlayIcon = itemView.findViewById(R.id.ivQuotedPlayIcon);
+                tvQuotedCaption = itemView.findViewById(R.id.tvQuotedCaption);
                 tvQuotedLabel = itemView.findViewById(R.id.tvQuotedLabel);
                 tvReplyText = itemView.findViewById(R.id.tvReplyText);
             }

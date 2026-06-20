@@ -42,17 +42,36 @@
             android:contentDescription="@string/chat_avatar_description"
             android:src="@drawable/avatar_placeholder" />
 
-        <TextView
-            android:id="@+id/chat_other_name"
-            style="@style/TextAppearance.Pocket.Title"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="@dimen/pocket_space_md"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/pocket_text_primary"
-            tools:text="Pocket User" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/chat_other_name"
+                style="@style/TextAppearance.Pocket.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/pocket_space_md"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/pocket_text_primary"
+                tools:text="Pocket User" />
+
+            <TextView
+                android:id="@+id/chat_streak_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:textColor="#FF9800"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:visibility="visible"
+                tools:text="🔥 5" />
+        </LinearLayout>
     </com.google.android.material.appbar.MaterialToolbar>
 
     <View

@@ -174,11 +174,24 @@ public class FriendListFragment extends Fragment {
             holder.removeButton.setOnClickListener(v -> listener.onRemove(user));
             com.example.pocket.utils.ViewUtils.applyPressAnimation(holder.removeButton);
 
+            if (holder.streakListenerRegistration != null) {
+                holder.streakListenerRegistration.remove();
+                holder.streakListenerRegistration = null;
+            }
+
             String myUid = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null
                     ? com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser().getUid()
                     : "";
             if (!myUid.isEmpty() && user.getId() != null) {
-                com.example.pocket.utils.StreakHelper.listenStreak(myUid, user.getId(), count -> {
+                holder.streakListenerRegistration = com.example.pocket.utils.StreakHelper.listenStreak(myUid, user.getId(), count -> {
+                    if (holder.streakBadge != null) {
+                        if (count >= 2) {
+                            holder.streakBadge.setText("🔥 " + count);
+                            holder.streakBadge.setVisibility(View.VISIBLE);
+                        } else {
+                            holder.streakBadge.setVisibility(View.GONE);
+                        }
+                    }
                     if (holder.tvStreak != null) {
                         holder.tvStreak.setText(count + " days");
                     }
@@ -187,12 +200,24 @@ public class FriendListFragment extends Fragment {
                     }
                 });
             } else {
+                if (holder.streakBadge != null) {
+                    holder.streakBadge.setVisibility(View.GONE);
+                }
                 if (holder.tvStreak != null) {
                     holder.tvStreak.setText("");
                 }
                 if (holder.ivFire != null) {
                     holder.ivFire.setVisibility(View.GONE);
                 }
+            }
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull Holder holder) {
+            super.onViewRecycled(holder);
+            if (holder.streakListenerRegistration != null) {
+                holder.streakListenerRegistration.remove();
+                holder.streakListenerRegistration = null;
             }
         }
 
@@ -209,6 +234,8 @@ public class FriendListFragment extends Fragment {
             final View removeButton;
             final TextView tvStreak;
             final android.widget.ImageView ivFire;
+            final TextView streakBadge;
+            com.google.firebase.firestore.ListenerRegistration streakListenerRegistration;
 
             Holder(@NonNull View itemView) {
                 super(itemView);
@@ -219,6 +246,7 @@ public class FriendListFragment extends Fragment {
                 removeButton = itemView.findViewById(R.id.friend_item_remove_button);
                 tvStreak = itemView.findViewById(R.id.tvStreak);
                 ivFire = itemView.findViewById(R.id.ivFire);
+                streakBadge = itemView.findViewById(R.id.friend_item_streak_badge);
             }
         }
     }
