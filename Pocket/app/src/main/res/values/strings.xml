@@ -192,4 +192,5 @@
     <string name="widget_empty_hint">Open app</string>
     <string name="notification_channel_messages">Messages</string>
     <string name="notification_channel_messages_description">New Pocket chat messages</string>
+    <string name="profile_notifications_permission_denied">Notification permission was denied.</string>
 </resources>

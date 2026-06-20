@@ -1,7 +1,9 @@
 package com.example.pocket;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,6 +33,7 @@ import com.example.pocket.data.remote.CloudinaryService;
 import com.example.pocket.ui.PocketButton;
 import com.example.pocket.utils.Constants;
 import com.example.pocket.utils.ImageUtils;
+import com.example.pocket.utils.NotificationPreferenceHelper;
 import com.example.pocket.utils.SharedPrefManager;
 import com.example.pocket.viewmodel.ProfileViewModel;
 import com.google.android.material.snackbar.Snackbar;
@@ -53,6 +56,17 @@ public class ProfileFragment extends Fragment {
     private PocketButton editNameButton;
     private EditText nameEditText;
     private PocketButton saveNameButton;
+    private Switch notificationSwitch;
+    private final ActivityResultLauncher<String> notificationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                NotificationPreferenceHelper.setNotificationsEnabled(requireContext(), granted);
+                if (notificationSwitch != null) {
+                    notificationSwitch.setChecked(granted);
+                }
+                if (!granted) {
+                    showSnackbar(getString(R.string.profile_notifications_permission_denied));
+                }
+            });
 
     private final ActivityResultLauncher<String> imagePickerLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), this::uploadAvatar);
@@ -79,6 +93,8 @@ public class ProfileFragment extends Fragment {
         nameEditText = view.findViewById(R.id.profile_name_edit_text);
         saveNameButton = view.findViewById(R.id.profile_save_name_button);
         LinearLayout privacyRow = view.findViewById(R.id.profile_privacy_row);
+        LinearLayout notificationRow = view.findViewById(R.id.profile_notification_row);
+        notificationSwitch = view.findViewById(R.id.profile_notification_switch);
         LinearLayout logoutRow = view.findViewById(R.id.profile_logout_row);
         LinearLayout themeRow = view.findViewById(R.id.profile_theme_row);
         TextView themeStatusText = view.findViewById(R.id.profile_theme_status);
@@ -91,6 +107,7 @@ public class ProfileFragment extends Fragment {
         saveNameButton.setOnClickListener(v -> saveDisplayName());
         privacyRow.setOnClickListener(v ->
                 Toast.makeText(requireContext(), R.string.common_coming_soon, Toast.LENGTH_SHORT).show());
+        bindNotificationSwitch(notificationRow);
         logoutRow.setOnClickListener(v -> signOut());
 
         int currentMode = SharedPrefManager.getInstance(requireContext()).getThemeMode();
@@ -243,6 +260,24 @@ public class ProfileFragment extends Fragment {
                 .get()
                 .addOnSuccessListener(snapshot -> photosSentCountText.setText(String.valueOf(snapshot.size())))
                 .addOnFailureListener(error -> photosSentCountText.setText(R.string.profile_stat_zero));
+    }
+
+    private void bindNotificationSwitch(@NonNull LinearLayout notificationRow) {
+        boolean enabled = SharedPrefManager.getInstance(requireContext()).areNotificationsEnabled()
+                && NotificationPreferenceHelper.hasPostNotificationPermission(requireContext());
+        notificationSwitch.setChecked(enabled);
+        NotificationPreferenceHelper.syncCurrentUserPreference(enabled);
+
+        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked && !NotificationPreferenceHelper.hasPostNotificationPermission(requireContext())) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+                }
+                return;
+            }
+            NotificationPreferenceHelper.setNotificationsEnabled(requireContext(), isChecked);
+        });
+        notificationRow.setOnClickListener(v -> notificationSwitch.toggle());
     }
 
     private String currentLanguage() {

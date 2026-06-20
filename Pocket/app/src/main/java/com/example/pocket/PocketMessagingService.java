@@ -13,6 +13,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.pocket.utils.Constants;
+import com.example.pocket.utils.NotificationPreferenceHelper;
 import com.example.pocket.widget.PocketWidgetProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,19 +26,24 @@ import java.util.Map;
 
 public class PocketMessagingService extends FirebaseMessagingService {
     public static final String CHANNEL_MESSAGES = "pocket_messages";
+    private static final String TYPE_MESSAGE = "message";
+    private static final String TYPE_PHOTO_RECEIVED = "photo_received";
     private static final int MESSAGE_NOTIFICATION_BASE_ID = 4000;
+    private static final int PHOTO_NOTIFICATION_BASE_ID = 5000;
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage message) {
         Map<String, String> data = message.getData();
-        boolean isMessagePayload = "message".equals(data.get("type"));
+        String type = valueOrDefault(data.get("type"), TYPE_MESSAGE);
+        boolean isMessagePayload = TYPE_MESSAGE.equals(type);
         if (!isMessagePayload && isAppInForeground()) {
             return;
         }
 
         RemoteMessage.Notification notification = message.getNotification();
         String senderName = valueOrDefault(data.get("senderName"),
-                notification == null ? getString(R.string.app_name) : notification.getTitle());
+                valueOrDefault(data.get("title"),
+                        notification == null ? getString(R.string.app_name) : notification.getTitle()));
         String body = valueOrDefault(data.get("body"),
                 notification == null ? "" : notification.getBody());
         String friendUid = firstNonEmpty(
@@ -53,7 +59,10 @@ public class PocketMessagingService extends FirebaseMessagingService {
             PocketWidgetProvider.updateLatestPhoto(this, imageUrl, senderName, System.currentTimeMillis());
         }
 
-        showMessageNotification(senderName, body, friendUid, avatarUrl);
+        if (!NotificationPreferenceHelper.areNotificationsAllowed(this)) {
+            return;
+        }
+        showPocketNotification(type, senderName, body, friendUid, avatarUrl);
     }
 
     @Override
@@ -81,23 +90,33 @@ public class PocketMessagingService extends FirebaseMessagingService {
                 .update("fcmToken", token);
     }
 
-    private void showMessageNotification(@NonNull String senderName,
-                                         @NonNull String body,
-                                         @NonNull String friendUid,
-                                         @NonNull String avatarUrl) {
+    private void showPocketNotification(@NonNull String type,
+                                        @NonNull String senderName,
+                                        @NonNull String body,
+                                        @NonNull String friendUid,
+                                        @NonNull String avatarUrl) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
             return;
         }
 
-        Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra(ChatActivity.EXTRA_FRIEND_UID, friendUid);
-        intent.putExtra(ChatActivity.EXTRA_FRIEND_NAME, senderName);
-        intent.putExtra(ChatActivity.EXTRA_FRIEND_AVATAR, avatarUrl);
+        Intent intent;
+        int baseNotificationId;
+        if (TYPE_MESSAGE.equals(type)) {
+            intent = new Intent(this, ChatActivity.class);
+            intent.putExtra(ChatActivity.EXTRA_FRIEND_UID, friendUid);
+            intent.putExtra(ChatActivity.EXTRA_FRIEND_NAME, senderName);
+            intent.putExtra(ChatActivity.EXTRA_FRIEND_AVATAR, avatarUrl);
+            baseNotificationId = MESSAGE_NOTIFICATION_BASE_ID;
+        } else {
+            intent = new Intent(this, MainActivity.class);
+            intent.putExtra(MainActivity.EXTRA_OPEN_HISTORY, TYPE_PHOTO_RECEIVED.equals(type));
+            baseNotificationId = PHOTO_NOTIFICATION_BASE_ID;
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        int notificationId = MESSAGE_NOTIFICATION_BASE_ID + Math.abs(friendUid.hashCode() % 1000);
+        int notificationId = baseNotificationId + Math.abs(friendUid.hashCode() % 1000);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             flags |= PendingIntent.FLAG_IMMUTABLE;

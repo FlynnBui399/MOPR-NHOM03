@@ -1,12 +1,16 @@
 package com.example.pocket;
 
+import android.Manifest;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +23,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.pocket.utils.NotificationPreferenceHelper;
 import com.example.pocket.utils.SharedPrefManager;
 import com.example.pocket.viewmodel.ChatUnreadViewModel;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout homeTab;
     private LinearLayout chatTab;
     private TextView chatUnreadBadge;
+    private final ActivityResultLauncher<String> notificationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted ->
+                    NotificationPreferenceHelper.setNotificationsEnabled(this, granted));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         PocketMessagingService.refreshTokenForCurrentUser();
+        requestNotificationPermissionIfNeeded();
     }
 
     private void bindViews() {
@@ -105,6 +114,17 @@ public class MainActivity extends AppCompatActivity {
 
     private int dp(int value) {
         return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    private void requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                || NotificationPreferenceHelper.hasPostNotificationPermission(this)
+                || !SharedPrefManager.getInstance(this).areNotificationsEnabled()) {
+            NotificationPreferenceHelper.syncCurrentUserPreference(
+                    SharedPrefManager.getInstance(this).areNotificationsEnabled());
+            return;
+        }
+        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
     }
 
     private void selectTab(int itemId) {

@@ -20,6 +20,7 @@ public class SharedPrefManager {
     private static final String KEY_LATEST_PHOTO_URL = "latest_photo_url";
     private static final String KEY_LATEST_SENDER_NAME = "latest_sender_name";
     private static final String KEY_LATEST_PHOTO_TIMESTAMP = "latest_photo_timestamp";
+    private static final String KEY_NOTIFICATIONS_ENABLED = "notifications_enabled";
     private static SharedPrefManager instance;
     private final SharedPreferences preferences;
 
@@ -102,5 +103,13 @@ public class SharedPrefManager {
 
     public long getLatestPhotoTimestamp() {
         return preferences.getLong(KEY_LATEST_PHOTO_TIMESTAMP, 0L);
+    }
+
+    public void setNotificationsEnabled(boolean enabled) {
+        preferences.edit().putBoolean(KEY_NOTIFICATIONS_ENABLED, enabled).apply();
+    }
+
+    public boolean areNotificationsEnabled() {
+        return preferences.getBoolean(KEY_NOTIFICATIONS_ENABLED, true);
     }
 }

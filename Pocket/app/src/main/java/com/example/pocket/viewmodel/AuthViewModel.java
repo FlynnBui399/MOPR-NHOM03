@@ -12,6 +12,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.pocket.R;
 import com.example.pocket.data.model.User;
 import com.example.pocket.utils.Constants;
+import com.example.pocket.utils.NotificationPreferenceHelper;
+import com.example.pocket.utils.SharedPrefManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -230,6 +232,11 @@ public class AuthViewModel extends AndroidViewModel {
                     values.put("email", firebaseUser.getEmail());
                     values.put("phoneNumber", firebaseUser.getPhoneNumber());
                     values.put("fcmToken", fcmToken);
+                    if (!snapshot.exists()
+                            || !snapshot.contains(NotificationPreferenceHelper.FIELD_NOTIFICATIONS_ENABLED)) {
+                        values.put(NotificationPreferenceHelper.FIELD_NOTIFICATIONS_ENABLED,
+                                SharedPrefManager.getInstance(getApplication()).areNotificationsEnabled());
+                    }
                     values.put("updatedAt", now);
 
                     userRef.set(values, SetOptions.merge())
