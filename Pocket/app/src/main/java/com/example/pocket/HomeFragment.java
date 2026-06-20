@@ -112,6 +112,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
     private static final String TAG_CAMERA = "PocketCamera";
+    private static final String TAG_AI = "PocketAI";
     private static final String STATE_HOME_PAGE = "home_page";
     private static final String STATE_HOME_POST_ID = "home_post_id";
 
@@ -782,7 +783,13 @@ public class HomeFragment extends Fragment {
         savePhotoButton.setOnClickListener(view -> saveCapturedPhoto());
         historyHeader.setOnClickListener(view -> scrollToHistory());
         suggestCaptionButton.setOnClickListener(view -> {
+            Log.d(TAG_AI, "AI suggestion tapped: capturedBytesPresent="
+                    + (capturedJpegBytes != null)
+                    + ", byteLength=" + (capturedJpegBytes == null ? 0 : capturedJpegBytes.length)
+                    + ", imagePathAvailable=false, imageUriAvailable=false"
+                    + ", fileExists=N/A, source=in-memory JPEG, mimeType=image/jpeg");
             if (capturedJpegBytes == null) {
+                Log.e(TAG_AI, "AI suggestion aborted: captured image bytes are missing");
                 return;
             }
             waitingForCaptionOptions = true;
@@ -837,6 +844,12 @@ public class HomeFragment extends Fragment {
             String modelName = Constants.GEMINI_CAPTION_MODEL;
             boolean isApiKeyPresent = Constants.GEMINI_API_KEY != null && !Constants.GEMINI_API_KEY.trim().isEmpty();
             String errorMsg = suggestion.getErrorMessage();
+
+            Log.d(TAG_AI, "Caption result delivered to UI: source=" + source
+                    + ", captionCount=" + numCaptions
+                    + ", model=" + modelName
+                    + ", apiKeyPresent=" + isApiKeyPresent
+                    + ", fallbackReason=" + (errorMsg == null ? "none" : errorMsg));
 
             android.util.Log.d("CaptionDisplay", "--- Suggest Caption Metrics ---");
             android.util.Log.d("CaptionDisplay", "Source: " + source);

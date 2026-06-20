@@ -21,6 +21,7 @@ import java.util.concurrent.Executors;
 
 public class CameraViewModel extends AndroidViewModel {
     private static final String TAG = "CameraViewModel";
+    private static final String TAG_AI = "PocketAI";
 
     private final PhotoRepository photoRepository;
     private final GeminiService geminiService;
@@ -64,6 +65,8 @@ public class CameraViewModel extends AndroidViewModel {
     }
 
     public void generateCaption(@NonNull byte[] jpegBytes) {
+        Log.d(TAG_AI, "CameraViewModel.generateCaption triggered: sourceBytes="
+                + jpegBytes.length + ", mimeType=image/jpeg");
         byte[] sourceBytes = jpegBytes.clone();
         captionExecutor.execute(() -> {
             final byte[] optimizedBytes;
@@ -71,7 +74,14 @@ public class CameraViewModel extends AndroidViewModel {
             try {
                 optimizedBytes = ImageUtils.optimizeForCaption(sourceBytes);
                 imageHash = ImageUtils.sha256(optimizedBytes);
+                Log.d(TAG_AI, "Caption image prepared: optimizedBytes="
+                        + optimizedBytes.length + ", hashSource=optimizedJPEG_SHA256"
+                        + ", hashPrefix=" + imageHash.substring(0, Math.min(12, imageHash.length())));
             } catch (RuntimeException error) {
+                Log.e(TAG_AI, "Caption image preparation failed: type="
+                        + error.getClass().getName() + ", message=" + error.getMessage()
+                        + ", rootCause=" + rootCauseMessage(error)
+                        + "; fallbackPath=image_preparation", error);
                 Log.w(TAG, "Unable to prepare image for Gemini caption", error);
                 publishFallback(error.getMessage());
                 return;
@@ -79,38 +89,38 @@ public class CameraViewModel extends AndroidViewModel {
 
             List<String> cached = captionCache.get(imageHash);
             if (!cached.isEmpty()) {
+                Log.d(TAG_AI, "Using caption CACHE result: captionCount=" + cached.size()
+                        + "; Gemini service will not be called");
                 captionSuggestion.postValue(new CaptionSuggestion(
                         ensureFourCaptions(cached), CaptionSource.CACHE));
                 return;
             }
 
+            Log.d(TAG_AI, "Caption cache miss; calling GeminiService with optimizedBytes="
+                    + optimizedBytes.length);
             geminiService.generateCaptions(optimizedBytes)
                     .addOnSuccessListener(captions -> {
+                        Log.d(TAG_AI, "GeminiService success: rawCaptionCount="
+                                + (captions == null ? 0 : captions.size()));
                         List<String> completed = ensureFourCaptions(captions);
 
-                        // Count how many non-generic (image-specific) captions are in the AI list
-                        int aiNonGenericCount = 0;
-                        if (captions != null) {
-                            for (String caption : captions) {
-                                if (caption != null && !caption.trim().isEmpty() 
-                                        && !GeminiService.isGenericCaption(caption.trim())) {
-                                    aiNonGenericCount++;
-                                }
-                            }
-                        }
-
-                        // Only cache if Gemini returned at least 2 non-generic (image-specific) captions
-                        if (aiNonGenericCount >= 2) {
-                            captionCache.put(imageHash, completed);
-                            Log.i(TAG, "Cached generated AI captions. Non-generic count: " + aiNonGenericCount);
-                        } else {
-                            Log.i(TAG, "Did not cache AI captions (mostly generic). Non-generic count: " + aiNonGenericCount);
+                        // Cache only Gemini's cleaned captions. Fallback padding remains transient.
+                        if (captions != null && !captions.isEmpty()) {
+                            captionCache.put(imageHash, captions);
+                            Log.d(TAG_AI, "Caption cache SAVE requested: aiCaptionCount="
+                                    + captions.size());
                         }
 
                         captionSuggestion.postValue(new CaptionSuggestion(
                                 completed, CaptionSource.AI));
+                        Log.d(TAG_AI, "Publishing AI caption result: finalCaptionCount="
+                                + completed.size());
                     })
                     .addOnFailureListener(error -> {
+                        Log.e(TAG_AI, "GeminiService failure: type="
+                                + error.getClass().getName() + ", message=" + error.getMessage()
+                                + ", rootCause=" + rootCauseMessage(error)
+                                + "; fallbackPath=service_failure", error);
                         Log.w(TAG, "Gemini caption unavailable; error: " + error.getMessage(), error);
                         publishFallback(error.getMessage());
                     });
@@ -118,8 +128,21 @@ public class CameraViewModel extends AndroidViewModel {
     }
 
     private void publishFallback(String errorMessage) {
+        List<String> fallback = GeminiService.fallbackCaptionSet();
+        Log.w(TAG_AI, "Publishing FALLBACK captions: reason="
+                + (errorMessage == null ? "unknown" : errorMessage)
+                + ", captionCount=" + fallback.size());
         captionSuggestion.postValue(new CaptionSuggestion(
-                fallbackCaptions(), CaptionSource.FALLBACK, errorMessage));
+                fallback, CaptionSource.FALLBACK, errorMessage));
+    }
+
+    @NonNull
+    private static String rootCauseMessage(@NonNull Throwable error) {
+        Throwable root = error;
+        while (root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+        return root.getClass().getName() + ": " + root.getMessage();
     }
 
     @NonNull
