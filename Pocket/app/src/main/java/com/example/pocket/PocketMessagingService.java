@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
 import com.example.pocket.utils.Constants;
 import com.example.pocket.utils.NotificationPreferenceHelper;
 import com.example.pocket.widget.PocketWidgetProvider;
@@ -27,7 +29,9 @@ import java.util.Map;
 public class PocketMessagingService extends FirebaseMessagingService {
     public static final String CHANNEL_MESSAGES = "pocket_messages";
     private static final String TYPE_MESSAGE = "message";
+    private static final String TYPE_CHAT_MESSAGE = "chat_message";
     private static final String TYPE_PHOTO_RECEIVED = "photo_received";
+    private static final String TYPE_REACTION = "reaction";
     private static final int MESSAGE_NOTIFICATION_BASE_ID = 4000;
     private static final int PHOTO_NOTIFICATION_BASE_ID = 5000;
 
@@ -35,8 +39,10 @@ public class PocketMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage message) {
         Map<String, String> data = message.getData();
         String type = valueOrDefault(data.get("type"), TYPE_MESSAGE);
-        boolean isMessagePayload = TYPE_MESSAGE.equals(type);
-        if (!isMessagePayload && isAppInForeground()) {
+        boolean shouldNotifyInForeground = TYPE_MESSAGE.equals(type)
+                || TYPE_CHAT_MESSAGE.equals(type)
+                || TYPE_REACTION.equals(type);
+        if (!shouldNotifyInForeground && isAppInForeground()) {
             return;
         }
 
@@ -55,14 +61,21 @@ public class PocketMessagingService extends FirebaseMessagingService {
 
         // Locket clone feature: Auto update widget if notification contains a photo
         String imageUrl = valueOrDefault(data.get("imageUrl"), data.get("photoUrl"));
-        if (!imageUrl.isEmpty()) {
+        if (TYPE_PHOTO_RECEIVED.equals(type) && !imageUrl.isEmpty()) {
             PocketWidgetProvider.updateLatestPhoto(this, imageUrl, senderName, System.currentTimeMillis());
         }
 
         if (!NotificationPreferenceHelper.areNotificationsAllowed(this)) {
             return;
         }
-        showPocketNotification(type, senderName, body, friendUid, avatarUrl);
+        String notificationKey = firstNonEmpty(
+                friendUid,
+                data.get("photoId"),
+                data.get("reactorId"),
+                type
+        );
+        showPocketNotification(type, senderName, body, friendUid, avatarUrl,
+                imageUrl, notificationKey);
     }
 
     @Override
@@ -94,7 +107,9 @@ public class PocketMessagingService extends FirebaseMessagingService {
                                         @NonNull String senderName,
                                         @NonNull String body,
                                         @NonNull String friendUid,
-                                        @NonNull String avatarUrl) {
+                                        @NonNull String avatarUrl,
+                                        @NonNull String imageUrl,
+                                        @NonNull String notificationKey) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -103,7 +118,7 @@ public class PocketMessagingService extends FirebaseMessagingService {
 
         Intent intent;
         int baseNotificationId;
-        if (TYPE_MESSAGE.equals(type)) {
+        if (TYPE_MESSAGE.equals(type) || TYPE_CHAT_MESSAGE.equals(type)) {
             intent = new Intent(this, ChatActivity.class);
             intent.putExtra(ChatActivity.EXTRA_FRIEND_UID, friendUid);
             intent.putExtra(ChatActivity.EXTRA_FRIEND_NAME, senderName);
@@ -111,12 +126,13 @@ public class PocketMessagingService extends FirebaseMessagingService {
             baseNotificationId = MESSAGE_NOTIFICATION_BASE_ID;
         } else {
             intent = new Intent(this, MainActivity.class);
-            intent.putExtra(MainActivity.EXTRA_OPEN_HISTORY, TYPE_PHOTO_RECEIVED.equals(type));
+            intent.putExtra(MainActivity.EXTRA_OPEN_HISTORY,
+                    TYPE_PHOTO_RECEIVED.equals(type) || TYPE_REACTION.equals(type));
             baseNotificationId = PHOTO_NOTIFICATION_BASE_ID;
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        int notificationId = baseNotificationId + Math.abs(friendUid.hashCode() % 1000);
+        int notificationId = baseNotificationId + Math.abs(notificationKey.hashCode() % 1000);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             flags |= PendingIntent.FLAG_IMMUTABLE;
@@ -132,6 +148,22 @@ public class PocketMessagingService extends FirebaseMessagingService {
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
+
+        if (!imageUrl.isEmpty()) {
+            try {
+                Bitmap bitmap = Glide.with(getApplicationContext())
+                        .asBitmap()
+                        .load(imageUrl)
+                        .submit()
+                        .get();
+                builder.setLargeIcon(bitmap)
+                        .setStyle(new NotificationCompat.BigPictureStyle()
+                                .bigPicture(bitmap)
+                                .setSummaryText(body));
+            } catch (Exception ignored) {
+                // The text notification is still useful when the image cannot be loaded.
+            }
+        }
 
         NotificationManagerCompat.from(this).notify(notificationId, builder.build());
     }

@@ -11,8 +11,10 @@ import com.example.pocket.data.model.Message;
 import com.example.pocket.utils.Constants;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,11 +56,20 @@ public class ChatRepository {
         message.put("createdAt", Timestamp.now());
         message.put("read", false);
 
-        firestore.collection(Constants.COLLECTION_CHATS)
-                .document(chatId)
-                .collection(Constants.COLLECTION_MESSAGES)
-                .document()
-                .set(message)
+        DocumentReference chatRef = firestore.collection(Constants.COLLECTION_CHATS).document(chatId);
+        List<String> participants = participantsFromChatId(chatId, senderId);
+        if (participants.size() > 1) {
+            message.put("receiverId", participants.get(0).equals(senderId)
+                    ? participants.get(1)
+                    : participants.get(0));
+        }
+        Map<String, Object> chat = new HashMap<>();
+        chat.put("participants", participants);
+
+        firestore.runBatch(batch -> {
+                    batch.set(chatRef, chat, SetOptions.merge());
+                    batch.set(chatRef.collection(Constants.COLLECTION_MESSAGES).document(), message);
+                })
                 .addOnSuccessListener(unused -> callback.onSuccess(null))
                 .addOnFailureListener(error -> {
                     Log.e(TAG, "Failed to send message", error);
@@ -92,16 +103,40 @@ public class ChatRepository {
         message.put("createdAt", Timestamp.now());
         message.put("read", false);
 
-        firestore.collection(Constants.COLLECTION_CHATS)
-                .document(chatId)
-                .collection(Constants.COLLECTION_MESSAGES)
-                .document()
-                .set(message)
+        DocumentReference chatRef = firestore.collection(Constants.COLLECTION_CHATS).document(chatId);
+        List<String> participants = participantsFromChatId(chatId, senderId);
+        if (participants.size() > 1) {
+            message.put("receiverId", participants.get(0).equals(senderId)
+                    ? participants.get(1)
+                    : participants.get(0));
+        }
+        Map<String, Object> chat = new HashMap<>();
+        chat.put("participants", participants);
+
+        firestore.runBatch(batch -> {
+                    batch.set(chatRef, chat, SetOptions.merge());
+                    batch.set(chatRef.collection(Constants.COLLECTION_MESSAGES).document(), message);
+                })
                 .addOnSuccessListener(unused -> callback.onSuccess(null))
                 .addOnFailureListener(error -> {
                     Log.e(TAG, "Failed to send photo reply", error);
                     callback.onError(error);
                 });
+    }
+
+    @NonNull
+    private List<String> participantsFromChatId(@NonNull String chatId,
+                                                @NonNull String senderId) {
+        List<String> participants = new ArrayList<>();
+        for (String uid : chatId.split("_")) {
+            if (!uid.trim().isEmpty() && !participants.contains(uid)) {
+                participants.add(uid);
+            }
+        }
+        if (!participants.contains(senderId)) {
+            participants.add(senderId);
+        }
+        return participants;
     }
 
     @NonNull
