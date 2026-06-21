@@ -2210,13 +2210,26 @@ public class HomeFragment extends Fragment {
 
     private void applyHomeIconPolish() {
         int iconColor = ContextCompat.getColor(requireContext(), R.color.pocket_text_primary);
-        ColorStateList tint = ColorStateList.valueOf(iconColor);
-        if (flashButton != null) flashButton.setIconTint(tint);
-        if (galleryButton != null) galleryButton.setIconTint(tint);
-        if (flipButton != null) flipButton.setIconTint(tint);
-        if (retakeButton != null) retakeButton.setIconTint(tint);
-        if (savePhotoButton != null) savePhotoButton.setIconTint(tint);
+        ColorStateList foreground = ColorStateList.valueOf(iconColor);
+        if (flashButton != null) flashButton.setIconTint(foreground);
+        styleCameraSideButton(galleryButton, foreground);
+        styleCameraSideButton(flipButton, foreground);
+        if (retakeButton != null) retakeButton.setIconTint(foreground);
+        if (savePhotoButton != null) savePhotoButton.setIconTint(foreground);
         if (recipientPill != null) recipientPill.setTextColor(iconColor);
+    }
+
+    private void styleCameraSideButton(@Nullable PocketButton button,
+                                       @NonNull ColorStateList foreground) {
+        if (button == null) {
+            return;
+        }
+        button.setBackgroundTintList(ColorStateList.valueOf(
+                ContextCompat.getColor(requireContext(), R.color.pocket_surface_variant)));
+        button.setStrokeColor(ColorStateList.valueOf(
+                ContextCompat.getColor(requireContext(), R.color.pocket_outline)));
+        button.setStrokeWidth(dp(1));
+        button.setIconTint(foreground);
     }
 
     private void saveCapturedPhoto() {

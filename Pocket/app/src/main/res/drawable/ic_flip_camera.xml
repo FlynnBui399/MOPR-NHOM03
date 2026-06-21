@@ -15,10 +15,10 @@
   -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:viewportHeight="310.83" android:viewportWidth="310.83" android:width="24dp">
       
-    <path android:fillColor="#000000" android:pathData="M69.02,195.68l27.1,27.1c-8.15,0 -64.24,0 -71.12,0v-76h8.5v-25H0v126c11.31,0 85.01,0 96.12,0l-27.1,27.1l17.68,17.68l57.28,-57.28l-57.28,-57.28L69.02,195.68z"/>
+    <path android:fillColor="@color/pocket_text_primary" android:pathData="M69.02,195.68l27.1,27.1c-8.15,0 -64.24,0 -71.12,0v-76h8.5v-25H0v126c11.31,0 85.01,0 96.12,0l-27.1,27.1l17.68,17.68l57.28,-57.28l-57.28,-57.28L69.02,195.68z"/>
       
-    <path android:fillColor="#000000" android:pathData="M277.33,121.4l0,25l8.5,0l0,76l-118.67,0l12.88,12.88l-12.12,12.12l142.91,0l0,-126z"/>
+    <path android:fillColor="@color/pocket_text_primary" android:pathData="M277.33,121.4l0,25l8.5,0l0,76l-118.67,0l12.88,12.88l-12.12,12.12l142.91,0l0,-126z"/>
       
-    <path android:fillColor="#000000" android:pathData="M238.17,159.99V40.84h-20.64V18.28h-47.54v22.57H73.29v119.14C80.54,159.99 230.96,159.99 238.17,159.99zM155.73,57.93c23.47,0 42.49,19.02 42.49,42.49c0,23.47 -19.02,42.49 -42.49,42.49s-42.49,-19.02 -42.49,-42.49C113.24,76.95 132.26,57.93 155.73,57.93z"/>
+    <path android:fillColor="@color/pocket_text_primary" android:pathData="M238.17,159.99V40.84h-20.64V18.28h-47.54v22.57H73.29v119.14C80.54,159.99 230.96,159.99 238.17,159.99zM155.73,57.93c23.47,0 42.49,19.02 42.49,42.49c0,23.47 -19.02,42.49 -42.49,42.49s-42.49,-19.02 -42.49,-42.49C113.24,76.95 132.26,57.93 155.73,57.93z"/>
     
 </vector>
