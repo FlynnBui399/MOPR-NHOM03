@@ -1,6 +1,6 @@
 {
   "name": "pocket-functions",
-  "description": "Firebase Cloud Functions for Pocket notifications",
+  "description": "Firebase Cloud Functions for Pocket notifications, streaks, and media cleanup",
   "engines": {
     "node": "20"
   },

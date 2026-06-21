@@ -18,3 +18,6 @@ local.properties
 google-services.json
 app/google-services.json
 secrets.properties
+/functions/node_modules/
+/functions/.env
+/functions/.env.*

@@ -27,16 +27,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.pocket.data.model.Message;
 import com.example.pocket.data.repository.UserRepository;
-import com.example.pocket.utils.FcmHelper;
 import com.example.pocket.viewmodel.ChatViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -49,7 +45,6 @@ public class ChatActivity extends AppCompatActivity {
     private MessageAdapter adapter;
     private EditText messageInput;
     private RecyclerView messagesRecycler;
-    private ExecutorService notificationExecutor;
     private String friendUid;
     private String friendName;
     private com.google.firebase.firestore.ListenerRegistration streakListenerRegistration;
@@ -88,8 +83,6 @@ public class ChatActivity extends AppCompatActivity {
 
             return insets;
         });
-
-        notificationExecutor = Executors.newSingleThreadExecutor();
 
         friendUid = getIntent().getStringExtra(EXTRA_FRIEND_UID);
         friendName = getIntent().getStringExtra(EXTRA_FRIEND_NAME);
@@ -215,28 +208,15 @@ public class ChatActivity extends AppCompatActivity {
     private void sendText() {
         String content = messageInput.getText() == null ? "" : messageInput.getText().toString().trim();
         if (!content.isEmpty()) {
-            viewModel.sendMessage(content, () -> sendFcmNotification(content));
+            viewModel.sendMessage(content);
             messageInput.setText(null);
         }
     }
 
     private void sendEmoji(@NonNull String emoji) {
         if (!emoji.trim().isEmpty()) {
-            viewModel.sendEmoji(emoji, () -> sendFcmNotification(emoji));
+            viewModel.sendEmoji(emoji);
         }
-    }
-
-    private void sendFcmNotification(@NonNull String content) {
-        if (notificationExecutor == null
-                || notificationExecutor.isShutdown()
-                || friendUid == null
-                || friendUid.trim().isEmpty()) {
-            return;
-        }
-
-        String senderName = currentSenderName();
-        notificationExecutor.execute(() ->
-                FcmHelper.sendMessageNotification(friendUid, senderName, content));
     }
 
     @Override
@@ -254,24 +234,12 @@ public class ChatActivity extends AppCompatActivity {
                 : FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
-    @NonNull
-    private String currentSenderName() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null && user.getDisplayName() != null && !user.getDisplayName().trim().isEmpty()) {
-            return user.getDisplayName();
-        }
-        return getString(R.string.camera_default_user);
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (streakListenerRegistration != null) {
             streakListenerRegistration.remove();
             streakListenerRegistration = null;
-        }
-        if (notificationExecutor != null) {
-            notificationExecutor.shutdown();
         }
     }
 
