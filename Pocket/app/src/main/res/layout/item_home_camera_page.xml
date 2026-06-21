@@ -33,6 +33,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:contentDescription="@string/camera_preview"
+                app:implementationMode="compatible"
                 app:scaleType="fillCenter" />
 
             <ImageView

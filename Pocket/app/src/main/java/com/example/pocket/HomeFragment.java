@@ -711,6 +711,29 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (previewView == null
+                || currentPageIndex != 0
+                || capturedJpegBytes != null
+                || ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        PreviewView activePreviewView = previewView;
+        activePreviewView.post(() -> {
+            if (isAdded()
+                    && previewView == activePreviewView
+                    && getViewLifecycleOwner().getLifecycle().getCurrentState()
+                    .isAtLeast(Lifecycle.State.STARTED)) {
+                Log.d(TAG_CAMERA, "Lifecycle started; ensuring camera is rebound after recreation");
+                ensureCameraReady();
+            }
+        });
+    }
+
     private void bindActions() {
         captionInput.setOnFocusChangeListener((view, hasFocus) -> {
             if (hasFocus) {
