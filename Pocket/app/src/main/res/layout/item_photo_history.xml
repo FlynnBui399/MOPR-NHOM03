@@ -115,7 +115,7 @@
                 android:src="@drawable/ic_more_vert"
                 android:contentDescription="Post Options"
                 android:visibility="visible"
-                android:tint="@color/white" />
+                android:tint="?attr/colorControlNormal" />
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 

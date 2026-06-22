@@ -19,7 +19,7 @@
         android:layout_height="56dp"
         android:gravity="center"
         android:text="Share"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="16sp"
         android:textStyle="bold"
         android:clickable="true"
@@ -32,7 +32,7 @@
         android:layout_height="56dp"
         android:gravity="center"
         android:text="Download"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="16sp"
         android:textStyle="bold"
         android:clickable="true"
@@ -70,7 +70,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#2C2C2E"
+        android:background="?attr/colorOutline"
         android:layout_marginVertical="8dp" />
 
     <TextView
@@ -79,7 +79,7 @@
         android:layout_height="56dp"
         android:gravity="center"
         android:text="Cancel"
-        android:textColor="#8E8E93"
+        android:textColor="@color/pocket_text_secondary"
         android:textSize="16sp"
         android:textStyle="bold"
         android:clickable="true"

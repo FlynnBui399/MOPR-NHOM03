@@ -184,6 +184,12 @@ public class HomeFragment extends Fragment {
     private HomeMode homeMode = HomeMode.CAMERA;
     private boolean homeTabActive = true;
     private boolean cameraErrorShown;
+    private final android.os.Handler cameraRecoveryHandler =
+            new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable cameraRecoveryRunnable;
+    private androidx.lifecycle.Observer<PreviewView.StreamState> previewStreamObserver;
+    private PreviewView observedPreviewView;
+    private int cameraRecoveryAttempts;
     private final Set<String> locallySeenPhotoIds = new HashSet<>();
 
     // Persistent reply bar & Emoji rain
@@ -712,8 +718,8 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
         if (previewView == null
                 || currentPageIndex != 0
                 || capturedJpegBytes != null
@@ -727,11 +733,30 @@ public class HomeFragment extends Fragment {
             if (isAdded()
                     && previewView == activePreviewView
                     && getViewLifecycleOwner().getLifecycle().getCurrentState()
-                    .isAtLeast(Lifecycle.State.STARTED)) {
-                Log.d(TAG_CAMERA, "Lifecycle started; ensuring camera is rebound after recreation");
-                ensureCameraReady();
+                    .isAtLeast(Lifecycle.State.RESUMED)) {
+                Log.d(TAG_CAMERA, "Fragment resumed; rebinding camera to the active preview surface");
+                cameraRecoveryAttempts = 0;
+                rebindCameraToCurrentSurface("fragment resumed");
             }
         });
+    }
+
+    @Override
+    public void onPause() {
+        stopPreviewStreamMonitoring();
+        cameraBindGeneration++;
+        cameraBinding = false;
+        cameraBound = false;
+        boundLensFacing = -1;
+        imageCapture = null;
+        videoCapture = null;
+        camera = null;
+        if (cameraProvider != null) {
+            Log.d(TAG_CAMERA, "Fragment paused; releasing all CameraX use cases");
+            cameraProvider.unbindAll();
+            cameraProvider = null;
+        }
+        super.onPause();
     }
 
     private void bindActions() {
@@ -1021,7 +1046,8 @@ public class HomeFragment extends Fragment {
             markVisiblePostSeen(target);
             homeTabActive = true;
             if (target == 0) {
-                ensureCameraReady();
+                cameraRecoveryAttempts = 0;
+                rebindCameraToCurrentSurface("home tab restored camera page");
             }
         });
     }
@@ -1453,6 +1479,7 @@ public class HomeFragment extends Fragment {
                 if (flashButton != null) {
                     applyFlashMode();
                 }
+                monitorPreviewStream(activePreviewView, bindGeneration);
                 cameraErrorShown = false;
             } catch (Exception exception) {
                 if (bindGeneration == cameraBindGeneration) {
@@ -1488,11 +1515,131 @@ public class HomeFragment extends Fragment {
     private void ensureCameraReady() {
         boolean expectedUseCaseReady = isVideoMode
                 ? videoCapture != null : imageCapture != null;
-        if (!cameraBound || camera == null || !expectedUseCaseReady
-                || boundLensFacing != lensFacing || boundVideoMode != isVideoMode) {
-            Log.d(TAG_CAMERA, "Camera is not ready; requesting a fresh bind");
-            startCamera();
+        PreviewView.StreamState streamState = previewView == null
+                ? null : previewView.getPreviewStreamState().getValue();
+        if (cameraBinding) {
+            Log.d(TAG_CAMERA, "Camera bind already in progress");
+            return;
         }
+        if (!cameraBound || camera == null || !expectedUseCaseReady
+                || boundLensFacing != lensFacing || boundVideoMode != isVideoMode
+                || streamState != PreviewView.StreamState.STREAMING) {
+            Log.d(TAG_CAMERA, "Camera is not ready; requesting a fresh bind");
+            rebindCameraToCurrentSurface("camera readiness check failed");
+        }
+    }
+
+    private void rebindCameraToCurrentSurface(@NonNull String reason) {
+        if (!isAdded() || previewView == null || capturedJpegBytes != null
+                || currentPageIndex != 0) {
+            return;
+        }
+
+        Log.d(TAG_CAMERA, "Rebinding camera: " + reason);
+        stopPreviewStreamMonitoring();
+        cameraBindGeneration++;
+        cameraBinding = false;
+        cameraBound = false;
+        boundLensFacing = -1;
+        imageCapture = null;
+        videoCapture = null;
+        camera = null;
+        if (cameraProvider != null) {
+            cameraProvider.unbindAll();
+            cameraProvider = null;
+        }
+
+        PreviewView activePreviewView = previewView;
+        int rebindGeneration = cameraBindGeneration;
+        postCameraBindWhenSurfaceReady(activePreviewView, rebindGeneration, 12);
+    }
+
+    private void postCameraBindWhenSurfaceReady(@NonNull PreviewView activePreviewView,
+                                                int rebindGeneration,
+                                                int attemptsRemaining) {
+        activePreviewView.post(() -> {
+            if (!isAdded()
+                    || previewView != activePreviewView
+                    || rebindGeneration != cameraBindGeneration
+                    || !getViewLifecycleOwner().getLifecycle().getCurrentState()
+                    .isAtLeast(Lifecycle.State.RESUMED)) {
+                return;
+            }
+            if (activePreviewView.isAttachedToWindow()
+                    && activePreviewView.getWidth() > 0
+                    && activePreviewView.getHeight() > 0) {
+                startCamera();
+                return;
+            }
+            if (attemptsRemaining > 0) {
+                activePreviewView.postDelayed(() ->
+                        postCameraBindWhenSurfaceReady(activePreviewView,
+                                rebindGeneration, attemptsRemaining - 1), 50L);
+            } else {
+                Log.e(TAG_CAMERA, "Preview surface was not ready for camera binding");
+            }
+        });
+    }
+
+    private void monitorPreviewStream(@NonNull PreviewView activePreviewView,
+                                      int bindGeneration) {
+        stopPreviewStreamMonitoring();
+        observedPreviewView = activePreviewView;
+        previewStreamObserver = streamState -> {
+            if (previewView != activePreviewView
+                    || bindGeneration != cameraBindGeneration) {
+                return;
+            }
+            Log.d(TAG_CAMERA, "Preview stream state=" + streamState
+                    + ", generation=" + bindGeneration);
+            if (streamState == PreviewView.StreamState.STREAMING) {
+                cameraRecoveryAttempts = 0;
+                if (cameraRecoveryRunnable != null) {
+                    cameraRecoveryHandler.removeCallbacks(cameraRecoveryRunnable);
+                    cameraRecoveryRunnable = null;
+                }
+            }
+        };
+        activePreviewView.getPreviewStreamState()
+                .observe(getViewLifecycleOwner(), previewStreamObserver);
+
+        cameraRecoveryRunnable = () -> {
+            if (!isAdded()
+                    || previewView != activePreviewView
+                    || bindGeneration != cameraBindGeneration
+                    || currentPageIndex != 0
+                    || capturedJpegBytes != null
+                    || !getViewLifecycleOwner().getLifecycle().getCurrentState()
+                    .isAtLeast(Lifecycle.State.RESUMED)) {
+                return;
+            }
+            PreviewView.StreamState streamState =
+                    activePreviewView.getPreviewStreamState().getValue();
+            if (streamState == PreviewView.StreamState.STREAMING) {
+                return;
+            }
+            if (cameraRecoveryAttempts >= 2) {
+                Log.e(TAG_CAMERA, "Preview remained idle after camera recovery attempts");
+                return;
+            }
+            cameraRecoveryAttempts++;
+            Log.w(TAG_CAMERA, "Preview did not start streaming; retry="
+                    + cameraRecoveryAttempts);
+            rebindCameraToCurrentSurface("preview stream stayed idle");
+        };
+        cameraRecoveryHandler.postDelayed(cameraRecoveryRunnable, 1500L);
+    }
+
+    private void stopPreviewStreamMonitoring() {
+        if (cameraRecoveryRunnable != null) {
+            cameraRecoveryHandler.removeCallbacks(cameraRecoveryRunnable);
+            cameraRecoveryRunnable = null;
+        }
+        if (observedPreviewView != null && previewStreamObserver != null) {
+            observedPreviewView.getPreviewStreamState().removeObserver(previewStreamObserver);
+        }
+        observedPreviewView = null;
+        previewStreamObserver = null;
     }
 
     @NonNull
@@ -2371,6 +2518,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onDestroyView() {
         captureCurrentPagerPosition();
+        stopPreviewStreamMonitoring();
         homeTabActive = false;
         cameraObserversBound = false;
         cameraBindGeneration++;

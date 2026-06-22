@@ -101,4 +101,8 @@
         <item name="boxCornerRadiusBottomStart">@dimen/pocket_radius_md</item>
         <item name="boxCornerRadiusBottomEnd">@dimen/pocket_radius_md</item>
     </style>
+
+    <style name="Widget.Pocket.PopupMenu" parent="Widget.MaterialComponents.PopupMenu">
+        <item name="android:popupBackground">@color/pocket_surface</item>
+    </style>
 </resources>
