@@ -427,6 +427,16 @@ public class HomeFragment extends Fragment {
                 updateModeForPage(position);
                 markVisiblePostSeen(position);
                 updateReplyBarVisibilityForCurrentPage(position);
+                if (position == 0) {
+                    if (capturedJpegBytes == null) {
+                        cameraRecoveryAttempts = 0;
+                        homePager.postDelayed(() ->
+                                rebindCameraToCurrentSurface(
+                                        "camera page selected after feed"), 120L);
+                    }
+                } else {
+                    releaseCameraUseCases("feed page selected");
+                }
             }
         });
 
@@ -743,6 +753,11 @@ public class HomeFragment extends Fragment {
 
     @Override
     public void onPause() {
+        releaseCameraUseCases("fragment paused");
+        super.onPause();
+    }
+
+    private void releaseCameraUseCases(@NonNull String reason) {
         stopPreviewStreamMonitoring();
         cameraBindGeneration++;
         cameraBinding = false;
@@ -752,11 +767,10 @@ public class HomeFragment extends Fragment {
         videoCapture = null;
         camera = null;
         if (cameraProvider != null) {
-            Log.d(TAG_CAMERA, "Fragment paused; releasing all CameraX use cases");
+            Log.d(TAG_CAMERA, "Releasing all CameraX use cases: " + reason);
             cameraProvider.unbindAll();
             cameraProvider = null;
         }
-        super.onPause();
     }
 
     private void bindActions() {
