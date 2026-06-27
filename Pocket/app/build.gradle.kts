@@ -93,7 +93,6 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-functions")
     implementation("com.google.firebase:firebase-messaging")
-    implementation("com.google.firebase:firebase-appcheck-playintegrity")
 
     // Room local database cache
     implementation("androidx.room:room-runtime:2.6.1")

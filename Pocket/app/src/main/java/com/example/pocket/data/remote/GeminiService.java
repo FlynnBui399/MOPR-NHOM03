@@ -1,10 +1,14 @@
 package com.example.pocket.data.remote;
 
 import android.util.Base64;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.functions.FirebaseFunctions;
 
 import java.util.ArrayList;
@@ -15,6 +19,8 @@ import java.util.Locale;
 import java.util.Map;
 
 public class GeminiService {
+    private static final String TAG_AI = "PocketAI";
+
     private final FirebaseFunctions functions;
 
     public GeminiService() {
@@ -27,14 +33,30 @@ public class GeminiService {
 
     @NonNull
     public Task<List<String>> generateCaptions(@NonNull byte[] optimizedJpegBytes) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        Log.d(TAG_AI, "generateCaption auth check: signedIn=" + (currentUser != null)
+                + ", uid=" + (currentUser == null ? "<none>" : currentUser.getUid()));
+        if (currentUser == null) {
+            return Tasks.forException(new IllegalStateException("User not authenticated"));
+        }
+
         String imageBase64 = Base64.encodeToString(optimizedJpegBytes, Base64.NO_WRAP);
         Map<String, Object> data = new HashMap<>();
         data.put("imageBase64", imageBase64);
         data.put("language", preferredLanguage());
 
-        return functions
-                .getHttpsCallable("generateCaption")
-                .call(data)
+        return currentUser.getIdToken(true)
+                .continueWithTask(tokenTask -> {
+                    if (!tokenTask.isSuccessful()) {
+                        Exception exception = tokenTask.getException();
+                        return Tasks.forException(exception == null
+                                ? new IllegalStateException("Unable to refresh authentication token")
+                                : exception);
+                    }
+                    return functions
+                            .getHttpsCallable("generateCaption")
+                            .call(data);
+                })
                 .continueWith(task -> {
                     if (!task.isSuccessful()) {
                         Exception exception = task.getException();

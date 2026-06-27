@@ -98,7 +98,8 @@ public class CameraViewModel extends AndroidViewModel {
 
             Log.d(TAG_AI, "Caption cache miss; calling GeminiService with optimizedBytes="
                     + optimizedBytes.length);
-            geminiService.generateCaptions(optimizedBytes)
+            try {
+                geminiService.generateCaptions(optimizedBytes)
                     .addOnSuccessListener(captions -> {
                         Log.d(TAG_AI, "GeminiService success: rawCaptionCount="
                                 + (captions == null ? 0 : captions.size()));
@@ -124,6 +125,11 @@ public class CameraViewModel extends AndroidViewModel {
                         Log.w(TAG, "Gemini caption unavailable; error: " + error.getMessage(), error);
                         publishFallback(error.getMessage());
                     });
+            } catch (IllegalStateException error) {
+                Log.e(TAG_AI, "GeminiService auth preflight failed: "
+                        + error.getMessage() + "; fallbackPath=auth_preflight", error);
+                publishFallback(error.getMessage());
+            }
         });
     }
 
