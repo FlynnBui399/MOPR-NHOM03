@@ -42,8 +42,6 @@ android {
         // Inject secrets into BuildConfig
         buildConfigField("String", "CLOUDINARY_CLOUD_NAME", secretString("CLOUDINARY_CLOUD_NAME"))
         buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", secretString("CLOUDINARY_UPLOAD_PRESET"))
-        buildConfigField("String", "GEMINI_API_KEY", secretString("GEMINI_API_KEY"))
-        buildConfigField("String", "GEMINI_MODEL", secretString("GEMINI_MODEL", "gemini-2.5-flash"))
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", secretString("GOOGLE_WEB_CLIENT_ID"))
 }
     buildTypes {
@@ -93,7 +91,9 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-functions")
     implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
 
     // Room local database cache
     implementation("androidx.room:room-runtime:2.6.1")

@@ -1,6 +1,7 @@
 "use strict";
 
 const {defineSecret} = require("firebase-functions/params");
+const {onCall, HttpsError} = require("firebase-functions/v2/https");
 const {
   onDocumentCreated,
   onDocumentDeleted,
@@ -19,11 +20,57 @@ const FieldValue = admin.firestore.FieldValue;
 const CLOUDINARY_CLOUD_NAME = defineSecret("CLOUDINARY_CLOUD_NAME");
 const CLOUDINARY_API_KEY = defineSecret("CLOUDINARY_API_KEY");
 const CLOUDINARY_API_SECRET = defineSecret("CLOUDINARY_API_SECRET");
+const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
 
 const INVALID_TOKEN_CODES = new Set([
   "messaging/invalid-registration-token",
   "messaging/registration-token-not-registered",
 ]);
+
+exports.generateCaption = onCall(
+  {
+    secrets: [GEMINI_API_KEY],
+    enforceAppCheck: true,
+    timeoutSeconds: 60,
+    memory: "512MiB",
+  },
+  async (request) => {
+    if (!request.auth || !request.auth.uid) {
+      throw new HttpsError(
+        "unauthenticated",
+        "Please sign in before generating captions.",
+      );
+    }
+
+    const uid = request.auth.uid;
+    const payload = request.data || {};
+    const imageBase64 = normalizeImageBase64(payload.imageBase64);
+    const language = payload.language === "en" ? "en" : "vi";
+    if (!imageBase64) {
+      throw new HttpsError(
+        "invalid-argument",
+        "A valid image is required for caption suggestions.",
+      );
+    }
+
+    await consumeCaptionQuota(uid);
+
+    try {
+      const captions = await requestGeminiCaptions(imageBase64, language);
+      return {captions};
+    } catch (error) {
+      logger.error("Caption generation failed", {
+        uid,
+        language,
+        message: error && error.message,
+      });
+      throw new HttpsError(
+        "unavailable",
+        "Caption suggestions are temporarily unavailable.",
+      );
+    }
+  },
+);
 
 exports.sendPhotoNotification = onDocumentCreated(
   "photos/{photoId}",
@@ -551,6 +598,185 @@ async function deliverNotifications(messages, targets, context) {
     failedCount,
     invalidTokensRemoved: cleanupTasks.length,
   });
+}
+
+async function consumeCaptionQuota(uid) {
+  const today = new Date().toISOString().slice(0, 10);
+  const usageRef = db.collection("aiCaptionUsage").doc(`${uid}_${today}`);
+
+  await db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(usageRef);
+    const currentCount = snapshot.exists ?
+      Number(snapshot.get("count") || 0) :
+      0;
+    if (currentCount >= 10) {
+      throw new HttpsError(
+        "resource-exhausted",
+        "Daily AI caption limit reached. Please try again tomorrow.",
+      );
+    }
+
+    transaction.set(usageRef, {
+      uid,
+      date: today,
+      count: currentCount + 1,
+      updatedAt: FieldValue.serverTimestamp(),
+      createdAt: snapshot.exists ?
+        snapshot.get("createdAt") || FieldValue.serverTimestamp() :
+        FieldValue.serverTimestamp(),
+    }, {merge: true});
+  });
+}
+
+async function requestGeminiCaptions(imageBase64, language) {
+  const apiKey = process.env.GEMINI_API_KEY || GEMINI_API_KEY.value();
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY secret is not configured");
+  }
+
+  const languageName = language === "en" ? "English" : "Vietnamese";
+  const model = process.env.GEMINI_CAPTION_MODEL || "gemini-3.5-flash";
+  const prompt =
+    "Suggest 3 short, fun captions for this photo to share with close " +
+    "friends. Keep each under 10 words. Return only a JSON array of " +
+    `strings. Language: ${languageName}.`;
+  const endpoint =
+    `https://generativelanguage.googleapis.com/v1beta/models/` +
+    `${encodeURIComponent(model)}:generateContent?key=` +
+    `${encodeURIComponent(apiKey)}`;
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      contents: [{
+        parts: [
+          {text: prompt},
+          {
+            inline_data: {
+              mime_type: "image/jpeg",
+              data: imageBase64,
+            },
+          },
+        ],
+      }],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 256,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "ARRAY",
+          items: {type: "STRING"},
+          minItems: 3,
+          maxItems: 3,
+        },
+      },
+    }),
+  });
+
+  const responseText = await response.text();
+  if (!response.ok) {
+    throw new Error(`Gemini returned ${response.status}`);
+  }
+
+  let responseJson;
+  try {
+    responseJson = JSON.parse(responseText);
+  } catch (error) {
+    throw new Error("Gemini response was not JSON");
+  }
+
+  const text = geminiFirstText(responseJson);
+  const captions = normalizeCaptions(parseCaptionPayload(text));
+  if (captions.length === 0) {
+    throw new Error("Gemini returned no usable captions");
+  }
+  return captions;
+}
+
+function normalizeImageBase64(value) {
+  const raw = stringValue(value);
+  if (!raw) {
+    return "";
+  }
+  return raw.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, "");
+}
+
+function geminiFirstText(responseJson) {
+  const candidates = Array.isArray(responseJson.candidates) ?
+    responseJson.candidates :
+    [];
+  if (candidates.length === 0 || !candidates[0].content) {
+    return "";
+  }
+
+  const parts = Array.isArray(candidates[0].content.parts) ?
+    candidates[0].content.parts :
+    [];
+  return parts
+    .map((part) => stringValue(part.text))
+    .filter(Boolean)
+    .join("");
+}
+
+function parseCaptionPayload(text) {
+  const cleaned = stringValue(text)
+    .replace(/```json/gi, "")
+    .replace(/```/g, "")
+    .trim();
+  if (!cleaned) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(cleaned);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+    if (parsed && Array.isArray(parsed.captions)) {
+      return parsed.captions;
+    }
+  } catch (error) {
+    const start = cleaned.indexOf("[");
+    const end = cleaned.lastIndexOf("]");
+    if (start >= 0 && end > start) {
+      try {
+        return JSON.parse(cleaned.substring(start, end + 1));
+      } catch (ignored) {
+        // Fall through to line parsing.
+      }
+    }
+  }
+
+  return cleaned.split(/\r?\n|\|/)
+    .map((line) => line.replace(/^[-*\d.)\s]+/, "").trim());
+}
+
+function normalizeCaptions(values) {
+  const captions = [];
+  for (const value of values) {
+    const caption = stringValue(value)
+      .replace(/^["']|["']$/g, "")
+      .trim();
+    if (!caption || captions.includes(caption)) {
+      continue;
+    }
+    captions.push(truncateByWords(caption, 10));
+    if (captions.length === 3) {
+      break;
+    }
+  }
+  return captions;
+}
+
+function truncateByWords(value, maxWords) {
+  const words = value.split(/\s+/).filter(Boolean);
+  if (words.length <= maxWords) {
+    return value;
+  }
+  return words.slice(0, maxWords).join(" ");
 }
 
 function resolveNotificationImage(photo, mediaType) {

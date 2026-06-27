@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
 
 import com.example.pocket.utils.SharedPrefManager;
+import com.google.firebase.appcheck.FirebaseAppCheck;
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory;
 
 public class PocketApplication extends Application {
     private static final String MESSAGES_CHANNEL_NAME = "Messages";
@@ -17,6 +19,8 @@ public class PocketApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        FirebaseAppCheck.getInstance().installAppCheckProviderFactory(
+                PlayIntegrityAppCheckProviderFactory.getInstance());
         createNotificationChannels();
 
         // Apply theme mode on launch

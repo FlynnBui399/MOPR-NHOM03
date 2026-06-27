@@ -905,21 +905,15 @@ public class HomeFragment extends Fragment {
             // Logging safe details to Logcat
             String source = suggestion.getSource().name();
             int numCaptions = captions.size();
-            String modelName = Constants.GEMINI_CAPTION_MODEL;
-            boolean isApiKeyPresent = Constants.GEMINI_API_KEY != null && !Constants.GEMINI_API_KEY.trim().isEmpty();
             String errorMsg = suggestion.getErrorMessage();
 
             Log.d(TAG_AI, "Caption result delivered to UI: source=" + source
                     + ", captionCount=" + numCaptions
-                    + ", model=" + modelName
-                    + ", apiKeyPresent=" + isApiKeyPresent
                     + ", fallbackReason=" + (errorMsg == null ? "none" : errorMsg));
 
             android.util.Log.d("CaptionDisplay", "--- Suggest Caption Metrics ---");
             android.util.Log.d("CaptionDisplay", "Source: " + source);
             android.util.Log.d("CaptionDisplay", "Count: " + numCaptions);
-            android.util.Log.d("CaptionDisplay", "Model: " + modelName);
-            android.util.Log.d("CaptionDisplay", "API Key Present: " + isApiKeyPresent);
             if (suggestion.getSource() == CameraViewModel.CaptionSource.FALLBACK) {
                 android.util.Log.w("CaptionDisplay", "Error message: " + (errorMsg != null ? errorMsg : "Unknown/Internal error"));
             }
@@ -931,7 +925,11 @@ public class HomeFragment extends Fragment {
             } else if (suggestion.getSource() == CameraViewModel.CaptionSource.CACHE) {
                 Toast.makeText(requireContext(), R.string.camera_caption_loaded_cache, Toast.LENGTH_SHORT).show();
             } else if (suggestion.getSource() == CameraViewModel.CaptionSource.FALLBACK) {
-                Toast.makeText(requireContext(), R.string.camera_caption_fallback_toast, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(),
+                        errorMsg == null || errorMsg.trim().isEmpty()
+                                ? getString(R.string.camera_caption_fallback_toast)
+                                : errorMsg,
+                        Toast.LENGTH_SHORT).show();
             }
 
             showCaptionOptionsSheet(captions);
@@ -2452,7 +2450,8 @@ public class HomeFragment extends Fragment {
             captionInput.setSelection(caption.length());
             dialog.dismiss();
         });
-        captionList.setLayoutManager(new LinearLayoutManager(requireContext()));
+        captionList.setLayoutManager(new LinearLayoutManager(
+                requireContext(), RecyclerView.HORIZONTAL, false));
         captionList.setAdapter(adapter);
         dialog.setContentView(content);
         dialog.show();

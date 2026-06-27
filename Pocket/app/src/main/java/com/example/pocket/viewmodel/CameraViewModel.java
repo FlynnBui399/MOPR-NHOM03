@@ -92,7 +92,7 @@ public class CameraViewModel extends AndroidViewModel {
                 Log.d(TAG_AI, "Using caption CACHE result: captionCount=" + cached.size()
                         + "; Gemini service will not be called");
                 captionSuggestion.postValue(new CaptionSuggestion(
-                        ensureFourCaptions(cached), CaptionSource.CACHE));
+                        ensureThreeCaptions(cached), CaptionSource.CACHE));
                 return;
             }
 
@@ -102,7 +102,7 @@ public class CameraViewModel extends AndroidViewModel {
                     .addOnSuccessListener(captions -> {
                         Log.d(TAG_AI, "GeminiService success: rawCaptionCount="
                                 + (captions == null ? 0 : captions.size()));
-                        List<String> completed = ensureFourCaptions(captions);
+                        List<String> completed = ensureThreeCaptions(captions);
 
                         // Cache only Gemini's cleaned captions. Fallback padding remains transient.
                         if (captions != null && !captions.isEmpty()) {
@@ -146,7 +146,7 @@ public class CameraViewModel extends AndroidViewModel {
     }
 
     @NonNull
-    private List<String> ensureFourCaptions(List<String> captions) {
+    private List<String> ensureThreeCaptions(List<String> captions) {
         List<String> result = new ArrayList<>();
         if (captions != null) {
             for (String caption : captions) {
@@ -154,7 +154,7 @@ public class CameraViewModel extends AndroidViewModel {
                         && !result.contains(caption.trim())) {
                     result.add(caption.trim());
                 }
-                if (result.size() == 4) {
+                if (result.size() == 3) {
                     return result;
                 }
             }
@@ -163,7 +163,7 @@ public class CameraViewModel extends AndroidViewModel {
             if (!result.contains(fallback)) {
                 result.add(fallback);
             }
-            if (result.size() == 4) {
+            if (result.size() == 3) {
                 break;
             }
         }
@@ -176,8 +176,6 @@ public class CameraViewModel extends AndroidViewModel {
         fallback.add("vừa chụp nè 📸");
         fallback.add("một chút hôm nay");
         fallback.add("gửi bạn khoảnh khắc này");
-        fallback.add("nhìn cũng ổn áp đó");
-        fallback.add("lưu lại một ngày bình thường");
         return fallback;
     }
 
