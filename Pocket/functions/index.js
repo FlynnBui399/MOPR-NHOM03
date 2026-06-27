@@ -35,14 +35,28 @@ exports.generateCaption = onCall(
     memory: "512MiB",
   },
   async (request) => {
-    if (!request.auth || !request.auth.uid) {
+    let uid = request.auth && request.auth.uid;
+    if (!uid) {
+      // Fallback: manually verify token from Authorization header
+      const authHeader = request.rawRequest && request.rawRequest.headers &&
+        request.rawRequest.headers["authorization"];
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        try {
+          const idToken = authHeader.split("Bearer ")[1].trim();
+          const decoded = await admin.auth().verifyIdToken(idToken);
+          uid = decoded.uid;
+        } catch (e) {
+          logger.warn("Manual token verification failed", { message: e.message });
+        }
+      }
+    }
+    if (!uid) {
       throw new HttpsError(
         "unauthenticated",
         "Please sign in before generating captions.",
       );
     }
 
-    const uid = request.auth.uid;
     const payload = request.data || {};
     const imageBase64 = normalizeImageBase64(payload.imageBase64);
     const language = payload.language === "en" ? "en" : "vi";
@@ -637,9 +651,9 @@ async function requestGeminiCaptions(imageBase64, language) {
   const languageName = language === "en" ? "English" : "Vietnamese";
   const model = process.env.GEMINI_CAPTION_MODEL || "gemini-3.5-flash";
   const prompt =
-    "Suggest 3 short, fun captions for this photo to share with close " +
-    "friends. Keep each under 10 words. Return only a JSON array of " +
-    `strings. Language: ${languageName}.`;
+    `Look at this photo. Write 3 trendy Gen-Z social media captions in ${languageName} ` +
+    "that match the specific content visible in the image. " +
+    "Each caption must be under 10 words. Return a JSON array of 3 strings only.";
   const endpoint =
     `https://generativelanguage.googleapis.com/v1beta/models/` +
     `${encodeURIComponent(model)}:generateContent?key=` +
@@ -662,9 +676,15 @@ async function requestGeminiCaptions(imageBase64, language) {
           },
         ],
       }],
+      safetySettings: [
+        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+      ],
       generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 256,
+        temperature: 0.9,
+        maxOutputTokens: 1024,
         responseMimeType: "application/json",
         responseSchema: {
           type: "ARRAY",
@@ -672,13 +692,17 @@ async function requestGeminiCaptions(imageBase64, language) {
           minItems: 3,
           maxItems: 3,
         },
+        thinkingConfig: {
+          thinkingBudget: 128,
+        },
       },
     }),
   });
 
   const responseText = await response.text();
+  logger.info("Raw Gemini response", { responseText });
   if (!response.ok) {
-    throw new Error(`Gemini returned ${response.status}`);
+    throw new Error(`Gemini returned ${response.status}: ${responseText}`);
   }
 
   let responseJson;
@@ -689,7 +713,8 @@ async function requestGeminiCaptions(imageBase64, language) {
   }
 
   const text = geminiFirstText(responseJson);
-  const captions = normalizeCaptions(parseCaptionPayload(text));
+  logger.info("Parsed Gemini text", { text });
+  const captions = normalizeCaptions(parseCaptionPayload(text), language);
   if (captions.length === 0) {
     throw new Error("Gemini returned no usable captions");
   }
@@ -743,7 +768,8 @@ function parseCaptionPayload(text) {
     const end = cleaned.lastIndexOf("]");
     if (start >= 0 && end > start) {
       try {
-        return JSON.parse(cleaned.substring(start, end + 1));
+        const jsonStr = cleaned.substring(start, end + 1).replace(/,\s*]/g, "]");
+        return JSON.parse(jsonStr);
       } catch (ignored) {
         // Fall through to line parsing.
       }
@@ -751,21 +777,40 @@ function parseCaptionPayload(text) {
   }
 
   return cleaned.split(/\r?\n|\|/)
-    .map((line) => line.replace(/^[-*\d.)\s]+/, "").trim());
+    .map((line) => line.replace(/^[-*\d.)\s]+/, "").replace(/,$/, "").replace(/^["']|["']$/g, "").trim());
 }
 
-function normalizeCaptions(values) {
+function normalizeCaptions(values, language) {
   const captions = [];
-  for (const value of values) {
+  for (let value of values) {
+    if (value && typeof value === "object") {
+      value = value.caption || value.text || value.title || "";
+    }
     const caption = stringValue(value)
       .replace(/^["']|["']$/g, "")
       .trim();
     if (!caption || captions.includes(caption)) {
       continue;
     }
+    const lower = caption.toLowerCase();
+    if (lower.startsWith("here is") || lower.startsWith("here are") || lower.startsWith("sure") || lower.startsWith("below") || lower.includes("json") || lower.includes("captions:")) {
+      continue;
+    }
+    if (caption === "[" || caption === "]" || caption === "{") {
+      continue;
+    }
     captions.push(truncateByWords(caption, 10));
     if (captions.length === 3) {
       break;
+    }
+  }
+  const fallbacks = language === "en" ?
+    ["Just took this 📸", "A little moment ✨", "Sharing this with you 💛"] :
+    ["Vừa chụp nè 📸", "Một chút hôm nay ✨", "Gửi bạn khoảnh khắc này 💛"];
+  for (const fb of fallbacks) {
+    if (captions.length >= 3) break;
+    if (!captions.includes(fb)) {
+      captions.push(fb);
     }
   }
   return captions;

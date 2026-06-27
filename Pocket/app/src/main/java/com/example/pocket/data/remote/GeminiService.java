@@ -33,40 +33,23 @@ public class GeminiService {
 
     @NonNull
     public Task<List<String>> generateCaptions(@NonNull byte[] optimizedJpegBytes) {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        Log.d(TAG_AI, "generateCaption auth check: signedIn=" + (currentUser != null)
-                + ", uid=" + (currentUser == null ? "<none>" : currentUser.getUid()));
-        if (currentUser == null) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
             return Tasks.forException(new IllegalStateException("User not authenticated"));
         }
-
-        String imageBase64 = Base64.encodeToString(optimizedJpegBytes, Base64.NO_WRAP);
-        Map<String, Object> data = new HashMap<>();
-        data.put("imageBase64", imageBase64);
-        data.put("language", preferredLanguage());
-
-        return currentUser.getIdToken(true)
-                .continueWithTask(tokenTask -> {
-                    if (!tokenTask.isSuccessful()) {
-                        Exception exception = tokenTask.getException();
-                        return Tasks.forException(exception == null
-                                ? new IllegalStateException("Unable to refresh authentication token")
-                                : exception);
-                    }
-                    return functions
-                            .getHttpsCallable("generateCaption")
-                            .call(data);
-                })
-                .continueWith(task -> {
-                    if (!task.isSuccessful()) {
-                        Exception exception = task.getException();
-                        throw exception == null
-                                ? new IllegalStateException("Caption generation failed")
-                                : exception;
-                    }
-                    Object result = task.getResult().getData();
-                    return parseFunctionCaptions(result);
-                });
+        return user.getIdToken(true).continueWithTask(tokenTask -> {
+            String imageBase64 = Base64.encodeToString(optimizedJpegBytes, Base64.NO_WRAP);
+            Map<String, Object> data = new HashMap<>();
+            data.put("imageBase64", imageBase64);
+            data.put("language", preferredLanguage());
+            return functions.getHttpsCallable("generateCaption").call(data);
+        }).continueWith(task -> {
+            if (!task.isSuccessful()) {
+                Exception e = task.getException();
+                throw e == null ? new IllegalStateException("Caption generation failed") : e;
+            }
+            return parseFunctionCaptions(task.getResult().getData());
+        });
     }
 
     @NonNull

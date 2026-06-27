@@ -124,7 +124,7 @@ public class HomeFragment extends Fragment {
 
     private PreviewView previewView;
     private View previewCard;
-    private ImageView capturedImageView;
+    private com.example.pocket.ui.ZoomCropImageView capturedImageView;
     private View captionPanel;
     private TextInputLayout captionInputLayout;
     private TextInputEditText captionInput;
@@ -370,7 +370,7 @@ public class HomeFragment extends Fragment {
             if (visible != keyboardVisible) {
                 keyboardVisible = visible;
                 if (homePager != null) {
-                    homePager.setUserInputEnabled(!keyboardVisible);
+                    homePager.setUserInputEnabled(!keyboardVisible && capturedJpegBytes == null);
                 }
             }
         });
@@ -846,18 +846,19 @@ public class HomeFragment extends Fragment {
         savePhotoButton.setOnClickListener(view -> saveCapturedPhoto());
         historyHeader.setOnClickListener(view -> scrollToHistory());
         suggestCaptionButton.setOnClickListener(view -> {
+            byte[] finalBytes = getTransformedImageBytes();
             Log.d(TAG_AI, "AI suggestion tapped: capturedBytesPresent="
-                    + (capturedJpegBytes != null)
-                    + ", byteLength=" + (capturedJpegBytes == null ? 0 : capturedJpegBytes.length)
+                    + (finalBytes != null)
+                    + ", byteLength=" + (finalBytes == null ? 0 : finalBytes.length)
                     + ", imagePathAvailable=false, imageUriAvailable=false"
                     + ", fileExists=N/A, source=in-memory JPEG, mimeType=image/jpeg");
-            if (capturedJpegBytes == null) {
+            if (finalBytes == null) {
                 Log.e(TAG_AI, "AI suggestion aborted: captured image bytes are missing");
                 return;
             }
             waitingForCaptionOptions = true;
             suggestCaptionButton.setLoading(true);
-            cameraViewModel.generateCaption(capturedJpegBytes);
+            cameraViewModel.generateCaption(finalBytes);
         });
         flipButton.setOnClickListener(view -> {
             lensFacing = lensFacing == CameraSelector.LENS_FACING_BACK
@@ -1778,7 +1779,7 @@ public class HomeFragment extends Fragment {
                 + ", capturedImageViewNull=" + (capturedImageView == null));
         capturedJpegBytes = compressed;
         try {
-            capturedImageView.setImageBitmap(bitmap);
+            capturedImageView.setImage(bitmap);
             Log.d(TAG_CAMERA, "Captured bitmap loaded into preview ImageView");
         } catch (RuntimeException exception) {
             Log.e(TAG_CAMERA, "Failed to load captured bitmap into preview ImageView", exception);
@@ -1807,6 +1808,9 @@ public class HomeFragment extends Fragment {
         captureRecipientList.scrollToPosition(0);
         centerCaptureRecipients();
         updateTopBar();
+        if (homePager != null) {
+            homePager.setUserInputEnabled(false);
+        }
         Log.d(TAG_CAMERA, "Switched to captured preview/send UI: capturedBytesPresent="
                 + (capturedJpegBytes != null));
     }
@@ -1871,6 +1875,9 @@ public class HomeFragment extends Fragment {
         }
         homeMode = HomeMode.CAMERA;
         updateTopBar();
+        if (homePager != null) {
+            homePager.setUserInputEnabled(!keyboardVisible);
+        }
         if (ensureCameraBound) {
             ensureCameraReady();
         }
@@ -1891,7 +1898,7 @@ public class HomeFragment extends Fragment {
         }
         Bitmap bitmap = BitmapFactory.decodeByteArray(capturedJpegBytes, 0,
                 capturedJpegBytes.length);
-        capturedImageView.setImageBitmap(bitmap);
+        capturedImageView.setImage(bitmap);
         capturedImageView.setVisibility(View.VISIBLE);
         captionPanel.setVisibility(View.VISIBLE);
         captionInputLayout.setVisibility(View.VISIBLE);
@@ -1912,6 +1919,9 @@ public class HomeFragment extends Fragment {
         captureRecipientList.scrollToPosition(0);
         centerCaptureRecipients();
         updateTopBar();
+        if (homePager != null) {
+            homePager.setUserInputEnabled(false);
+        }
     }
 
     private void applyFlashMode() {
@@ -2037,7 +2047,8 @@ public class HomeFragment extends Fragment {
             sendCapturedVideo();
             return;
         }
-        if (capturedJpegBytes == null || recipientSelectionAdapter == null) {
+        byte[] finalBytes = getTransformedImageBytes();
+        if (finalBytes == null || recipientSelectionAdapter == null) {
             return;
         }
         List<String> receiverIds = recipientSelectionAdapter.selectedReceiverIds();
@@ -2048,7 +2059,7 @@ public class HomeFragment extends Fragment {
         }
         String caption = captionInput.getText() == null
                 ? "" : captionInput.getText().toString().trim();
-        cameraViewModel.sendPhoto(capturedJpegBytes, currentUserId(), currentUserName(),
+        cameraViewModel.sendPhoto(finalBytes, currentUserId(), currentUserName(),
                 receiverIds, caption);
     }
 
@@ -2392,10 +2403,11 @@ public class HomeFragment extends Fragment {
     }
 
     private void saveCapturedPhoto() {
-        if (capturedJpegBytes == null) {
+        byte[] transformedBytes = getTransformedImageBytes();
+        if (transformedBytes == null) {
             return;
         }
-        byte[] bytes = capturedJpegBytes.clone();
+        byte[] bytes = transformedBytes.clone();
         cameraExecutor.execute(() -> {
             try {
                 String fileName = "Pocket-" + System.currentTimeMillis() + ".jpg";
@@ -2933,5 +2945,111 @@ public class HomeFragment extends Fragment {
                 currentReceiverId = null;
             }
         }
+    }
+
+    private byte[] getTransformedImageBytes() {
+        if (capturedImageView == null || capturedImageView.getVisibility() != View.VISIBLE) {
+            return capturedJpegBytes;
+        }
+        try {
+            Bitmap bitmap = capturedImageView.getCroppedBitmap(1024, 1024);
+            if (bitmap == null) {
+                return capturedJpegBytes;
+            }
+            byte[] compressed = ImageUtils.compress(bitmap);
+            return compressed;
+        } catch (Exception e) {
+            Log.e(TAG_CAMERA, "Failed to get transformed image bytes", e);
+            return capturedJpegBytes;
+        }
+    }
+
+    private void centerCropMatrix(ImageView imageView, Bitmap bitmap) {
+        if (imageView == null || bitmap == null) return;
+        
+        imageView.setScaleType(ImageView.ScaleType.MATRIX);
+        android.graphics.Matrix matrix = new android.graphics.Matrix();
+        
+        float viewWidth = imageView.getWidth();
+        float viewHeight = imageView.getHeight();
+        if (viewWidth <= 0 || viewHeight <= 0) {
+            imageView.post(() -> centerCropMatrix(imageView, bitmap));
+            return;
+        }
+        
+        float drawableWidth = bitmap.getWidth();
+        float drawableHeight = bitmap.getHeight();
+        
+        float scale;
+        float dx = 0, dy = 0;
+        
+        if (drawableWidth * viewHeight > viewWidth * drawableHeight) {
+            scale = viewHeight / drawableHeight;
+            dx = (viewWidth - drawableWidth * scale) * 0.5f;
+        } else {
+            scale = viewWidth / drawableWidth;
+            dy = (viewHeight - drawableHeight * scale) * 0.5f;
+        }
+        
+        matrix.setScale(scale, scale);
+        matrix.postTranslate(dx, dy);
+        imageView.setImageMatrix(matrix);
+    }
+
+    private void initPhotoTouchListener(ImageView imageView) {
+        imageView.setScaleType(ImageView.ScaleType.MATRIX);
+        
+        final android.view.ScaleGestureDetector scaleDetector = new android.view.ScaleGestureDetector(
+                requireContext(),
+                new android.view.ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                    @Override
+                    public boolean onScale(android.view.ScaleGestureDetector detector) {
+                        android.graphics.Matrix matrix = new android.graphics.Matrix(imageView.getImageMatrix());
+                        float scaleFactor = detector.getScaleFactor();
+                        matrix.postScale(scaleFactor, scaleFactor, detector.getFocusX(), detector.getFocusY());
+                        imageView.setImageMatrix(matrix);
+                        return true;
+                    }
+                }
+        );
+
+        imageView.setOnTouchListener(new View.OnTouchListener() {
+            private final android.graphics.Matrix matrix = new android.graphics.Matrix();
+            private final android.graphics.Matrix savedMatrix = new android.graphics.Matrix();
+            private final android.graphics.PointF start = new android.graphics.PointF();
+            private final AtomicInteger mode = new AtomicInteger(0); // 0 = NONE, 1 = DRAG
+
+            @Override
+            public boolean onTouch(View v, android.view.MotionEvent event) {
+                scaleDetector.onTouchEvent(event);
+                
+                switch (event.getAction() & android.view.MotionEvent.ACTION_MASK) {
+                    case android.view.MotionEvent.ACTION_DOWN:
+                        matrix.set(imageView.getImageMatrix());
+                        savedMatrix.set(matrix);
+                        start.set(event.getX(), event.getY());
+                        mode.set(1); // DRAG
+                        break;
+                        
+                    case android.view.MotionEvent.ACTION_POINTER_DOWN:
+                        mode.set(0); // Stop dragging when pinch begins
+                        break;
+                        
+                    case android.view.MotionEvent.ACTION_UP:
+                    case android.view.MotionEvent.ACTION_POINTER_UP:
+                        mode.set(0);
+                        break;
+                        
+                    case android.view.MotionEvent.ACTION_MOVE:
+                        if (mode.get() == 1) {
+                            matrix.set(savedMatrix);
+                            matrix.postTranslate(event.getX() - start.x, event.getY() - start.y);
+                            imageView.setImageMatrix(matrix);
+                        }
+                        break;
+                }
+                return true;
+            }
+        });
     }
 }

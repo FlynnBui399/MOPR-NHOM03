@@ -91,7 +91,9 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-functions")
+    implementation("com.google.firebase:firebase-functions") {
+        exclude(group = "com.google.firebase", module = "firebase-appcheck-interop")
+    }
     implementation("com.google.firebase:firebase-messaging")
 
     // Room local database cache
