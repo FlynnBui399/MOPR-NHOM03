@@ -21,3 +21,4 @@ secrets.properties
 /functions/node_modules/
 /functions/.env
 /functions/.env.*
+"firebase-debug.log" 

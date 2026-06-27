@@ -30,7 +30,7 @@ const INVALID_TOKEN_CODES = new Set([
 exports.generateCaption = onCall(
   {
     secrets: [GEMINI_API_KEY],
-    enforceAppCheck: true,
+    enforceAppCheck: false,
     timeoutSeconds: 60,
     memory: "512MiB",
   },
