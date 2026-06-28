@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
 import com.example.pocket.utils.Constants;
 import com.example.pocket.utils.NotificationPreferenceHelper;
-import com.example.pocket.widget.PocketWidgetProvider;
+import com.example.pocket.widget.WidgetPhotoUpdater;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -62,7 +62,9 @@ public class PocketMessagingService extends FirebaseMessagingService {
         // Locket clone feature: Auto update widget if notification contains a photo
         String imageUrl = valueOrDefault(data.get("imageUrl"), data.get("photoUrl"));
         if (TYPE_PHOTO_RECEIVED.equals(type) && !imageUrl.isEmpty()) {
-            PocketWidgetProvider.updateLatestPhoto(this, imageUrl, senderName, System.currentTimeMillis());
+            WidgetPhotoUpdater.updateLatestCurrentFriendPhoto(
+                    this, friendUid, data.get("photoId"), imageUrl,
+                    senderName, System.currentTimeMillis());
         }
 
         if (!NotificationPreferenceHelper.areNotificationsAllowed(this)) {

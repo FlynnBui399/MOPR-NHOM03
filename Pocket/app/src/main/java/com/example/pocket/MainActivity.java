@@ -30,6 +30,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_OPEN_HISTORY = "open_history";
+    public static final String EXTRA_OPEN_PHOTO_ID = "open_photo_id";
 
     private static final String STATE_SELECTED_TAB = "selected_tab";
     private static final String TAG_MEMORIES = "main_memories";
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout homeTab;
     private LinearLayout chatTab;
     private TextView chatUnreadBadge;
+    private String pendingOpenPhotoId;
     private final ActivityResultLauncher<String> notificationPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted ->
                     NotificationPreferenceHelper.setNotificationsEnabled(this, granted));
@@ -74,9 +76,17 @@ public class MainActivity extends AppCompatActivity {
         } else {
             selectTab(savedInstanceState.getInt(STATE_SELECTED_TAB, R.id.nav_home_tab));
         }
+        handleIncomingIntent(getIntent());
 
         PocketMessagingService.refreshTokenForCurrentUser();
         requestNotificationPermissionIfNeeded();
+    }
+
+    @Override
+    protected void onNewIntent(@NonNull Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIncomingIntent(intent);
     }
 
     private void bindViews() {
@@ -166,10 +176,34 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        Runnable onShown = returningToHome && fragment instanceof HomeFragment
-                ? ((HomeFragment) fragment)::onHomeTabSelectedFromAnotherTab
-                : null;
+        Runnable onShown = null;
+        if (fragment instanceof HomeFragment) {
+            HomeFragment homeFragment = (HomeFragment) fragment;
+            String photoId = pendingOpenPhotoId;
+            onShown = () -> {
+                if (returningToHome) {
+                    homeFragment.onHomeTabSelectedFromAnotherTab();
+                }
+                if (photoId != null && !photoId.trim().isEmpty()) {
+                    pendingOpenPhotoId = null;
+                    homeFragment.openPhotoFromWidget(photoId);
+                }
+            };
+        }
         showFragment(fragment, tag, onShown);
+    }
+
+    private void handleIncomingIntent(@Nullable Intent intent) {
+        if (intent == null || !intent.getBooleanExtra(EXTRA_OPEN_HISTORY, false)) {
+            return;
+        }
+        String photoId = intent.getStringExtra(EXTRA_OPEN_PHOTO_ID);
+        if (photoId == null || photoId.trim().isEmpty()) {
+            selectTab(R.id.nav_home_tab);
+            return;
+        }
+        pendingOpenPhotoId = photoId;
+        selectTab(R.id.nav_home_tab);
     }
 
     private void handleHomeTabClick() {

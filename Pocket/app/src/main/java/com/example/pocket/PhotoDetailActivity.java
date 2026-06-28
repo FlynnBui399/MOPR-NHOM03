@@ -23,7 +23,7 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.pocket.data.model.Photo;
 import com.example.pocket.viewmodel.FeedViewModel;
-import com.example.pocket.widget.PocketWidgetProvider;
+import com.example.pocket.widget.WidgetPhotoUpdater;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.ortiz.touchview.TouchImageView;
 
@@ -117,7 +117,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
     private void displayPhoto(Photo photo) {
         if (photo == null) return;
-        PocketWidgetProvider.updateLatestPhoto(this, photo);
+        WidgetPhotoUpdater.updateLatestCurrentFriendPhoto(this, photo, currentUserId);
         // Load image
         Glide.with(this)
                 .load(photo.getImageUrl())

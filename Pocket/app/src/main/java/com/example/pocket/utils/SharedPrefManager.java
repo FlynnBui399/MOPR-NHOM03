@@ -18,6 +18,7 @@ public class SharedPrefManager {
     private static final String KEY_AVATAR_URL = "avatarUrl";
     private static final String KEY_THEME_MODE = "theme_mode";
     private static final String KEY_LANGUAGE_LOCALE = "language_locale";
+    private static final String KEY_LATEST_PHOTO_ID = "latest_photo_id";
     private static final String KEY_LATEST_PHOTO_URL = "latest_photo_url";
     private static final String KEY_LATEST_SENDER_NAME = "latest_sender_name";
     private static final String KEY_LATEST_PHOTO_TIMESTAMP = "latest_photo_timestamp";
@@ -93,6 +94,15 @@ public class SharedPrefManager {
 
     public void setLatestPhotoUrl(@Nullable String imageUrl) {
         preferences.edit().putString(KEY_LATEST_PHOTO_URL, imageUrl).apply();
+    }
+
+    public void setLatestPhotoId(@Nullable String photoId) {
+        preferences.edit().putString(KEY_LATEST_PHOTO_ID, photoId).apply();
+    }
+
+    @Nullable
+    public String getLatestPhotoId() {
+        return preferences.getString(KEY_LATEST_PHOTO_ID, null);
     }
 
     @Nullable

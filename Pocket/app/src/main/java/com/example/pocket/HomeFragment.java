@@ -84,6 +84,7 @@ import com.example.pocket.utils.SharedPrefManager;
 import com.example.pocket.viewmodel.CameraViewModel;
 import com.example.pocket.viewmodel.FeedViewModel;
 import com.example.pocket.widget.PocketWidgetProvider;
+import com.example.pocket.widget.WidgetPhotoUpdater;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -181,6 +182,8 @@ public class HomeFragment extends Fragment {
     private int currentPageIndex;
     private String currentPostId;
     private int friendsLoadGeneration;
+    private boolean timelinePhotosLoaded;
+    private boolean friendsLoaded;
     private HomeMode homeMode = HomeMode.CAMERA;
     private boolean homeTabActive = true;
     private boolean cameraErrorShown;
@@ -882,7 +885,7 @@ public class HomeFragment extends Fragment {
             suggestCaptionButton.setEnabled(!loading);
 
             if (status.getState() == CameraViewModel.UploadStatus.State.SUCCESS) {
-                updateWidgetWithPhoto(status.getPhoto());
+                updateWidgetWithLatestFriendPhoto();
                 Toast.makeText(requireContext(), R.string.camera_upload_success,
                         Toast.LENGTH_SHORT).show();
                 resetCapture();
@@ -939,7 +942,9 @@ public class HomeFragment extends Fragment {
 
     private void observeTimeline() {
         String userId = currentUserId();
+        timelinePhotosLoaded = false;
         feedViewModel.getTimelinePhotos().observe(getViewLifecycleOwner(), photos -> {
+            timelinePhotosLoaded = true;
             allTimelinePhotos.clear();
             if (photos != null) {
                 allTimelinePhotos.addAll(photos);
@@ -964,9 +969,7 @@ public class HomeFragment extends Fragment {
             visiblePhotos.addAll(allTimelinePhotos);
         }
         timelineCount = visiblePhotos.size();
-        if (!allTimelinePhotos.isEmpty()) {
-            updateWidgetWithPhoto(allTimelinePhotos.get(0));
-        }
+        updateWidgetWithLatestFriendPhoto();
         updateUnseenCount();
         updateTopBar();
         historyAdapter.submitList(visiblePhotos,
@@ -1018,6 +1021,22 @@ public class HomeFragment extends Fragment {
             updateCurrentPostId(1);
             updateModeForPage(1);
             homePager.setCurrentItem(1, true);
+        }
+    }
+
+    public void openPhotoFromWidget(@NonNull String photoId) {
+        String safePhotoId = photoId.trim();
+        if (safePhotoId.isEmpty()) {
+            return;
+        }
+        selectedHistorySenderId = null;
+        selectedHistorySenderName = null;
+        currentPostId = safePhotoId;
+        currentPageIndex = 1;
+        homeMode = HomeMode.POSTS;
+        homeTabActive = true;
+        if (historyAdapter != null) {
+            applyHistoryFilter();
         }
     }
 
@@ -1961,6 +1980,7 @@ public class HomeFragment extends Fragment {
 
     private void loadFriends() {
         int generation = ++friendsLoadGeneration;
+        friendsLoaded = false;
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             publishFriends(generation, new ArrayList<>());
@@ -2032,9 +2052,8 @@ public class HomeFragment extends Fragment {
         }
         friends.clear();
         friends.addAll(loadedFriends);
-        if (!allTimelinePhotos.isEmpty()) {
-            updateWidgetWithPhoto(allTimelinePhotos.get(0));
-        }
+        friendsLoaded = true;
+        updateWidgetWithLatestFriendPhoto();
         updateCameraRecipientPill();
         if (recipientSelectionAdapter != null) {
             recipientSelectionAdapter.submitFriends(friends);
@@ -2473,15 +2492,30 @@ public class HomeFragment extends Fragment {
         if (photo == null) {
             return;
         }
-        String imageUrl = photo.getImageUrl();
-        if (imageUrl == null || imageUrl.trim().isEmpty()) {
-            imageUrl = photo.getThumbnailUrl();
+        WidgetPhotoUpdater.updateLatestFriendPhoto(requireContext(), photo,
+                currentUserId(), friends, displayNameForWidgetPhoto(photo));
+    }
+
+    private void updateWidgetWithLatestFriendPhoto() {
+        if (!timelinePhotosLoaded || !friendsLoaded) {
+            return;
         }
-        long timestampMillis = photo.getCreatedAt() == null
-                ? System.currentTimeMillis()
-                : photo.getCreatedAt().toDate().getTime();
-        PocketWidgetProvider.updateLatestPhoto(requireContext(), imageUrl,
-                displayNameForWidgetPhoto(photo), timestampMillis);
+        Photo latestFriendPhoto = latestFriendPhotoForWidget();
+        if (latestFriendPhoto == null) {
+            PocketWidgetProvider.clearLatestPhoto(requireContext());
+            return;
+        }
+        updateWidgetWithPhoto(latestFriendPhoto);
+    }
+
+    @Nullable
+    private Photo latestFriendPhotoForWidget() {
+        for (Photo photo : allTimelinePhotos) {
+            if (WidgetPhotoUpdater.isFriendPhoto(photo, currentUserId(), friends)) {
+                return photo;
+            }
+        }
+        return null;
     }
 
     @Nullable
@@ -2490,9 +2524,6 @@ public class HomeFragment extends Fragment {
             return photo.getSenderName().trim();
         }
         String senderId = photo.getSenderId();
-        if (senderId != null && senderId.equals(currentUserId())) {
-            return currentUserName();
-        }
         for (User friend : friends) {
             if (senderId != null && senderId.equals(friend.getId())) {
                 if (isRealDisplayName(friend.getDisplayName())) {

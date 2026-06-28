@@ -14,7 +14,7 @@ import java.util.List;
 public class FeedViewModel extends ViewModel {
     private final PhotoRepository photoRepository;
     private final MediatorLiveData<List<Photo>> timelinePhotos =
-            new MediatorLiveData<>(new ArrayList<>());
+            new MediatorLiveData<>();
     private LiveData<List<Photo>> timelineSource;
 
     public FeedViewModel() {

@@ -52,6 +52,7 @@ public class PocketWidgetProvider extends AppWidgetProvider {
             return;
         }
         SharedPrefManager sharedPrefManager = SharedPrefManager.getInstance(context);
+        sharedPrefManager.setLatestPhotoId(photo.getId());
         sharedPrefManager.setLatestPhotoUrl(imageUrl);
         sharedPrefManager.setLatestSenderName(photo.getSenderName());
         long timestampMillis = photo.getCreatedAt() == null
@@ -62,19 +63,30 @@ public class PocketWidgetProvider extends AppWidgetProvider {
     }
 
     public static void updateLatestPhoto(@NonNull Context context,
-                                         @Nullable String imageUrl,
-                                         @Nullable String senderName,
-                                         long timestampMillis) {
+                                          @Nullable String photoId,
+                                          @Nullable String imageUrl,
+                                          @Nullable String senderName,
+                                          long timestampMillis) {
         String safeImageUrl = firstNonEmpty(imageUrl);
         if (safeImageUrl.isEmpty()) {
             return;
         }
         SharedPrefManager sharedPrefManager = SharedPrefManager.getInstance(context);
+        sharedPrefManager.setLatestPhotoId(photoId);
         sharedPrefManager.setLatestPhotoUrl(safeImageUrl);
         sharedPrefManager.setLatestSenderName(senderName);
         sharedPrefManager.setLatestPhotoTimestamp(timestampMillis > 0L
                 ? timestampMillis
                 : System.currentTimeMillis());
+        requestUpdate(context);
+    }
+
+    public static void clearLatestPhoto(@NonNull Context context) {
+        SharedPrefManager sharedPrefManager = SharedPrefManager.getInstance(context);
+        sharedPrefManager.setLatestPhotoId(null);
+        sharedPrefManager.setLatestPhotoUrl(null);
+        sharedPrefManager.setLatestSenderName(null);
+        sharedPrefManager.setLatestPhotoTimestamp(0L);
         requestUpdate(context);
     }
 
@@ -137,6 +149,12 @@ public class PocketWidgetProvider extends AppWidgetProvider {
     private static void setupOpenAppAction(Context context, RemoteViews remoteViews,
                                            int appWidgetId) {
         Intent intent = new Intent(context, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        String photoId = SharedPrefManager.getInstance(context).getLatestPhotoId();
+        if (photoId != null && !photoId.trim().isEmpty()) {
+            intent.putExtra(MainActivity.EXTRA_OPEN_HISTORY, true);
+            intent.putExtra(MainActivity.EXTRA_OPEN_PHOTO_ID, photoId);
+        }
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             flags |= PendingIntent.FLAG_IMMUTABLE;
