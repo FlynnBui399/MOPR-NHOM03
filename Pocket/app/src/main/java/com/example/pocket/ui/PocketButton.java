@@ -19,6 +19,7 @@ public class PocketButton extends MaterialButton {
     private static final int VARIANT_OUTLINE = 2;
     private static final int VARIANT_GHOST = 3;
     private static final int VARIANT_DANGER = 4;
+    private static final int VARIANT_DARK = 5;
 
     private CharSequence normalText;
     private CharSequence loadingText;
@@ -111,6 +112,9 @@ public class PocketButton extends MaterialButton {
         } else if (variant == VARIANT_DANGER) {
             backgroundColor = R.color.pocket_danger;
             textColor = R.color.pocket_on_danger;
+        } else if (variant == VARIANT_DARK) {
+            backgroundColor = R.color.pocket_text_primary;
+            textColor = R.color.pocket_background;
         }
 
         setBackgroundTintList(tint(backgroundColor));

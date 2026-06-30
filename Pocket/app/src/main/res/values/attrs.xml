@@ -7,6 +7,7 @@
             <enum name="outline" value="2" />
             <enum name="ghost" value="3" />
             <enum name="danger" value="4" />
+            <enum name="dark" value="5" />
         </attr>
         <attr name="pocketLoading" format="boolean" />
         <attr name="pocketLoadingText" format="string" />

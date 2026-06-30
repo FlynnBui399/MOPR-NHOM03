@@ -5,99 +5,228 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@drawable/bg_login_gradient">
+    android:background="@color/pocket_background"
+    android:overScrollMode="never">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/login_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        tools:context=".LoginActivity">
+        android:background="@color/pocket_background">
 
-    <ImageView
-        android:id="@+id/login_logo"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:contentDescription="@string/login_logo_description"
-        android:src="@mipmap/ic_launcher_round"
-        app:layout_constraintBottom_toTopOf="@id/login_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.35"
-        app:layout_constraintVertical_chainStyle="packed" />
-
-    <TextView
-        android:id="@+id/login_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-medium"
-        android:letterSpacing="0"
-        android:text="@string/login_title"
-        android:textColor="@color/pocket_primary"
-        android:textSize="36sp"
-        app:layout_constraintBottom_toTopOf="@id/login_subtitle"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/login_logo" />
-
-    <TextView
-        android:id="@+id/login_subtitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="center_horizontal"
-        android:text="@string/login_subtitle"
-        android:textColor="@color/pocket_text_secondary"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@id/login_button_group"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/login_title" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/login_button_group"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layoutAnimation="@anim/layout_slide_up_fade_in"
-        android:layout_marginBottom="48dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <com.example.pocket.ui.PocketButton
-            android:id="@+id/google_sign_in_button"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/pocket_button_height"
-            android:stateListAnimator="@animator/scale_press"
-            android:text="@string/login_google"
-            android:textColor="@color/pocket_google_button_text"
-            app:cornerRadius="@dimen/pocket_radius_md"
-            app:icon="@drawable/ic_google"
-            app:iconGravity="textStart"
-            app:iconPadding="12dp"
-            app:iconSize="24dp"
+        <!-- App Logo -->
+        <ImageView
+            android:id="@+id/login_logo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="80dp"
+            android:contentDescription="Pocket logo"
+            android:src="@mipmap/ic_launcher"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:pocketVariant="primary" />
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <com.example.pocket.ui.PocketButton
-            android:id="@+id/phone_sign_in_button"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/pocket_button_height"
-            android:layout_marginTop="12dp"
-            android:stateListAnimator="@animator/scale_press"
-            android:text="@string/login_phone"
+        <!-- App Name -->
+        <TextView
+            android:id="@+id/login_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Pocket"
             android:textColor="@color/pocket_text_primary"
-            app:cornerRadius="@dimen/pocket_radius_md"
+            android:textSize="32sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/google_sign_in_button"
-            app:pocketVariant="outline"
-            app:strokeColor="@color/pocket_white_40"
+            app:layout_constraintTop_toBottomOf="@id/login_logo" />
+
+        <!-- Subtitle -->
+        <TextView
+            android:id="@+id/login_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Share small moments with close friends."
+            android:textColor="@color/pocket_text_secondary"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/login_title" />
+
+        <!-- Email Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/login_email_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="32dp"
+            android:hint="Email address"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/pocket_primary"
+            app:hintTextColor="@color/pocket_text_muted"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/login_subtitle">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/login_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/pocket_text_primary"
+                android:textSize="15sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Password Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/login_password_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="32dp"
+            android:hint="Password"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/pocket_primary"
+            app:endIconMode="password_toggle"
+            app:hintTextColor="@color/pocket_text_muted"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/login_email_layout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/login_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:textColor="@color/pocket_text_primary"
+                android:textSize="15sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Forgot Password -->
+        <TextView
+            android:id="@+id/login_forgot_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingStart="8dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="0dp"
+            android:paddingBottom="4dp"
+            android:text="Forgot Password?"
+            android:textColor="@color/pocket_primary"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/login_password_layout" />
+
+        <!-- Sign In Button -->
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/login_sign_in_button"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="32dp"
+            android:text="Sign In"
+            android:textAllCaps="false"
+            android:textColor="@color/pocket_on_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/login_forgot_password" />
+
+        <!-- Create Account Button -->
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/login_create_account_button"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="32dp"
+            android:backgroundTint="@android:color/transparent"
+            android:text="Create Account"
+            android:textAllCaps="false"
+            android:textColor="@color/pocket_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/login_sign_in_button"
+            app:strokeColor="@color/pocket_primary"
             app:strokeWidth="1dp" />
+
+        <!-- Divider with "or" -->
+        <View
+            android:id="@+id/login_divider_left"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="12dp"
+            android:background="@color/pocket_outline"
+            app:layout_constraintEnd_toStartOf="@id/login_or_text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/login_create_account_button"
+            app:layout_constraintBottom_toBottomOf="@id/login_or_text"
+            app:layout_constraintTop_toTopOf="@id/login_or_text" />
+
+        <TextView
+            android:id="@+id/login_or_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="or"
+            android:textColor="@color/pocket_text_muted"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/login_create_account_button" />
+
+        <View
+            android:id="@+id/login_divider_right"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="32dp"
+            android:background="@color/pocket_outline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/login_or_text"
+            app:layout_constraintBottom_toBottomOf="@id/login_or_text"
+            app:layout_constraintTop_toTopOf="@id/login_or_text" />
+
+        <!-- Use Phone Number Button -->
+        <com.example.pocket.ui.PocketButton
+            android:id="@+id/login_phone_button"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="40dp"
+            app:pocketVariant="dark"
+            android:text="Use Phone Number"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/login_or_text" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+
 </ScrollView>

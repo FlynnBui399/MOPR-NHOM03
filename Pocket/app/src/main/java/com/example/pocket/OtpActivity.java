@@ -2,7 +2,8 @@ package com.example.pocket;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.inputmethod.EditorInfo;
+import android.view.View;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,13 +14,15 @@ import com.example.pocket.ui.PocketButton;
 import com.example.pocket.viewmodel.AuthViewModel;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class OtpActivity extends AppCompatActivity {
     private AuthViewModel authViewModel;
     private TextInputEditText phoneInput;
-    private TextInputEditText otpInput;
-    private PocketButton sendOtpButton;
-    private PocketButton verifyOtpButton;
+    private TextInputEditText codeInput;
+    private TextInputLayout codeInputLayout;
+    private PocketButton sendButton;
+    private PocketButton verifyButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,75 +30,68 @@ public class OtpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_otp);
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
-        phoneInput = findViewById(R.id.phone_input);
-        otpInput = findViewById(R.id.otp_input);
-        sendOtpButton = findViewById(R.id.send_otp_button);
-        verifyOtpButton = findViewById(R.id.verify_otp_button);
 
-        sendOtpButton.setOnClickListener(view -> sendOtp());
-        verifyOtpButton.setOnClickListener(view -> verifyOtp());
-        phoneInput.setOnEditorActionListener((textView, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEND) {
-                sendOtp();
-                return true;
-            }
-            return false;
+        ImageButton backButton = findViewById(R.id.otp_back);
+        phoneInput = findViewById(R.id.otp_phone_input);
+        codeInput = findViewById(R.id.otp_code_input);
+        codeInputLayout = findViewById(R.id.otp_code_layout);
+        sendButton = findViewById(R.id.otp_send_button);
+        verifyButton = findViewById(R.id.otp_verify_button);
+
+        backButton.setOnClickListener(v -> finish());
+
+        sendButton.setOnClickListener(v -> {
+            String phone = getText(phoneInput);
+            sendButton.setLoading(true);
+            authViewModel.sendOtp(phone, this);
         });
-        otpInput.setOnEditorActionListener((textView, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                verifyOtp();
-                return true;
-            }
-            return false;
+
+        verifyButton.setOnClickListener(v -> {
+            String code = getText(codeInput);
+            verifyButton.setLoading(true);
+            authViewModel.verifyOtp(code);
         });
 
         authViewModel.otpSent.observe(this, sent -> {
-            sendOtpButton.setLoading(false);
-            if (Boolean.TRUE.equals(sent)) {
-                showMessage(getString(R.string.otp_sent), false);
-                otpInput.requestFocus();
+            sendButton.setLoading(false);
+            if (sent != null && sent) {
+                codeInputLayout.setVisibility(View.VISIBLE);
+                verifyButton.setVisibility(View.VISIBLE);
+                Snackbar.make(findViewById(R.id.otp_root),
+                        getString(R.string.otp_sent), Snackbar.LENGTH_SHORT).show();
             }
         });
+
         authViewModel.currentUser.observe(this, user -> {
-            verifyOtpButton.setLoading(false);
+            sendButton.setLoading(false);
+            verifyButton.setLoading(false);
             if (user != null) {
                 navigateToMain();
             }
         });
+
         authViewModel.errorMessage.observe(this, message -> {
-            sendOtpButton.setLoading(false);
-            verifyOtpButton.setLoading(false);
+            sendButton.setLoading(false);
+            verifyButton.setLoading(false);
             if (message != null && !message.trim().isEmpty()) {
-                showMessage(message, true);
+                Snackbar snackbar = Snackbar.make(findViewById(R.id.otp_root), message, Snackbar.LENGTH_LONG);
+                snackbar.setBackgroundTint(ContextCompat.getColor(this, R.color.pocket_danger));
+                snackbar.setTextColor(ContextCompat.getColor(this, R.color.pocket_on_danger));
+                snackbar.show();
             }
         });
     }
 
-    private void sendOtp() {
-        String phone = phoneInput.getText() == null ? "" : phoneInput.getText().toString();
-        sendOtpButton.setLoading(true);
-        authViewModel.sendOtp(phone, this);
-    }
-
-    private void verifyOtp() {
-        String code = otpInput.getText() == null ? "" : otpInput.getText().toString();
-        verifyOtpButton.setLoading(true);
-        authViewModel.verifyOtp(code);
+    @NonNull
+    private String getText(@NonNull TextInputEditText input) {
+        return input.getText() != null ? input.getText().toString().trim() : "";
     }
 
     private void navigateToMain() {
+        PocketMessagingService.refreshTokenForCurrentUser();
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
-    }
-
-    private void showMessage(@NonNull String message, boolean error) {
-        Snackbar snackbar = Snackbar.make(findViewById(R.id.otp_root), message, Snackbar.LENGTH_LONG);
-        int backgroundColor = error ? R.color.pocket_danger : R.color.pocket_primary;
-        int textColor = error ? R.color.pocket_on_danger : R.color.pocket_on_primary;
-        snackbar.setBackgroundTint(ContextCompat.getColor(this, backgroundColor));
-        snackbar.setTextColor(ContextCompat.getColor(this, textColor));
-        snackbar.show();
     }
 }

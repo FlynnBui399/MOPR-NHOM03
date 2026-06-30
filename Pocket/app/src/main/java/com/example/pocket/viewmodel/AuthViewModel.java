@@ -2,7 +2,6 @@ package com.example.pocket.viewmodel;
 
 import android.app.Activity;
 import android.app.Application;
-import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,16 +13,9 @@ import com.example.pocket.data.model.User;
 import com.example.pocket.utils.Constants;
 import com.example.pocket.utils.NotificationPreferenceHelper;
 import com.example.pocket.utils.SharedPrefManager;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
@@ -41,10 +33,10 @@ public class AuthViewModel extends AndroidViewModel {
     public final MutableLiveData<User> currentUser = new MutableLiveData<>();
     public final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     public final MutableLiveData<Boolean> otpSent = new MutableLiveData<>(false);
+    public final MutableLiveData<Boolean> resetEmailSent = new MutableLiveData<>(false);
 
     private final FirebaseAuth auth;
     private final FirebaseFirestore firestore;
-    private final GoogleSignInClient googleSignInClient;
     private String verificationId;
 
     public AuthViewModel(@NonNull Application application) {
@@ -52,43 +44,78 @@ public class AuthViewModel extends AndroidViewModel {
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
 
-        GoogleSignInOptions.Builder signInOptionsBuilder =
-                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestEmail()
-                        .requestProfile();
-        String webClientId = googleWebClientId(application);
-        if (!webClientId.isEmpty()) {
-            signInOptionsBuilder.requestIdToken(webClientId);
-        }
-        GoogleSignInOptions signInOptions = signInOptionsBuilder.build();
-        googleSignInClient = GoogleSignIn.getClient(application, signInOptions);
-
         FirebaseUser firebaseUser = auth.getCurrentUser();
         if (firebaseUser != null) {
             saveUserToFirestore(firebaseUser);
         }
     }
 
-    @NonNull
-    public Intent signInWithGoogle() {
-        return googleSignInClient.getSignInIntent();
-    }
+    // ── Email / Password ────────────────────────────────────────────────
 
-    public void signInWithGoogle(@Nullable Intent data) {
-        if (googleWebClientId(getApplication()).isEmpty()) {
-            errorMessage.setValue(getApplication().getString(R.string.auth_google_client_missing));
+    public void signInWithEmail(@NonNull String email, @NonNull String password) {
+        String trimmedEmail = email.trim();
+        String trimmedPassword = password.trim();
+        if (trimmedEmail.isEmpty()) {
+            errorMessage.setValue("Please enter your email address.");
+            return;
+        }
+        if (trimmedPassword.isEmpty()) {
+            errorMessage.setValue("Please enter your password.");
             return;
         }
 
-        GoogleSignIn.getSignedInAccountFromIntent(data)
-                .addOnSuccessListener(this::signInWithGoogleAccount)
-                .addOnFailureListener(error -> {
-                    String message = error instanceof ApiException
-                            ? getApplication().getString(R.string.auth_google_failed)
-                            : safeMessage(error, R.string.auth_google_failed);
-                    errorMessage.setValue(message);
-                });
+        auth.signInWithEmailAndPassword(trimmedEmail, trimmedPassword)
+                .addOnSuccessListener(result -> {
+                    FirebaseUser firebaseUser = result.getUser();
+                    if (firebaseUser == null) {
+                        errorMessage.setValue("Sign-in failed. Please try again.");
+                        return;
+                    }
+                    saveUserToFirestore(firebaseUser);
+                })
+                .addOnFailureListener(error ->
+                        errorMessage.setValue(safeMessage(error, "Sign-in failed. Please check your credentials.")));
     }
+
+    public void createAccountWithEmail(@NonNull String email, @NonNull String password) {
+        String trimmedEmail = email.trim();
+        String trimmedPassword = password.trim();
+        if (trimmedEmail.isEmpty()) {
+            errorMessage.setValue("Please enter your email address.");
+            return;
+        }
+        if (trimmedPassword.length() < 6) {
+            errorMessage.setValue("Password must be at least 6 characters.");
+            return;
+        }
+
+        auth.createUserWithEmailAndPassword(trimmedEmail, trimmedPassword)
+                .addOnSuccessListener(result -> {
+                    FirebaseUser firebaseUser = result.getUser();
+                    if (firebaseUser == null) {
+                        errorMessage.setValue("Account creation failed. Please try again.");
+                        return;
+                    }
+                    saveUserToFirestore(firebaseUser);
+                })
+                .addOnFailureListener(error ->
+                        errorMessage.setValue(safeMessage(error, "Account creation failed.")));
+    }
+
+    public void sendPasswordResetEmail(@NonNull String email) {
+        String trimmedEmail = email.trim();
+        if (trimmedEmail.isEmpty()) {
+            errorMessage.setValue("Please enter your email address.");
+            return;
+        }
+
+        auth.sendPasswordResetEmail(trimmedEmail)
+                .addOnSuccessListener(unused -> resetEmailSent.setValue(true))
+                .addOnFailureListener(error ->
+                        errorMessage.setValue(safeMessage(error, "Failed to send reset email.")));
+    }
+
+    // ── Phone / OTP ─────────────────────────────────────────────────────
 
     public void sendOtp(@NonNull String phoneNumber, @NonNull Activity activity) {
         String trimmedPhone = normalizePhoneNumber(phoneNumber);
@@ -150,33 +177,14 @@ public class AuthViewModel extends AndroidViewModel {
         signInWithPhoneCredential(credential);
     }
 
+    // ── Firestore ───────────────────────────────────────────────────────
+
     public void saveUserToFirestore(@NonNull FirebaseUser firebaseUser) {
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(tokenTask -> {
                     String token = tokenTask.isSuccessful() ? tokenTask.getResult() : null;
                     upsertUser(firebaseUser, token);
                 });
-    }
-
-    private void signInWithGoogleAccount(@NonNull GoogleSignInAccount account) {
-        String idToken = account.getIdToken();
-        if (idToken == null || idToken.trim().isEmpty()) {
-            errorMessage.setValue(getApplication().getString(R.string.auth_google_failed));
-            return;
-        }
-
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        auth.signInWithCredential(credential)
-                .addOnSuccessListener(result -> {
-                    FirebaseUser firebaseUser = result.getUser();
-                    if (firebaseUser == null) {
-                        errorMessage.setValue(getApplication().getString(R.string.auth_google_failed));
-                        return;
-                    }
-                    saveUserToFirestore(firebaseUser);
-                })
-                .addOnFailureListener(error ->
-                        errorMessage.setValue(safeMessage(error, R.string.auth_google_failed)));
     }
 
     private void signInWithPhoneCredential(@NonNull PhoneAuthCredential credential) {
@@ -286,25 +294,18 @@ public class AuthViewModel extends AndroidViewModel {
     }
 
     @NonNull
-    private String googleWebClientId(@NonNull Application application) {
-        if (Constants.GOOGLE_WEB_CLIENT_ID != null && !Constants.GOOGLE_WEB_CLIENT_ID.trim().isEmpty()) {
-            return Constants.GOOGLE_WEB_CLIENT_ID.trim();
-        }
-
-        int resourceId = application.getResources()
-                .getIdentifier("default_web_client_id", "string", application.getPackageName());
-        if (resourceId == 0) {
-            return "";
-        }
-        String value = application.getString(resourceId);
-        return value == null ? "" : value.trim();
-    }
-
-    @NonNull
     private String safeMessage(@NonNull Exception error, int fallbackStringRes) {
         String message = error.getMessage();
         return message == null || message.trim().isEmpty()
                 ? getApplication().getString(fallbackStringRes)
+                : message;
+    }
+
+    @NonNull
+    private String safeMessage(@NonNull Exception error, @NonNull String fallback) {
+        String message = error.getMessage();
+        return message == null || message.trim().isEmpty()
+                ? fallback
                 : message;
     }
 }
